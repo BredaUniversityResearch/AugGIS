@@ -1,0 +1,347 @@
+{
+    "metadata": {
+      "date_modified": "24/05/2022",
+      "data_model_hash": "95AB875640901C29F555EF058E1D819170CCA78D3A44A57EF9D6D8E0BCE6639F",
+      "errors": 0,
+      "editor_version": 0.0
+    },
+    "datamodel": {
+        "coordinate0":[4048536,3470232],
+        "coordinate1":[4063746,3488599],
+        "projection":"+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs",
+        "raster_layers":[
+            {
+                "name":"Bathymetry",
+                "tags":["Bathymetry", "ValueMap"],
+                "coordinate0":[4048486.327 , 3470173.348],
+                "coordinate1":[4063795.673 , 3488657.652],
+                "scale":{
+                    "min_value":42,
+                    "max_value":37.37,
+                    "interpolation":"lin"
+                },
+                "data":"SampleRasters/NS_Bathymetry_Raster_Cut"
+            },
+            {
+                "name":"Cod",
+                "tags":["Fish", "ValueMap"],
+                "coordinate0":[4048486.327 , 3470173.348],
+                "coordinate1":[4063795.673 , 3488657.652],
+                "scale":{
+                    "min_value":0,
+                    "max_value":212.0,
+                    "interpolation":"lin"
+                },
+                "data":"SampleRasters/NS_Cod_Raster_Cut"
+            },
+            {
+                "name":"Sediments",
+                "tags":["Sediment", "TypeMap"],
+                "coordinate0":[4048193.891 , 3469845.166],
+                "coordinate1":[4063902.387 , 3488986.397],
+                "types":[
+                    {
+                        "name":"Modiolus modiolus beds",
+                        "texture":"23",
+                        "colour":"#eb4034"
+                    },
+                    {
+                        "name":"Worm reefs",
+                        "texture":"22",
+                        "colour":"#ebd334"
+                    },
+                    {
+                        "name":"Limaria hians beds",
+                        "texture":"21",
+                        "colour":"#ebc034"
+                    },
+                    {
+                        "name":"Mytilus edulis beds",
+                        "texture":"20",
+                        "colour":"#eb6234"
+                    },
+                    {
+                        "name":"Ostrea edulis beds",
+                        "texture":"19",
+                        "colour":"#99ff00"
+                    },
+                    {
+                        "name":"Sabellaria spinulosa reefs",
+                        "texture":"18",
+                        "colour":"#6aff00"
+                    },
+                    {
+                        "name":"Biogenic substrate",
+                        "texture":"6",
+                        "colour":"#2fff00"
+                    },
+                    {
+                        "name":"Coarse substrate",
+                        "texture":"7",
+                        "colour":"#00ff04"
+                    },
+                    {
+                        "name":"Fine mud",
+                        "texture":"8",
+                        "colour":"#00e03c"
+                    },
+                    {
+                        "name":"Fine mud or Sandy mud or Muddy sand",
+                        "texture":"9",
+                        "colour":"#00ff80"
+                    },
+                    {
+                        "name":"MiSedimented sediment",
+                        "texture":"10",
+                        "colour":"#00fffb"
+                    },
+                    {
+                        "name":"Muddy sand",
+                        "texture":"11",
+                        "colour":"#00a6ff"
+                    },
+                    {
+                        "name":"Mussel beds",
+                        "texture":"12",
+                        "colour":"#0055ff"
+                    },
+                    {
+                        "name":"Rock or other hard substrata",
+                        "texture":"13",
+                        "colour":"#0008ff"
+                    },
+                    {
+                        "name":"Sand",
+                        "texture":"14",
+                        "colour":"#4800ff"
+                    },
+                    {
+                        "name":"Sandy mud",
+                        "texture":"15",
+                        "colour":"#9000ff"
+                    },
+                    {
+                        "name":"Sea bed",
+                        "texture":"16",
+                        "colour":"#bf00ff"
+                    },
+                    {
+                        "name":"Sediment",
+                        "texture":"17",
+                        "colour":"#ff00ea"
+                    }
+                ],
+                "data":"SampleRasters/NS_Sediments_Habitats_Raster_Cut"
+            }
+        ],
+        "vector_layers":[
+            {
+                "name":"Windfarms",
+                "tags":["Polygon", "Windfarm", "Energy"],
+                "types":[
+                    {
+                        "name": "6MW",
+                        "construction_model": "WindfarmConstructionModel",
+                        "default_model": "Turbine_JacketBase",
+                        "operational_model": "WindfarmOperationalModel",
+                        "colour":"#ffb30f"
+                    },
+                    {
+                        "name": "6MW Floating",
+                        "construction_model": "FloatingWindfarmConstructionModel",
+                        "default_model": "Turbine_Semisubmersible",
+                        "operational_model": "FloatingWindfarmOperationalModel",
+                        "colour":"#ffb30f"
+                    }
+                ],
+                "data":[
+                    {
+                        "points":[
+                            [4054690.0,3470661.5],[4049334.25,3470958.0],[4049847.25,3478359.0],[4051394.5,3479391.25],[4056460.75,3482589.75],[4055212.0,3480355.75],[4054907.5,3474700.75],[4055817.75,3473776.0],[4054863.5,3473892.75]
+                        ],
+                        "gaps":[],
+                        "types":[0],
+                        "metadata":{
+                            "turbines":67,
+                            "name":"Veja Mate"
+                        }
+                    },
+                    {
+                        "points":[
+                            [4062636.75,3486611.5],[4061899.5,3473833.0],[4056770.25,3473645.25],[4057321.25,3483033.5]
+                        ],
+                        "gaps":[],
+                        "types":[0],
+                        "metadata":{
+                            "turbines":80,
+                            "name":"Bard Offshore 1"
+                        }
+                    }
+                ]
+            },
+            {
+                "name":"Converter stations",
+                "tags":["Point", "Converter", "Energy"],
+                "types":[
+                    {
+                        "name":"400MW",
+                        "colour":"#fcba03"
+                    },
+                    {
+                        "name":"800MW",
+                        "colour":"#fcba03"
+                    }
+                ],
+                "data":[
+                    {
+                        "points":[[4063096.25,3479904.0]],
+                        "types":[1]
+                    },
+                    {
+                        "points":[[4052897.5,3476625.75]],
+                        "types":[0]
+                    },
+                    {
+                        "points":[[4059703.5,3480128.5]],
+                        "types":[0]
+                    },
+                    {
+                        "points":[[4062313.25,3479430.75]],
+                        "types":[0]
+                    }
+                ]
+            },
+            {
+                "name":"Energy cables",
+                "tags":["Line", "Cable", "Energy"],
+                "types":[
+                    {
+                        "name":"25MW",
+                        "colour":"#ebff0f"
+                    },
+                    {
+                        "name":"50MW",
+                        "colour":"#ebff0f"
+                    },
+                    {
+                        "name":"80MW",
+                        "colour":"#ebff0f"
+                    },
+                    {
+                        "name":"150MW",
+                        "colour":"#ebff0f"
+                    },
+                    {
+                        "name":"300MW",
+                        "colour":"#ebff0f"
+                    },
+                    {
+                        "name":"460MW",
+                        "colour":"#ebff0f"
+                    }
+                ],
+                "data":[
+                    {
+                        "points":[[4052897.5,3476625.75],[4055034.75,3475612.0],[4055286.0,3480342.75],[4055906.0,3481615.75],[4062329.5,3480214.0],[4063096.25,3479904.0]],
+                        "types":[4],
+                        "metadata":{
+                            "number_cables":1
+                        }
+                    },
+                    {
+                        "points":[[4052897.5,3476625.75],[4053017.75,3476360.75],[4055165.0,3475432.25],[4055481.75,3480261.25],[4056004.0,3481452.75],[4062345.75,3480034.75],[4063096.25,3479904.0]],
+                        "types":[1],
+                        "metadata":{
+                            "number_cables":1
+                        }
+                    },
+                    {
+                        "points":[[4059703.5,3480128.5],[4060018.5,3480244.75],[4062205.25,3479690.0],[4062313.25,3479430.75]],
+                        "types":[4],
+                        "metadata":{
+                            "number_cables":1
+                        }
+                    },
+                    {
+                        "points":[[4052897.5,3476625.75],[4053017.75,3476360.75],[4055165.0,3475432.25],[4055481.75,3480261.25],[4056004.0,3481452.75],[4062345.75,3480034.75],[4063096.25,3479904.0]],
+                        "types":[1],
+                        "metadata":{
+                            "number_cables":1
+                        }
+                    },
+                    {
+                        "points":[[4063096.25,3479904.0],[4062313.25,3479430.75]],
+                        "types":[4],
+                        "metadata":{
+                            "number_cables":1
+                        }
+                    },
+                    {
+                        "points":[[4085821.0,3494269.0],[4083610.0,3492702.25],[4063096.25,3479904.0]],
+                        "types":[4],
+                        "metadata":{
+                            "number_cables":1
+                        }
+                    },
+                    {
+                        "points":[[4063096.25,3479904.0],[4063566.75,3479725.25],[4088280.0,3438277.25],[4090927.75,3438130.25],[4090960.5,3438717.5],[4091890.5,3438750.25],[4095986.75,3438179.0],[4097618.75,3438097.5],[4097651.25,3437787.25],[4099234.0,3437705.5],[4099739.75,3437836.25],[4099625.5,3438766.25],[4099965.75,3439120.75]],
+                        "types":[5],
+                        "metadata":{
+                            "number_cables":1
+                        }
+                    },
+                    {
+                        "points":[[4063096.25,3479904.0],[4088067.75,3438350.75],[4088051.5,3437714.25],[4091009.25,3437656.75],[4095497.0,3437477.25],[4096672.25,3436220.75],[4097598.75,3436572.5],[4099247.0,3436458.25],[4099674.75,3436096.75]],
+                        "types":[5],
+                        "metadata":{
+                            "number_cables":1
+                        }
+                    },
+                    {
+                        "points":[[4062313.25,3479430.75],[4062455.25,3479267.5],[4063075.5,3479594.0],[4087892.25,3438342.25],[4087859.5,3437608.0],[4090932.25,3437515.25],[4095445.0,3437298.25],[4096623.0,3436057.5],[4097646.5,3436434.75],[4099144.5,3436364.25],[4099674.75,3436096.75]],
+                        "types":[5],
+                        "metadata":{
+                            "number_cables":1
+                        }
+                    }                   
+                ]
+            },
+            {
+                "name":"National shipping lanes",
+                "tags":["Line", "Shipping", "FixedWidth"],
+                "types":[
+                    {
+                        "name":"Ferry",
+                        "colour":"#0fffe7"
+                    },
+                    {
+                        "name":"Passenger",
+                        "colour":"#0fffe7"
+                    },
+                    {
+                        "name":"Tanker",
+                        "colour":"#0fffe7"
+                    },
+                    {
+                        "name":"Cargo",
+                        "colour":"#0fffe7"
+                    },
+                    {
+                        "name":"maintenance",
+                        "colour":"#0fffe7"
+                    }
+                ],
+                "data":[
+                    {
+                        "points":[[3906486.75,3324181.25],[3909200.25,3345687.5],[3917016.75,3364854.75],[3942719.5,3396409.75],[3958280.0,3408978.75],[4109337.0,3500928.5],[4221592.5,3596318.75]],
+                        "types":[0],
+                        "metadata":{
+                            "width":1,
+                            "direction":true
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abfb0e633d432044ba5270e6a7897572, type: 3}
+  m_Name: PenToolStationElementConfig
+  m_EditorClassIdentifier: 
+  toolStationCategoryPrefab: {fileID: 2739643342345025624, guid: a7404a9b91e4e1040ae80d92235ca083, type: 3}
+  categorySettings:
+  - name: color
+    categoryIcon: {fileID: 21300000, guid: 264a6fae912f37c4c8c466f48844fa18, type: 3}
+    toolStationCategoryEntryPrefab: {fileID: 2425166424705895394, guid: 96eaf6cc59a2b0a49b05bd46601f90ae, type: 3}
+    categoryEntries:
+    - visualPrefab: {fileID: 0}
+    - visualPrefab: {fileID: 0}
+    - visualPrefab: {fileID: 0}
+    - visualPrefab: {fileID: 0}
+    - visualPrefab: {fileID: 0}
+    - visualPrefab: {fileID: 0}
+    - visualPrefab: {fileID: 0}
+  - name: thickness
+    categoryIcon: {fileID: 21300000, guid: 07c0e825eb4cda242a8a66c0363f3762, type: 3}
+    toolStationCategoryEntryPrefab: {fileID: 8694662647744074249, guid: b2bbbf4b1e421554a9fdd101004b6980, type: 3}
+    categoryEntries:
+    - visualPrefab: {fileID: 0}
+    - visualPrefab: {fileID: 0}
+    - visualPrefab: {fileID: 0}

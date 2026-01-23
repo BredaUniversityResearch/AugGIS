@@ -1,0 +1,99 @@
+{
+    "display_methods":
+    [
+        {
+            "name":"Bathymetry mesh",
+            "method":"Bathymetry",
+            "tag_includes":["Bathymetry", "ValueMap"]
+        },
+        {
+            "name":"Cod fish density",
+            "method":"DensityFish",
+            "tag_includes":["Fish", "ValueMap"],
+            "model":"Cod",
+            "unit_mass":10.0
+        },
+        {
+            "name":"Cod fish heatmap",
+            "method":"DensityHeatMap",
+            "tag_includes":["Fish", "ValueMap"],
+            "smooth":false,
+            "cutoff":0.01,
+            "height":0.3,
+            "colour_scale":"Gradient_Rainbow"
+        },
+        {
+            "name":"Sediments typemap",
+            "method":"TypeMap",
+            "tag_includes":["Sediment", "TypeMap"],
+            "type_texture":"texture",
+            "type_colour":"colour",
+            "seabottom":true
+        },
+        {
+            "name":"Windfarm turbines",
+            "method":"AreaModelScatter",
+            "tag_includes":["Polygon", "Windfarm"],
+            "type_model":"default_model",
+            "meta_amount":"turbines"    
+        },
+        {
+            "name":"Abstract polygon",
+            "method":"AreaColour",
+            "tag_includes":["Polygon"],
+            "type_colour":"colour",
+            "texture":1 
+        },
+        {
+            "name":"Abstract points",
+            "method":"PointColour",
+            "tag_includes":["Point"],
+            "type_colour":"colour"
+        },
+        {
+            "name":"Abstract points",
+            "method":"PointColour",
+            "tag_includes":["Point"],
+            "type_colour":"colour",
+            "sprite":"transformer"
+        },
+        {
+            "name":"Converter stations",
+            "method":"PointModel",
+            "tag_includes":["Point", "Converter"],
+            "model":"ConverterStationModel"
+        },
+        {
+            "name":"Cables",
+            "method":"LineModel",
+            "tag_includes":["Line", "Cable"],
+            "model":"EnergyCableModel",
+            "meta_amount":"number_cables"
+        },
+        {
+            "name":"Abstract line",
+            "method":"LineColour",
+            "tag_includes":["Line"],
+            "tag_excludes":["FixedWidth"],
+            "type_colour":"colour"
+        },
+        {
+            "name":"Abstract line fixedwidth",
+            "method":"LineColour",
+            "tag_includes":["Line", "FixedWidth"],
+            "meta_widthFixed":"width",
+            "type_colour":"colour",
+            "meta_width":"width"
+        },
+        {
+            "name":"Shipping model movement",
+            "method":"LineModelMovement",
+            "tag_includes":["Line", "Shipping"],
+            "model":"Boat",
+            "size":100,
+            "spawn_interval_min":10,
+            "spawn_interval_max":30,
+            "speed":3000
+        }
+    ]
+}

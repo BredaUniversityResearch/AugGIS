@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59fc388e399b7574488a7729e500db61, type: 3}
+  m_Name: MSPUIPrefabRegistry
+  m_EditorClassIdentifier: 
+  MSPButtonPrefab: {fileID: 538380161205016454, guid: 823d90f2d6b8bb2408433ba5ddf780f5, type: 3}
+  MSPTogglePrefab: {fileID: 538380161205016454, guid: 6eb1b0149c7fdd64d9f72afd6e15ad74, type: 3}
+  MSPPanelPrefab: {fileID: 8362569591335853727, guid: 99666d5ecb481324b90956f6dce56198, type: 3}
+  MSPTextInputFieldPrefab: {fileID: 8087557361537002270, guid: 81ab8cc1276b80f49a128d2b0e2c208d, type: 3}
+  MSPHeading: {fileID: 8089820198079540580, guid: 7dce8f8d14d559349aaa3732e31a43c9, type: 3}
+  MSPSubHeading: {fileID: 3758004277563395322, guid: caae31eb9f2861e44a6a13fe033edb96, type: 3}
+  MSPText: {fileID: 2877572764984165683, guid: b1693c231460d2046b3f884ab0c17534, type: 3}
+  MSPSelectionCarousel: {fileID: 7695729813725355357, guid: 58458aab28ee051489611fde0d93cf4a, type: 3}
+  MSPToggleList: {fileID: 8309880871879895250, guid: 6e78b425e12566c42a7d2eb76642d0a0, type: 3}
+  MSPTextField: {fileID: 0}
+  MSPLoadingBar: {fileID: 0}

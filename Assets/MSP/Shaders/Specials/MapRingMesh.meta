@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/MSP/Shaders/Specials/MapRingMesh.meta
+guid: 29e8aeca4b6f24142b0f9491d623aec7
+folderAsset: yes
+DefaultImporter:
+========
+guid: e442859cb7b888f41bca2bdd4fcfc1d0
+NativeFormatImporter:
+>>>>>>>> dev:Assets/MSP/Materials/MapPreVisualisation/MapPrevisMaterial.mat.meta
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

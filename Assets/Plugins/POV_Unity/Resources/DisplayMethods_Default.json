@@ -1,0 +1,305 @@
+{
+  "display_methods": [
+    {
+      "name": "Bathymetry quad",
+      "method": "ValueMapQuad",
+      "tag_includes": [ "Bathymetry", "ValueMap" ],
+      "colour_scale": "Gradient_BlueWhite",
+      "visualization_mode": 1,
+      "generate_side": true,
+      "invert": true
+    },
+    {
+      "name": "Bathymetry mesh",
+      "method": "ValueMapSurfaceNorm",
+      "tag_includes": [ "Bathymetry", "ValueMap" ],
+      "height": 0.05,
+      "colour_scale": "Gradient_BrownBeige",
+      "visualization_mode": 2,
+      "generate_side": true,
+      "invert": true,
+      "generate_water_cube": true
+    },
+    {
+      "name": "Topography mesh",
+      "method": "Topography",
+      "tag_includes": [ "Topography", "ValueMap" ],
+      "visualization_mode": 1
+    },
+    {
+      "name": "Sediments typemap",
+      "method": "TypeMap",
+      "tag_includes": [ "Sediment", "TypeMap" ],
+      "type_texture": "texture",
+      "type_colour": "polygonColor",
+      "seabottom": false,
+      "visualization_mode": 1
+    },
+    {
+      "name": "Raster Quad",
+      "method": "RasterQuad",
+      "tag_includes": [ "Raster"],
+      "visualization_mode": 1
+    },
+    {
+      "name": "Generic heatmap",
+      "method": "ValueMapBars",
+      "tag_includes": [ "ValueMap" ],
+      "tag_excludes": [ "Bathymetry" ],
+      "cutoff": 0.01,
+      "height": 0.1,
+      "colour_scale": "Gradient_Rainbow",
+      "visualization_mode": 2
+    },
+    {
+      "name": "Generic heatmap",
+      "method": "ValueMapBars",
+      "tag_includes": [ "ValueMap" ],
+      "tag_excludes": [ "Bathymetry" ],
+      "cutoff": 0.01,
+      "height": 0.1,
+      "colour_scale": "Gradient_Rainbow",
+      "visualization_mode": 1
+    },
+    {
+      "name": "CubeBased heatmap",
+      "method": "ValueMapCubes",
+      "tag_includes": [ "" ],
+      "tag_excludes": [ "Bathymetry" ],
+      "valueScaler": 0.1,
+      "defaultScale": 0.5,
+      "minScale": 0.1,
+      "maxScale": 1.0,
+      "scaleBasedOnValue": true,
+      "cutoff": 0.01,
+      "groundPosY": 0.0,
+      "posYBasedOnValue": true,
+      "posYScaler": 0.1,
+      "useGradientColour": true,
+      "colour_scale": "Gradient_Rainbow",
+      "staticColour": "#ff00ff",
+      "visualization_mode": 3
+    },
+    {
+      "name": "Heightmap",
+      "method": "ValueHeightMap",
+      "tag_includes": [ "" ],
+      "tag_excludes": [ "Bathymetry" ],
+      "groundPosY": 0,
+      "posYScaler": 0.1,
+      "colour_scale": "Gradient_Rainbow",
+      "visualization_mode": 3
+    },
+    {
+      "name": "Energyfarm model scatter",
+      "method": "AreaModelScatter",
+      "tag_includes": [ "Polygon", "Electricity", "Production" ],
+      "tag_excludes": [ "Planned" ],
+      "model": "WindfarmModel",
+      "scale": 0.0003,
+      "spacing": 2000,
+      "visualization_mode": 3
+    },
+    {
+      "name": "Abstract polygon pattern",
+      "method": "AreaPattern",
+      "tag_includes": ["AreaPattern"],
+      "tag_excludes": [],
+      "type_colour": "polygonColor",
+      "type_texture": "polygonPatternName",
+      "visualization_mode": 1
+    },
+    {
+      "name": "Abstract polygon",
+      "method": "AreaColour",
+      "tag_includes": [ "Polygon" ],
+      "tag_excludes": [ "EEZ", "Country" ],
+      "type_colour": "polygonColor",
+      "type_texture": "polygonPatternName",
+      "visualization_mode": 1
+    },
+    {
+      "name": "Abstract polygon",
+      "method": "AreaColour",
+      "tag_includes": [ "Polygon" ],
+      "tag_excludes": [ "EEZ", "Country" ],
+      "type_colour": "polygonColor",
+      "type_texture": "polygonPatternName",
+      "visualization_mode": 2
+    },
+    {
+      "name": "EEZ polygon",
+      "method": "AreaColour",
+      "tag_includes": [ "Polygon", "EEZ" ],
+      "type_colour": "polygonColor",
+      "texture": "1",
+      "visualization_mode": 1
+    },
+    {
+      "name": "EEZ polygon",
+      "method": "AreaColour",
+      "tag_includes": [ "Polygon", "EEZ" ],
+      "type_colour": "polygonColor",
+      "texture": "1",
+      "visualization_mode": 2
+    },
+        {
+      "name": "Country polygon",
+      "method": "AreaColourOpaque",
+      "tag_includes": [ "Polygon", "Country" ],
+      "type_colour": "polygonColor",
+      "type_texture": "polygonPatternName",
+      "visualization_mode": 1
+    },
+    {
+      "name": "Country polygon",
+      "method": "AreaColourOpaque",
+      "tag_includes": [ "Polygon", "Country" ],
+      "type_colour": "polygonColor",
+      "type_texture": "polygonPatternName",
+      "visualization_mode": 2
+    },
+    {
+      "name": "Polygon outline",
+      "method": "LineColour",
+      "tag_includes": [ "Polygon" ],
+      "type_colour": "lineColor",
+      "type_width": "lineWidth",
+      "closed": true,
+      "visualization_mode": 1
+    },
+    {
+      "name": "Polygon outline",
+      "method": "LineColour",
+      "tag_includes": [ "Polygon" ],
+      "type_colour": "lineColor",
+      "type_width": "lineWidth",
+      "closed": true,
+      "visualization_mode": 2
+    },
+    {
+      "name": "Abstract points",
+      "method": "PointColour",
+      "tag_includes": [ "Point" ],
+      "type_colour": "pointColor",
+      "size": 0.8,
+      "type_sprite": "pointSpriteName",
+      "visualization_mode": 1
+    },
+    {
+      "name": "Abstract points",
+      "method": "PointColour",
+      "tag_includes": [ "Point" ],
+      "type_colour": "pointColor",
+      "size": 0.8,
+      "type_sprite": "pointSpriteName",
+      "visualization_mode": 2
+    },
+    {
+      "name": "Abstract line",
+      "method": "LineColour",
+      "tag_includes": [ "Line" ],
+      "type_colour": "lineColor",
+      "type_width": "lineWidth",
+      "visualization_mode": 1
+    },
+    {
+      "name": "Converter stations",
+      "method": "PointModel",
+      "tag_includes": [ "Point", "Electricity", "Converter" ],
+      "model": "ConverterStationModel",
+      "scale": 0.003,
+      "visualization_mode": 2
+    },
+        {
+      "name": "Oil Rig",
+      "method": "PointModel",
+      "tag_includes": [ "Point", "FossilFuel", "Production" ],
+      "model": "OilRigModel",
+      "scale": 0.003,
+      "visualization_mode": 2
+    },
+            {
+      "name": "Lighthouse",
+      "method": "PointModel",
+      "tag_includes": [ "Point", "Lighthouse"],
+      "model": "LighthouseModel",
+      "scale": 0.003,
+      "visualization_mode": 2
+    },
+    {
+      "name": "Energy cables",
+      "method": "LineModel",
+      "tag_includes": [ "Line", "Electricity", "CableAndPipe" ],
+      "model": "EnergyCableModel",
+      "meta_amount": "number_cables",
+      "visualization_mode": 3
+    },
+    {
+      "name": "Shipping lane fixedwidth",
+      "method": "LineColour",
+      "tag_includes": [ "Line", "Lane", "Shipping" ],
+      "meta_widthFixed": "width",
+      "type_colour": "lineColor",
+      "meta_width": "width",
+      "visualization_mode": 3
+    },
+    {
+      "name": "Shipping model movement",
+      "method": "LineModelMovement",
+      "tag_includes": [ "Line", "Lane", "Shipping" ],
+      "model": "Boat",
+      "size": 100,
+      "spawn_interval_min": 10,
+      "spawn_interval_max": 30,
+      "speed": 3000,
+      "visualization_mode": 2
+    }
+  ],
+    "categories":[
+        {
+            "name":"Shipping",
+            "icon":"ship",
+            "tag_includes":[
+                "Shipping"
+            ],
+            "require_all_tags":false,
+            "colour":"#ff0000"
+        },
+        {
+            "name":"Energy",
+            "icon":"lightning",
+            "tag_includes":[
+                "Electricity", "FossilFuel"
+            ],
+            "require_all_tags":false,
+              "colour":"#fffb00"
+        },
+        {
+            "name":"Ecology&Fishing",
+            "icon":"aquaculturefish",
+            "tag_includes":[
+                "Biomass","Pressure","Diversity","SensitiveEcology","FishCatch","Protection"
+            ],
+            "require_all_tags":false,
+            "colour":"#68ff00"
+        },
+        {
+            "name":"Human Activity",
+            "icon":"walking",
+            "tag_includes":[
+                "Country", "City", "EEZ", "TerritorialWater", "Military", "CulturalHeritage", "Telecom", "Recreation", "Extraction", "Deposit"
+            ],
+            "require_all_tags":false,
+            "colour":"#00ffc5"
+
+        },
+        {
+            "name":"Other",
+            "icon":"dots",
+            "colour":"#d500ff"
+        }
+    ],
+    "starting_layer_tags":["Bathymetry", "Topography", "Country", "River", "Port","Lighthouse"],
+    "static_layer_tags":["Bathymetry", "Topography", "Countries"]
+}

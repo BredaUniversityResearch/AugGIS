@@ -1,0 +1,3 @@
+[submodule "AugGIS_PrivatePlugins"]
+	path = AugGIS_PrivatePlugins
+	url = https://github.com/BredaUniversityResearch/AugGIS_PrivatePlugins

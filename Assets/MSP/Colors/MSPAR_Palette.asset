@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 938bdbfaa47f6064fbff41b9fc89c422, type: 3}
+  m_Name: MSPAR_Palette
+  m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes: []
+  colourAssets:
+  - {fileID: 11400000, guid: 5fc8b9158a487124697252e4e7319a4d, type: 2}
+  - {fileID: 11400000, guid: 28094e337281c9642b06e8b04ff55c28, type: 2}
+  - {fileID: 11400000, guid: 7eccc5735e18eb945895ca92d37f1b49, type: 2}
+  - {fileID: 11400000, guid: f9dae63179e15a54498638406281b07d, type: 2}
+  - {fileID: 11400000, guid: 69e68076fe7c77f4b96723984206679d, type: 2}
+  - {fileID: 11400000, guid: fc12e96c923149346945689ea8683069, type: 2}
+  - {fileID: 11400000, guid: 921de1a88793c8941906770f319e795d, type: 2}
+  colourSets:
+  - name: 
+    colours:
+    - name: 
+      colour: {r: 0, g: 0, b: 0, a: 0}
+    - name: 
+      colour: {r: 0, g: 0, b: 0, a: 0}
+    - name: 
+      colour: {r: 0, g: 0, b: 0, a: 0}
+    - name: 
+      colour: {r: 0, g: 0, b: 0, a: 0}
+    - name: 
+      colour: {r: 0, g: 0, b: 0, a: 0}
+    - name: 
+      colour: {r: 0, g: 0, b: 0, a: 0}
+    - name: 
+      colour: {r: 0, g: 0, b: 0, a: 0}
+    palette: {fileID: 11400000}

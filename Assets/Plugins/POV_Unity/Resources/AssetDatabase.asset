@@ -1,0 +1,649 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2796187d5ed180544a8270ad39118a45, type: 3}
+  m_Name: AssetDatabase
+  m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects:
+    - {fileID: 2100000, guid: 48862feead000d4458c3322c237487b6, type: 2}
+    - {fileID: 2100000, guid: 04cc8d0b3ad6fad40b69fe5fa7413b73, type: 2}
+    - {fileID: 2100000, guid: 2c1fc42d0d23b5e44aba4232fc88caf3, type: 2}
+    - {fileID: 2100000, guid: c4e56d3c021c8154399ffb409393fe59, type: 2}
+    - {fileID: 2100000, guid: 607355cbe1e04f24e93e649e1663ec7e, type: 2}
+    - {fileID: 2100000, guid: 0191c84686f16f049a615d1fdba2d0e1, type: 2}
+    - {fileID: 2100000, guid: 5b89465769e34584f9d8cf7bbd35a2ed, type: 2}
+    - {fileID: 2100000, guid: 3d8dd3840393c7d488d869feee1e08c0, type: 2}
+    - {fileID: 2100000, guid: 77a816dc921f166448937b0c61d2e996, type: 2}
+    - {fileID: 2100000, guid: 63ad71e78b0a2ca4f931db261801aa31, type: 2}
+    - {fileID: 2100000, guid: 6fca9aea62a84ef43955e4a8571fb151, type: 2}
+    - {fileID: 2100000, guid: c8d747abb4d8f1d41a74f7a2d98a1347, type: 2}
+    - {fileID: 2100000, guid: b63056a8259217843aa90f2f155d3b11, type: 2}
+    - {fileID: 2100000, guid: aa36c987d00e13d4d9c1ee9f97e04df0, type: 2}
+    - {fileID: 2100000, guid: ef6d50c6aec47594489af494bb37219b, type: 2}
+    - {fileID: 2100000, guid: e4d3ddf73580dba41877608c864ee751, type: 2}
+    - {fileID: 2100000, guid: e7285232a4ffbca4ea08a2c997748539, type: 2}
+    - {fileID: 2100000, guid: c6dd04b2de612df4990bbdbd4a9a5f86, type: 2}
+    - {fileID: 2100000, guid: aa639e80d24f0e947a47965cbac9d97b, type: 2}
+    - {fileID: 2100000, guid: 2f16edee74dedfb4cb10d44360933e81, type: 2}
+    - {fileID: 2100000, guid: a5c7ce670a9fb624db6addd377bff91b, type: 2}
+    - {fileID: 2100000, guid: ef35460194a5c5f459fa76fb65bb27a3, type: 2}
+    - {fileID: -876546973899608171, guid: cf71d62235f2e2c48a41f06d161bdf51, type: 3}
+    - {fileID: -876546973899608171, guid: 2a8ae0eee09815a4184a8a537b865397, type: 3}
+    - {fileID: 2100000, guid: 956f7644244caf8428319e141a26c4b0, type: 2}
+    - {fileID: 2100000, guid: 879723a3ba486ca4a88bc57e4046f5f4, type: 2}
+    - {fileID: 2100000, guid: 6cdb3cf92ae4c7945ba3280e65bc971d, type: 2}
+    - {fileID: 2100000, guid: 405d89c166911d940a6f8ef84acd0370, type: 2}
+    - {fileID: 2100000, guid: 65f3f45cea4ba5a41be377d9679471a7, type: 2}
+    - {fileID: 2100000, guid: fbe75ceb273f0e5499c1f595b2a79f0e, type: 2}
+    - {fileID: 2100000, guid: 032e22083ccd8a6499bf8d3e4d1d6651, type: 2}
+    - {fileID: 192530, guid: c6f41eee6d090ac438c2e9bbe99ecf24, type: 3}
+    - {fileID: 1657863437648836619, guid: ebcf56044e85a004fa60c8d7bbffaa29, type: 3}
+    - {fileID: 1684485272777069561, guid: 5ab3e73daad48f84d8ff718b053895af, type: 3}
+    - {fileID: 5514766486253227131, guid: 97dfe44517d66dd4b8343a451ce4a5eb, type: 3}
+    - {fileID: 1095153250331001321, guid: 405c2519abf56494c9f9bcdc74f61cf3, type: 3}
+    - {fileID: 1181300606944344, guid: 22346e6621a9fe0449138bc33e99db2d, type: 3}
+    - {fileID: 1181300606944344, guid: eb2bd99c114e3554fa17dc8ddb877ede, type: 3}
+    - {fileID: 1181300606944344, guid: 73bd4f00fadab4b788ba1534f0794b67, type: 3}
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: m_materials
+      Entry: 7
+      Data: 0|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[UnityEngine.Material,
+        UnityEngine.CoreModule]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 1|System.Collections.Generic.GenericEqualityComparer`1[[System.String,
+        mscorlib]], mscorlib
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 31
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Sediment0
+    - Name: $v
+      Entry: 10
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Sediment1
+    - Name: $v
+      Entry: 10
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Sediment2
+    - Name: $v
+      Entry: 10
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Sediment3
+    - Name: $v
+      Entry: 10
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Sediment4
+    - Name: $v
+      Entry: 10
+      Data: 4
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Sediment5
+    - Name: $v
+      Entry: 10
+      Data: 5
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Sediment6
+    - Name: $v
+      Entry: 10
+      Data: 6
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Sediment7
+    - Name: $v
+      Entry: 10
+      Data: 7
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Sediment8
+    - Name: $v
+      Entry: 10
+      Data: 8
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Sediment9
+    - Name: $v
+      Entry: 10
+      Data: 9
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Sediment10
+    - Name: $v
+      Entry: 10
+      Data: 10
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Sediment11
+    - Name: $v
+      Entry: 10
+      Data: 11
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Sediment12
+    - Name: $v
+      Entry: 10
+      Data: 12
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Sediment13
+    - Name: $v
+      Entry: 10
+      Data: 13
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Sediment14
+    - Name: $v
+      Entry: 10
+      Data: 14
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Sediment15
+    - Name: $v
+      Entry: 10
+      Data: 15
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Sediment16
+    - Name: $v
+      Entry: 10
+      Data: 16
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Sediment17
+    - Name: $v
+      Entry: 10
+      Data: 17
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: BathymetrySide
+    - Name: $v
+      Entry: 10
+      Data: 18
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: WaterCube
+    - Name: $v
+      Entry: 10
+      Data: 19
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: PrettyWater
+    - Name: $v
+      Entry: 10
+      Data: 20
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: PointColourMaterial
+    - Name: $v
+      Entry: 10
+      Data: 21
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: HeightMap
+    - Name: $v
+      Entry: 10
+      Data: 22
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: ValueMapCubes
+    - Name: $v
+      Entry: 10
+      Data: 23
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: PolygonStripeMaterial
+    - Name: $v
+      Entry: 10
+      Data: 24
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: PolygonBacteriaMaterial
+    - Name: $v
+      Entry: 10
+      Data: 25
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: PolygonCubesMaterial
+    - Name: $v
+      Entry: 10
+      Data: 26
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: PolygonDotsMaterial
+    - Name: $v
+      Entry: 10
+      Data: 27
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: PolygonRasterMaterial
+    - Name: $v
+      Entry: 10
+      Data: 28
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: PolygonSolidMaterial
+    - Name: $v
+      Entry: 10
+      Data: 29
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: PolygonZigZagMaterial
+    - Name: $v
+      Entry: 10
+      Data: 30
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: m_models
+      Entry: 7
+      Data: 2|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[UnityEngine.GameObject,
+        UnityEngine.CoreModule]], mscorlib
+    - Name: comparer
+      Entry: 9
+      Data: 1
+    - Name: 
+      Entry: 12
+      Data: 8
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: WindfarmModel
+    - Name: $v
+      Entry: 10
+      Data: 31
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Turbine_JacketBase
+    - Name: $v
+      Entry: 10
+      Data: 32
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Turbine_Monopile
+    - Name: $v
+      Entry: 10
+      Data: 33
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Turbine_Semisubmersible
+    - Name: $v
+      Entry: 10
+      Data: 34
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Boat
+    - Name: $v
+      Entry: 10
+      Data: 35
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: ConverterStationModel
+    - Name: $v
+      Entry: 10
+      Data: 36
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: OilRigModel
+    - Name: $v
+      Entry: 10
+      Data: 37
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: LighthouseModel
+    - Name: $v
+      Entry: 10
+      Data: 38
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+  m_defaultMaterial: {fileID: 2100000, guid: c0050bd3d362fd74991e57eb5137d268, type: 2}
+  m_polygonMaterial: {fileID: 2100000, guid: d1e067ca2e16bdc4981c3b29dbcf0b87, type: 2}
+  m_stripeMaterial: {fileID: 2100000, guid: 956f7644244caf8428319e141a26c4b0, type: 2}
+  m_polygonOpaqueMaterial: {fileID: 2100000, guid: 466e96a82eb986149b7545a9ea409908, type: 2}
+  m_typeMapMaterial: {fileID: 2100000, guid: ba9fc59204bbe0b4ebf7d918de2a139f, type: 2}
+  m_heatMapMaterialTexture: {fileID: 2100000, guid: e751f85b23dd3fd4baa2e4bea63142c8, type: 2}
+  m_heatMapMaterialTextureInverted: {fileID: 2100000, guid: 604c3b929356d854b8a3f288f321e23b, type: 2}
+  m_heatMapMaterialUV: {fileID: 2100000, guid: 620a765532d10894a918ebbd765d8a31, type: 2}
+  m_surfaceMaterialUV: {fileID: 2100000, guid: 60ac81d42c57bb842a746e39c30220fd, type: 2}
+  m_lineMaterial: {fileID: 2100000, guid: 85cf2e933ff38ee4382b4322ec25c2bc, type: 2}
+  m_pawnMaterial: {fileID: -876546973899608171, guid: 95894a42b7fef1045898c654e1f5cafe, type: 3}
+  m_rasterQuadMaterial: {fileID: 2100000, guid: d829d9831c9934943a64b96630bdf813, type: 2}
+  m_defaultModel: {fileID: 8830635700421140409, guid: 541456daf1d86e4438171ca3752c5935, type: 3}
+  m_textures:
+  - {fileID: 2800000, guid: d20262bcf47df0045a7568dcce2033ba, type: 3}
+  - {fileID: 2800000, guid: 970d90481f5149941801d4515cedcf9d, type: 3}
+  - {fileID: 2800000, guid: 84a7efee8a525a541b8c88e5adeb271b, type: 3}
+  - {fileID: 2800000, guid: bbd3dae061b330849a661b2b6f951da2, type: 3}
+  - {fileID: 2800000, guid: 05755a1e938d9e142a983a301c9b4260, type: 3}
+  - {fileID: 2800000, guid: 52b3db3011c05384a9466bf0955c8b41, type: 3}
+  - {fileID: 2800000, guid: 42ff7460c2c3f7e4cabf601bb96c6303, type: 3}
+  - {fileID: 2800000, guid: b0dbacc817475384890f8670740bdb23, type: 3}
+  - {fileID: 2800000, guid: e3a961067af418849b8f9fae85645702, type: 3}
+  - {fileID: 2800000, guid: 2db20b84048a6064fa236966bd8c5932, type: 3}
+  - {fileID: 2800000, guid: 6542261e52a085e409401017cb928987, type: 3}
+  - {fileID: 2800000, guid: 085fdf954cfdace4ab86e9869a72243a, type: 3}
+  - {fileID: 2800000, guid: bbfa698cf5baec54cbf9a82e11d28fd0, type: 3}
+  - {fileID: 2800000, guid: 8748345538b7cc14fa734a03b6e6a8b1, type: 3}
+  - {fileID: 2800000, guid: c210b97616c2a464e99a17b0a27d4aba, type: 3}
+  - {fileID: 2800000, guid: 89b751b6b265a3b4bb744641fa1c3bdb, type: 3}
+  - {fileID: 2800000, guid: b9054ffceb5ee67479c145a294881422, type: 3}
+  - {fileID: 2800000, guid: 07963be9d3953324fa634c9d76d47b6d, type: 3}
+  - {fileID: 2800000, guid: 2147daf95217b9d47a580d897d6af2ac, type: 3}
+  - {fileID: 2800000, guid: eb5db0235f9a119438a80d9f75d61c69, type: 3}
+  - {fileID: 2800000, guid: dfadc7bf1a0b25b45b391f29dcabe62b, type: 3}
+  - {fileID: 2800000, guid: 30efbf92c431a6b4ea173d99f25611e1, type: 3}
+  - {fileID: 2800000, guid: a3aae3b53e761d84f8c3d47d2bfb5419, type: 3}
+  - {fileID: 2800000, guid: 24832bec65061484ab94678ee99ec004, type: 3}
+  - {fileID: 2800000, guid: 9f2318744fca6fe46801dbc11c43669c, type: 3}
+  - {fileID: 2800000, guid: 3ddd3de358ed6504f9c0803b5bc7c45c, type: 3}
+  - {fileID: 2800000, guid: 1e1f643207284ee44accaba1e6ef3a41, type: 3}
+  - {fileID: 2800000, guid: 4ca948026abb24e4e81251f2150d7eda, type: 3}
+  - {fileID: 2800000, guid: 5eae1f6ff06dfa34ba260423f3e9110e, type: 3}
+  - {fileID: 2800000, guid: 624f69e90cfe8c54696bcf941237281d, type: 3}
+  - {fileID: 2800000, guid: 4cb9f788e10cf584d91bbe9b31269c06, type: 3}
+  - {fileID: 2800000, guid: d2050664cd8d3c14db6a5bf51838e24f, type: 3}
+  - {fileID: 2800000, guid: 84a7e8179aab6c5488bfd445f085671f, type: 3}
+  - {fileID: 2800000, guid: 2a91871d49b671a4b9fa60e0ee89ff40, type: 3}
+  - {fileID: 2800000, guid: e75eeeac226423c4fa1e7fc48dd7f408, type: 3}
+  - {fileID: 2800000, guid: 0244fe9900350a54ea4dc55fcae6335c, type: 3}
+  - {fileID: 2800000, guid: 2e5c2b505fdc2444986bda0c938a822a, type: 3}
+  - {fileID: 2800000, guid: a9ba20c6e40e139479affddca9a14c19, type: 3}
+  - {fileID: 2800000, guid: b990771f2a2288f4d9068b82fdaca34a, type: 3}
+  m_defaultTexture: {fileID: 2800000, guid: 30e3c80fcdac5e3468ef36cc608a10a2, type: 3}
+  m_sprites:
+  - {fileID: 21300000, guid: 5012e545750671743b4d990e7f230349, type: 3}
+  - {fileID: 21300000, guid: 8f22bdf0c3ecf7345af47c5994fec37a, type: 3}
+  - {fileID: 21300000, guid: 39a1823e5ca05964b9f82d9035934814, type: 3}
+  - {fileID: 21300000, guid: 2bf8fd23aef754f4ebd6504de369fa05, type: 3}
+  - {fileID: 21300000, guid: 68a158b542cc67740ba81db0320639a8, type: 3}
+  - {fileID: 21300000, guid: dd2b60ec0ddde444d97721d9282d371e, type: 3}
+  - {fileID: 21300000, guid: 35c69543f3785b748aba145a09d7d359, type: 3}
+  - {fileID: 21300000, guid: afc76ee0a8effb448a097a0e4fc1a477, type: 3}
+  - {fileID: 21300000, guid: e5d08072a29d4bd49be5b3fb27d43620, type: 3}
+  - {fileID: 21300000, guid: 168bda5e2c92b7040b42dd66b9144eac, type: 3}
+  - {fileID: 21300000, guid: 99a26db03ff185f4589b39ae95fd624e, type: 3}
+  - {fileID: 21300000, guid: 0692ce8a30155c24ba28a04337b078e8, type: 3}
+  - {fileID: 21300000, guid: 6bb62dac5a2dfd247aff0de95ca4370b, type: 3}
+  - {fileID: 21300000, guid: 151db8ebb06a2084c904c27d55dd5b80, type: 3}
+  - {fileID: 21300000, guid: 3b0d166b6c6cbac4e820f01742528748, type: 3}
+  - {fileID: 21300000, guid: 35dc4f7c7187f5841aa63b29007a9b6b, type: 3}
+  - {fileID: 21300000, guid: da3a2c2edc80d4b4894ba61db3a188dc, type: 3}
+  - {fileID: 21300000, guid: 3c1424f4c952beb469c6f3f9d0b10690, type: 3}
+  - {fileID: 21300000, guid: e68287b2f24b63f499c163d8232476c8, type: 3}
+  - {fileID: 21300000, guid: fef8aefbf72cbe2468e9fcc19acd3627, type: 3}
+  - {fileID: 21300000, guid: 029216d347fba2b4aa3905d7c729ad2c, type: 3}
+  - {fileID: 21300000, guid: 92a7910a736a4f94aa5c1441a239c540, type: 3}
+  - {fileID: 21300000, guid: 6bccdb52897dfe64692939fe960381c0, type: 3}
+  - {fileID: 21300000, guid: 802c1b29f3d6d084f811c4cefc542c38, type: 3}
+  - {fileID: 21300000, guid: 792fb4ce30e6fb7409bec979e0e514c6, type: 3}
+  - {fileID: 21300000, guid: 2338ca62a8011e4429314eab7ab912f5, type: 3}
+  m_defaultSprite: {fileID: 21300000, guid: afc76ee0a8effb448a097a0e4fc1a477, type: 3}
+  m_defaultSpriteMultiplier: 6000

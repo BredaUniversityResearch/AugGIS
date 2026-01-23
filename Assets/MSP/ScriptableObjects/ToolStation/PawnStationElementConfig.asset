@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abfb0e633d432044ba5270e6a7897572, type: 3}
+  m_Name: PawnStationElementConfig
+  m_EditorClassIdentifier: 
+  toolStationCategoryPrefab: {fileID: 2739643342345025624, guid: a7404a9b91e4e1040ae80d92235ca083, type: 3}
+  categorySettings:
+  - name: category0
+    categoryIcon: {fileID: 21300000, guid: fef8aefbf72cbe2468e9fcc19acd3627, type: 3}
+    toolStationCategoryEntryPrefab: {fileID: 8307658548723471363, guid: 194b7945207b8094693a7e08033e2f88, type: 3}
+    categoryEntries:
+    - visualPrefab: {fileID: 1095153250331001321, guid: 6c1f4ec387950774d96733a77932a08a, type: 3}
+    - visualPrefab: {fileID: 1181300606944344, guid: 55888e63e40252c42966a4ca01479e95, type: 3}
+    - visualPrefab: {fileID: 1613004654617585548, guid: dad09abf691c16f41a25d4f221ee6327, type: 3}
+    - visualPrefab: {fileID: 1917552956140080, guid: 7b478ebe14e0c405da08645b6024896e, type: 3}
+  - name: category1
+    categoryIcon: {fileID: 21300000, guid: 39a1823e5ca05964b9f82d9035934814, type: 3}
+    toolStationCategoryEntryPrefab: {fileID: 8307658548723471363, guid: 194b7945207b8094693a7e08033e2f88, type: 3}
+    categoryEntries:
+    - visualPrefab: {fileID: 111616, guid: 8f707f9679bbca448a566a7be9493e40, type: 3}
+    - visualPrefab: {fileID: 111616, guid: 3197f68da1243ba48beca3d7744d3cc1, type: 3}
+    - visualPrefab: {fileID: 159870, guid: b3e4ae3df23344341a716d7e239c218b, type: 3}
+    - visualPrefab: {fileID: 111616, guid: 294369181cbc3db42a8b1d2f76574936, type: 3}
+  - name: category2
+    categoryIcon: {fileID: 21300000, guid: 0692ce8a30155c24ba28a04337b078e8, type: 3}
+    toolStationCategoryEntryPrefab: {fileID: 8307658548723471363, guid: 194b7945207b8094693a7e08033e2f88, type: 3}
+    categoryEntries:
+    - visualPrefab: {fileID: 192530, guid: c6f41eee6d090ac438c2e9bbe99ecf24, type: 3}
+    - visualPrefab: {fileID: 1181300606944344, guid: 22346e6621a9fe0449138bc33e99db2d, type: 3}
+    - visualPrefab: {fileID: 1181300606944344, guid: eb2bd99c114e3554fa17dc8ddb877ede, type: 3}
+    - visualPrefab: {fileID: 1181300606944344, guid: 73bd4f00fadab4b788ba1534f0794b67, type: 3}
+    - visualPrefab: {fileID: 1181300606944344, guid: 839895f14970f8e4b93b438fee1e9dfd, type: 3}
+    - visualPrefab: {fileID: 8563911314957129036, guid: 94df8d17e46a69848b3608066efa71c0, type: 3}
