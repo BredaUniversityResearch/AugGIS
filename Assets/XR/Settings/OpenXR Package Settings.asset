@@ -19,7 +19,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_KHR_binding_modification XR_EXT_dpad_binding
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
   forceThresholdLeft: 0.5
   forceThresholdReleaseLeft: 0.4
   centerRegionLeft: 0.5
@@ -33,6 +35,30 @@ MonoBehaviour:
   extensionStrings:
   - XR_KHR_binding_modification
   - XR_EXT_dpad_binding
+--- !u!114 &-8435866296284762050
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92efb7dda02dc484c90845a437c4784e, type: 3}
+  m_Name: AutomaticDynamicResolutionFeature Android
+  m_EditorClassIdentifier: Unity.XR.OpenXR::UnityEngine.XR.OpenXR.Features.AutomaticDynamicResolutionFeature
+  m_enabled: 0
+  nameUi: Automatic Viewport Dynamic Resolution
+  version: 1.0.0
+  featureIdInternal: com.unity.openxr.feature.ViewportDynamicResolution
+  openxrExtensionStrings: XR_META_recommended_layer_resolution XR_ANDROID_recommended_resolution
+  company: Unity
+  priority: 0
+  targetOpenXRApiVersion: 
+  required: 0
+  customRuntimeLoaderName: 
+  m_MinResolutionScalar: 0.05
+  m_MaxResolutionScalar: 1
 --- !u!114 &-8326168899690615402
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -52,7 +78,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_FB_touch_controller_pro
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &-8323344264314899887
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -72,7 +100,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_FB_display_refresh_rate
   company: Unity Technologies
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &-8301261169115308686
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -112,7 +142,9 @@ MonoBehaviour:
   openxrExtensionStrings: 
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &-8108027508580977361
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -132,7 +164,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_EXT_future XR_META_environment_raycast
   company: Unity Technologies
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &-8023156426945507496
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -152,7 +186,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_MSFT_hand_interaction
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &-7966765002468054472
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -172,7 +208,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_EXT_hand_tracking
   company: Unity
   priority: -100
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &-7792694634048874333
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -192,7 +230,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_EXT_eye_gaze_interaction
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &-7710215072050455112
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -212,7 +252,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_FB_space_warp
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
   m_UseRightHandedNDC: 0
 --- !u!114 &-7635844960258231701
 MonoBehaviour:
@@ -233,7 +275,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_EXT_hand_interaction
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &-7438211810974954553
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -253,7 +297,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_EXT_conformance_automation
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &-7336373278953207644
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -295,7 +341,9 @@ MonoBehaviour:
   openxrExtensionStrings: 
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &-6870988657245508841
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -315,7 +363,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_EXT_hp_mixed_reality_controller
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &-6850126196198958596
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -335,7 +385,9 @@ MonoBehaviour:
   openxrExtensionStrings: 
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &-6812930796269166267
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -355,7 +407,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_OCULUS_android_initialize_loader
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
   targetQuest: 1
   targetQuest2: 1
 --- !u!114 &-6553544405096807634
@@ -377,7 +431,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_EXT_palm_pose
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &-6509288381986258463
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -399,7 +455,9 @@ MonoBehaviour:
     XR_KHR_android_surface_swapchain
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &-5652093592569465389
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -419,7 +477,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_EXT_hand_interaction
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &-5555118271204666564
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -440,7 +500,9 @@ MonoBehaviour:
     XR_META_spatial_entity_sharing XR_META_spatial_entity_group_sharing XR_FB_spatial_entity_query
   company: Unity Technologies
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &-5447683390265623297
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -502,7 +564,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_EXT_palm_pose
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &-4573185798927060808
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -522,7 +586,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_OCULUS_android_initialize_loader
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
   targetDevices:
   - visibleName: Quest
     manifestName: quest
@@ -540,14 +606,14 @@ MonoBehaviour:
     manifestName: quest3s
     enabled: 1
   forceRemoveInternetPermission: 0
-  symmetricProjection: 0
-  foveatedRenderingApi: 0
+  m_symmetricProjection: 0
+  m_foveatedRenderingApi: 0
   systemSplashScreen: {fileID: 0}
-  optimizeBufferDiscards: 1
+  m_optimizeBufferDiscards: 1
   lateLatchingMode: 0
   lateLatchingDebug: 0
   optimizeMultiviewRenderRegions: 0
-  multiviewRenderRegionsOptimizationMode: 0
+  m_multiviewRenderRegionsOptimizationMode: 0
   m_hasMigratedMultiviewRenderRegions: 1
   spacewarpMotionVectorTextureFormat: 0
 --- !u!114 &-4447084755041217088
@@ -569,7 +635,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_META_environment_depth
   company: Unity Technologies
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
   m_EnableHandRemoval: 0
 --- !u!114 &-4418170464905866494
 MonoBehaviour:
@@ -590,7 +658,9 @@ MonoBehaviour:
   openxrExtensionStrings: 
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &-4404575321690334989
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -606,6 +676,7 @@ MonoBehaviour:
   features:
   - {fileID: 8515913059658410016}
   - {fileID: -7710215072050455112}
+  - {fileID: -8435866296284762050}
   - {fileID: 795624773213692190}
   - {fileID: 6371424438628732435}
   - {fileID: -3122883432323636978}
@@ -637,6 +708,7 @@ MonoBehaviour:
   - {fileID: 7628899287189743498}
   - {fileID: 4510977927015427203}
   - {fileID: 5028362447374945697}
+  customLoaderName: 
   m_renderMode: 1
   m_latencyOptimization: 1
   m_autoColorSubmissionMode: 1
@@ -670,7 +742,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_EXT_eye_gaze_interaction
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &-4349821481461171409
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -690,7 +764,9 @@ MonoBehaviour:
   openxrExtensionStrings: 
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &-4126005057467837580
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -710,7 +786,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_FB_passthrough
   company: Unity Technologies
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &-3932001795874161519
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -730,7 +808,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_FB_touch_controller_pro
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &-3777812974140431914
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -750,7 +830,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_MSFT_hand_interaction
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &-3756064320195959411
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -790,7 +872,9 @@ MonoBehaviour:
   openxrExtensionStrings: 
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
   cacheSize: 1048576
   perThreadCacheSize: 51200
 --- !u!114 &-3122883432323636978
@@ -812,7 +896,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_KHR_binding_modification XR_EXT_dpad_binding
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
   forceThresholdLeft: 0.5
   forceThresholdReleaseLeft: 0.4
   centerRegionLeft: 0.5
@@ -845,7 +931,9 @@ MonoBehaviour:
   openxrExtensionStrings: 
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
   cacheSize: 1048576
   perThreadCacheSize: 51200
 --- !u!114 &-2573167705908242542
@@ -867,7 +955,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_EXT_hand_interaction
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &-1868900322965031352
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -888,7 +978,9 @@ MonoBehaviour:
     XR_META_spatial_entity_sharing XR_META_spatial_entity_group_sharing XR_FB_spatial_entity_query
   company: Unity Technologies
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &-1462904419527236098
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -950,7 +1042,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_EXT_performance_settings
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &-1182986337775405399
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -970,7 +1064,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_META_touch_controller_plus
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &-679343054085074611
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -988,10 +1084,13 @@ MonoBehaviour:
   version: 0.1.0
   featureIdInternal: com.unity.openxr.feature.arfoundation-meta-plane
   openxrExtensionStrings: XR_FB_scene XR_FB_spatial_entity XR_FB_spatial_entity_container
-    XR_META_spatial_entity_discovery
+    XR_META_spatial_entity_discovery XR_META_spatial_entity_semantic_label XR_META_spatial_entity_room_mesh
   company: Unity Technologies
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
+  m_PlaneProviderType: 1
 --- !u!114 &-519738938117905196
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1012,7 +1111,9 @@ MonoBehaviour:
     XR_META_spatial_entity_mesh
   company: Unity Technologies
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &-165310142054061998
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1054,7 +1155,10 @@ MonoBehaviour:
     XR_META_vulkan_swapchain_create_info
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
+  enableSubsampledLayout: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1092,7 +1196,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_EXT_performance_settings
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &571204447606903691
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1112,7 +1218,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_EXT_hand_interaction
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &795624773213692190
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1134,7 +1242,9 @@ MonoBehaviour:
     XR_KHR_android_surface_swapchain
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &804199717325523217
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1154,7 +1264,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_KHR_binding_modification XR_EXT_dpad_binding
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
   forceThresholdLeft: 0.5
   forceThresholdReleaseLeft: 0.4
   centerRegionLeft: 0.5
@@ -1189,7 +1301,10 @@ MonoBehaviour:
     XR_META_vulkan_swapchain_create_info
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
+  enableSubsampledLayout: 0
 --- !u!114 &831410631660605971
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1209,7 +1324,9 @@ MonoBehaviour:
   openxrExtensionStrings: 
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &869721597109114676
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1251,7 +1368,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_META_colocation_discovery
   company: Unity Technologies
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &1277839758177495484
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1314,7 +1433,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_FB_touch_controller_pro
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &2046307334152934025
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1355,7 +1476,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_META_boundary_visibility
   company: Unity Technologies
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
   m_SuppressVisibility: 0
 --- !u!114 &2188186722017346895
 MonoBehaviour:
@@ -1371,6 +1494,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   features:
   - {fileID: -1258939036509468930}
+  customLoaderName: 
   m_renderMode: 1
   m_latencyOptimization: 0
   m_autoColorSubmissionMode: 1
@@ -1404,7 +1528,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_FB_passthrough
   company: Unity Technologies
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &2224344048133492908
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1422,10 +1548,13 @@ MonoBehaviour:
   version: 0.1.0
   featureIdInternal: com.unity.openxr.feature.arfoundation-meta-plane
   openxrExtensionStrings: XR_FB_scene XR_FB_spatial_entity XR_FB_spatial_entity_container
-    XR_META_spatial_entity_discovery
+    XR_META_spatial_entity_discovery XR_META_spatial_entity_semantic_label XR_META_spatial_entity_room_mesh
   company: Unity Technologies
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
+  m_PlaneProviderType: 1
 --- !u!114 &2291962658537571273
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1445,7 +1574,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_FB_hand_tracking_aim
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &2314899931059533777
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1493,6 +1624,7 @@ MonoBehaviour:
   - {fileID: 8969069916325129739}
   - {fileID: 8990730824780859438}
   - {fileID: -7966765002468054472}
+  customLoaderName: 
   m_renderMode: 1
   m_latencyOptimization: 0
   m_autoColorSubmissionMode: 1
@@ -1557,7 +1689,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_MSFT_hand_interaction
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &2536449020438465357
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1577,7 +1711,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_EXT_hand_interaction
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &2632004777949154798
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1597,7 +1733,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_META_environment_depth
   company: Unity Technologies
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
   m_EnableHandRemoval: 0
 --- !u!114 &2850891937883140606
 MonoBehaviour:
@@ -1618,7 +1756,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_EXT_eye_gaze_interaction
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &2863634670342857817
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1638,7 +1778,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_EXT_hand_interaction
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &3485704003738470000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1679,7 +1821,9 @@ MonoBehaviour:
   openxrExtensionStrings: 
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &4262863260739772511
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1699,7 +1843,9 @@ MonoBehaviour:
   openxrExtensionStrings: 
   company: Unity Technologies
   priority: 2147483647
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &4510977927015427203
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1719,7 +1865,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_EXT_performance_settings
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &4698431275519040578
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1740,7 +1888,9 @@ MonoBehaviour:
     XR_META_spatial_entity_mesh
   company: Unity Technologies
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &4808384181274935623
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1762,7 +1912,10 @@ MonoBehaviour:
     XR_META_vulkan_swapchain_create_info
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
+  enableSubsampledLayout: 0
 --- !u!114 &4817227276011422044
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1782,7 +1935,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_EXT_palm_pose
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &4980874027858040399
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1802,7 +1957,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_META_touch_controller_plus
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &5028362447374945697
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1822,7 +1979,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_EXT_hand_tracking
   company: Unity
   priority: -100
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &5169529829911628959
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1842,7 +2001,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_META_colocation_discovery
   company: Unity Technologies
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &5226268256562786691
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1862,7 +2023,9 @@ MonoBehaviour:
   openxrExtensionStrings: 
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &5240880076169335215
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1884,7 +2047,9 @@ MonoBehaviour:
     XR_KHR_android_surface_swapchain
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &5477823919042281258
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1904,7 +2069,9 @@ MonoBehaviour:
   openxrExtensionStrings: 
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &5783553267615909434
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1924,7 +2091,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_FB_hand_tracking_aim
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &5982923388239833899
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1944,7 +2113,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_EXT_hand_tracking
   company: Unity
   priority: -100
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &5995796625319726060
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1984,7 +2155,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_EXT_conformance_automation
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &6667497824109202000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2018,6 +2191,7 @@ MonoBehaviour:
   - {fileID: -6918374994818297464}
   - {fileID: 471402704252952076}
   - {fileID: 5982923388239833899}
+  customLoaderName: 
   m_renderMode: 1
   m_latencyOptimization: 0
   m_autoColorSubmissionMode: 1
@@ -2051,7 +2225,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_FB_display_refresh_rate
   company: Unity Technologies
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &6790862405227825501
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2071,7 +2247,9 @@ MonoBehaviour:
   openxrExtensionStrings: 
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &6850787927310181478
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2091,7 +2269,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_EXT_hp_mixed_reality_controller
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &6876879626114377609
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2142,7 +2322,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_EXT_future XR_META_environment_raycast
   company: Unity Technologies
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &7628899287189743498
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2162,7 +2344,9 @@ MonoBehaviour:
   openxrExtensionStrings: 
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
   cacheSize: 1048576
   perThreadCacheSize: 51200
 --- !u!114 &7733425376181918314
@@ -2184,7 +2368,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_META_boundary_visibility
   company: Unity Technologies
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
   m_SuppressVisibility: 0
 --- !u!114 &7744459526729631321
 MonoBehaviour:
@@ -2205,7 +2391,9 @@ MonoBehaviour:
   openxrExtensionStrings: 
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &7974582292294487421
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2225,7 +2413,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_UNITY_null_gfx XR_UNITY_android_present
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
   ignoreValidationErrors: 0
 --- !u!114 &8158238663805495367
 MonoBehaviour:
@@ -2246,7 +2436,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_EXT_conformance_automation
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &8466370359786543669
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2266,7 +2458,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_FB_scene_capture
   company: Unity Technologies
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &8483104495039112520
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2287,7 +2481,9 @@ MonoBehaviour:
     XR_META_spatial_entity_discovery
   company: Unity Technologies
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &8515913059658410016
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2307,7 +2503,9 @@ MonoBehaviour:
   openxrExtensionStrings: 
   company: Unity Technologies
   priority: 2147483647
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &8662113209918394777
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2327,7 +2525,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_UNITY_null_gfx XR_UNITY_android_present
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
   ignoreValidationErrors: 0
 --- !u!114 &8678804800080955654
 MonoBehaviour:
@@ -2349,7 +2549,9 @@ MonoBehaviour:
     XR_META_spatial_entity_discovery
   company: Unity Technologies
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &8810914574052377015
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2369,7 +2571,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_FB_scene_capture
   company: Unity Technologies
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &8889892934014492083
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2410,7 +2614,9 @@ MonoBehaviour:
   openxrExtensionStrings: XR_META_touch_controller_plus
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &8969069916325129739
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2430,7 +2636,9 @@ MonoBehaviour:
   openxrExtensionStrings: 
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
 --- !u!114 &8990730824780859438
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2450,4 +2658,6 @@ MonoBehaviour:
   openxrExtensionStrings: XR_EXT_performance_settings
   company: Unity
   priority: 0
+  targetOpenXRApiVersion: 
   required: 0
+  customRuntimeLoaderName: 
