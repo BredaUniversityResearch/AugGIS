@@ -11,7 +11,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/MSP/Scenes/QuestScene.unity
     guid: 2d3891c5d9f015740bcf66390498ef20
-  - enabled: 1
+  - enabled: 0
     path: Assets/MSP/Scenes/ServerScene.unity
     guid: f4fba1dd21a614c489624d10a287b716
   - enabled: 1
