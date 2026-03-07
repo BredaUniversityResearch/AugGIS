@@ -20,9 +20,11 @@ namespace POV_Unity
 		[SerializeField] Material m_lineMaterial;
 		[SerializeField] Material m_pawnMaterial;
 		[SerializeField] Material m_rasterQuadMaterial;
-		[SerializeField] Dictionary<string, GameObject> m_models;
-		[SerializeField] GameObject m_defaultModel;
-		[SerializeField] List<Texture2D> m_textures;
+        [SerializeField] Dictionary<string, GameObject> m_models;
+        [SerializeField] GameObject m_defaultModel;
+        [SerializeField] Dictionary<string, GameObject> m_templates;
+        [SerializeField] GameObject m_defaultTemplate;
+        [SerializeField] List<Texture2D> m_textures;
 		[SerializeField] Texture2D m_defaultTexture;
 		[SerializeField] List<Sprite> m_sprites;
 		[SerializeField] Sprite m_defaultSprite;
@@ -68,5 +70,16 @@ namespace POV_Unity
 			}
 			return m_defaultModel;
 		}
-	}
+
+        public GameObject GetTemplate(string a_name)
+        {
+            if (string.IsNullOrEmpty(a_name))
+                return m_defaultModel;
+            if (m_templates.TryGetValue(a_name, out var result))
+            {
+                return result;
+            }
+            return m_defaultTemplate;
+        }
+    }
 }

@@ -182,7 +182,8 @@
       "method": "PointColour",
       "tag_includes": [ "Point" ],
       "type_colour": "pointColor",
-      "size": 0.8,
+      "type_size": "pointSize",
+      "size": 0.03,
       "type_sprite": "pointSpriteName",
       "visualization_mode": 1
     },
@@ -191,7 +192,8 @@
       "method": "PointColour",
       "tag_includes": [ "Point" ],
       "type_colour": "pointColor",
-      "size": 0.8,
+      "type_size": "pointSize",
+      "size": 0.03,
       "type_sprite": "pointSpriteName",
       "visualization_mode": 2
     },
