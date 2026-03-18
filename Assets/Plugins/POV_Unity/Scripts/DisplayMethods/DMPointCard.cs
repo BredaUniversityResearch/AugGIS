@@ -32,8 +32,7 @@ namespace POV_Unity
                 GameObject go = new GameObject("PointCard_" + objectsPlaced.ToString());
 				go.transform.SetParent(a_displayMethodRoot.transform, false);
 				go.transform.localPosition = obj.FirstPosition;
-                //Replace this this CardObject, for the TemplateObject
-                //go.AddComponent<ModelObject>().Initialise(a_layer, obj, this);
+                go.AddComponent<CardObject>().Initialise(this);
 				objectsPlaced++;
             }
 

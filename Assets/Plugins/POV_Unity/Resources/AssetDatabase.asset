@@ -564,9 +564,28 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
+    - Name: m_templates
+      Entry: 7
+      Data: 3|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[UnityEngine.GameObject,
+        UnityEngine.CoreModule]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 4|System.Collections.Generic.GenericEqualityComparer`1[[System.String,
+        mscorlib]], mscorlib
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
   m_defaultMaterial: {fileID: 2100000, guid: c0050bd3d362fd74991e57eb5137d268, type: 2}
   m_polygonMaterial: {fileID: 2100000, guid: d1e067ca2e16bdc4981c3b29dbcf0b87, type: 2}
-  m_stripeMaterial: {fileID: 2100000, guid: 956f7644244caf8428319e141a26c4b0, type: 2}
   m_polygonOpaqueMaterial: {fileID: 2100000, guid: 466e96a82eb986149b7545a9ea409908, type: 2}
   m_typeMapMaterial: {fileID: 2100000, guid: ba9fc59204bbe0b4ebf7d918de2a139f, type: 2}
   m_heatMapMaterialTexture: {fileID: 2100000, guid: e751f85b23dd3fd4baa2e4bea63142c8, type: 2}
@@ -577,6 +596,7 @@ MonoBehaviour:
   m_pawnMaterial: {fileID: -876546973899608171, guid: 95894a42b7fef1045898c654e1f5cafe, type: 3}
   m_rasterQuadMaterial: {fileID: 2100000, guid: d829d9831c9934943a64b96630bdf813, type: 2}
   m_defaultModel: {fileID: 8830635700421140409, guid: 541456daf1d86e4438171ca3752c5935, type: 3}
+  m_defaultTemplate: {fileID: 0}
   m_textures:
   - {fileID: 2800000, guid: d20262bcf47df0045a7568dcce2033ba, type: 3}
   - {fileID: 2800000, guid: 970d90481f5149941801d4515cedcf9d, type: 3}

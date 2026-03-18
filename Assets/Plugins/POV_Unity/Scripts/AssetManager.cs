@@ -53,8 +53,12 @@ namespace POV_Unity
 		{
 			return Instance.m_assetDatabase.GetModel(a_name);
 		}
+        public static GameObject GetTemplate(string a_name)
+        {
+            return Instance.m_assetDatabase.GetTemplate(a_name);
+        }
 
-		public static Texture2D GetTexture(string a_name)
+        public static Texture2D GetTexture(string a_name)
 		{
 			if (a_name != null && Instance.m_textures.TryGetValue(a_name, out var result))
 			{
