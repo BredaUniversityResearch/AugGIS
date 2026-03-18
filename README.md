@@ -5,7 +5,7 @@ Want to learn about the more about the application? Check out the [User guide](h
 
 ## Setup
 Using AugGIS in a workshop always requires 4 components:
-- The AugGIS client, usually running on a VR HMD.
+- The AugGIS client, usually running on a MR HMD(Quest 3).
 - The AugGIS host, usually running on a pc, server or docker container.
 - The data providing service.
 - The session manager. While optional, it is recommended to have a service that starts hosts on demand, provides QR codes to clients and manages the session status.
@@ -19,8 +19,11 @@ The AugGIS client and host components are part of this repository. For the data 
 | **MSP Challenge** | Docker container | MSPC Server, using MSPC session data | Session creation and management directly from the MSPC Client |
 | **AugGIS Config Tool**| Headless application | Config tool, using custom data | Simple session creation |
 
+## Plugins & Requirements
+AugGIS has been developed using the Unity3D Game Engine, and focuses on plugins provided by Unity:
+- [Unity Engine](unity.com) V6000.3.6f1, required to open the project.
 
-## Plugins
-The project uses the following plugins, which are not included in the repository due to their license and will have to be seperate acquired:
+The project uses several proprietary plugins which are not included in the repository due to their license and will have to be seperate acquired:
 - [Odin Inspector](https://odininspector.com/) V3.3.1.10, required to use this repository.
 - [OpenCV for Unity](https://assetstore.unity.com/packages/tools/integration/opencv-for-unity-21088) V2.6.5. Optional, but required for marker based area setup. Without this the table anchors have to be configured manually.
+- [Clipper2Lib](https://www.nuget.org/packages/Clipper2) Version Unkown, required.
