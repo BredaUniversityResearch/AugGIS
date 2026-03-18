@@ -25,9 +25,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 47585482976934990}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.029999996, z: 0}
+  m_LocalScale: {x: 0.19999999, y: 0.19999999, z: 0.19999999}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7441667340199567673}
@@ -40,7 +40,7 @@ Transform:
   - {fileID: 7021759487322051081}
   - {fileID: 4505877612891729697}
   - {fileID: 3894277120679141436}
-  m_Father: {fileID: 1294474389993926209}
+  m_Father: {fileID: 2197202462009870150}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &9082922164876545868
 MonoBehaviour:
@@ -338,6 +338,8 @@ MonoBehaviour:
   m_segments: 10
   m_angleStart: 0
   m_angleEnd: 36
+  m_meshAssetPath: Assets/GeneratedMeshes/
+  m_meshAssetName: Unknown
 --- !u!1 &2041488160829817049
 GameObject:
   m_ObjectHideFlags: 0
@@ -445,6 +447,8 @@ MonoBehaviour:
   m_segments: 10
   m_angleStart: 72
   m_angleEnd: 108
+  m_meshAssetPath: Assets/GeneratedMeshes/
+  m_meshAssetName: Unknown
 --- !u!1 &2679964947169227539
 GameObject:
   m_ObjectHideFlags: 0
@@ -552,6 +556,8 @@ MonoBehaviour:
   m_segments: 10
   m_angleStart: 0
   m_angleEnd: 36
+  m_meshAssetPath: Assets/GeneratedMeshes/
+  m_meshAssetName: Unknown
 --- !u!1 &2768418091678339243
 GameObject:
   m_ObjectHideFlags: 0
@@ -776,13 +782,11 @@ Transform:
   m_GameObject: {fileID: 3270936435982180274}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.03, z: 0}
-  m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 2085835495333620558}
-  - {fileID: 863347384009418982}
-  m_Father: {fileID: 2197202462009870150}
+  m_Children: []
+  m_Father: {fileID: 2085835495333620558}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!64 &5074212759015071789
 MeshCollider:
@@ -805,7 +809,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: -2432090755550338912, guid: b448c1f8f6029134bbbd1f54e55ab4c9, type: 3}
+  m_Mesh: {fileID: 4300000, guid: f237158683b82164d99b4396c97ffe08, type: 2}
 --- !u!1 &3675796763480774296
 GameObject:
   m_ObjectHideFlags: 0
@@ -836,7 +840,8 @@ Transform:
   m_LocalScale: {x: 0.7, y: 0.7, z: 0.7}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1294474389993926209}
+  - {fileID: 2085835495333620558}
+  - {fileID: 863347384009418982}
   - {fileID: 3737134459116576109}
   - {fileID: 674590438079116615}
   m_Father: {fileID: 7421361314095780768}
@@ -975,6 +980,8 @@ MonoBehaviour:
   m_segments: 10
   m_angleStart: 72
   m_angleEnd: 108
+  m_meshAssetPath: Assets/GeneratedMeshes/
+  m_meshAssetName: Unknown
 --- !u!1 &4707688829517517712
 GameObject:
   m_ObjectHideFlags: 0
@@ -1325,6 +1332,8 @@ MonoBehaviour:
   m_segments: 10
   m_angleStart: 144
   m_angleEnd: 180
+  m_meshAssetPath: Assets/GeneratedMeshes/
+  m_meshAssetName: Unknown
 --- !u!1 &5790172530599088673
 GameObject:
   m_ObjectHideFlags: 0
@@ -1432,6 +1441,8 @@ MonoBehaviour:
   m_segments: 10
   m_angleStart: 288
   m_angleEnd: 324
+  m_meshAssetPath: Assets/GeneratedMeshes/
+  m_meshAssetName: Unknown
 --- !u!1 &5819762839536024440
 GameObject:
   m_ObjectHideFlags: 0
@@ -1460,12 +1471,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5819762839536024440}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0.51, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0.13199998, z: 0}
+  m_LocalScale: {x: 0.19999999, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1294474389993926209}
+  m_Children:
+  - {fileID: 1294474389993926209}
+  m_Father: {fileID: 2197202462009870150}
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!33 &8539408772528155805
 MeshFilter:
@@ -1540,6 +1552,8 @@ MonoBehaviour:
   m_segments: 100
   m_angleStart: 0
   m_angleEnd: 360
+  m_meshAssetPath: Assets/GeneratedMeshes/
+  m_meshAssetName: Ring
 --- !u!114 &4270852366020735508
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1692,6 +1706,8 @@ MonoBehaviour:
   m_segments: 10
   m_angleStart: 216
   m_angleEnd: 252
+  m_meshAssetPath: Assets/GeneratedMeshes/
+  m_meshAssetName: Unknown
 --- !u!1 &7905550619114539290
 GameObject:
   m_ObjectHideFlags: 0
@@ -1860,6 +1876,8 @@ MonoBehaviour:
   m_segments: 10
   m_angleStart: 144
   m_angleEnd: 180
+  m_meshAssetPath: Assets/GeneratedMeshes/
+  m_meshAssetName: Unknown
 --- !u!1 &8862706381059000393
 GameObject:
   m_ObjectHideFlags: 0
@@ -1967,6 +1985,8 @@ MonoBehaviour:
   m_segments: 10
   m_angleStart: 288
   m_angleEnd: 324
+  m_meshAssetPath: Assets/GeneratedMeshes/
+  m_meshAssetName: Unknown
 --- !u!1 &9066191641839595291
 GameObject:
   m_ObjectHideFlags: 0
@@ -2074,6 +2094,8 @@ MonoBehaviour:
   m_segments: 10
   m_angleStart: 216
   m_angleEnd: 252
+  m_meshAssetPath: Assets/GeneratedMeshes/
+  m_meshAssetName: Unknown
 --- !u!1001 &6479684135867978181
 PrefabInstance:
   m_ObjectHideFlags: 0
