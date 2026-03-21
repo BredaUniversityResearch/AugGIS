@@ -55,6 +55,7 @@ MonoBehaviour:
     - {fileID: 1181300606944344, guid: 22346e6621a9fe0449138bc33e99db2d, type: 3}
     - {fileID: 1181300606944344, guid: eb2bd99c114e3554fa17dc8ddb877ede, type: 3}
     - {fileID: 1181300606944344, guid: 73bd4f00fadab4b788ba1534f0794b67, type: 3}
+    - {fileID: 9083524978690373285, guid: a4bdae7b47f0f5148ad6af6c6f033a47, type: 3}
     SerializedBytesString: 
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
@@ -577,7 +578,19 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 12
-      Data: 0
+      Data: 1
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: CardTemplate
+    - Name: $v
+      Entry: 10
+      Data: 39
+    - Name: 
+      Entry: 8
+      Data: 
     - Name: 
       Entry: 13
       Data: 
@@ -596,7 +609,7 @@ MonoBehaviour:
   m_pawnMaterial: {fileID: -876546973899608171, guid: 95894a42b7fef1045898c654e1f5cafe, type: 3}
   m_rasterQuadMaterial: {fileID: 2100000, guid: d829d9831c9934943a64b96630bdf813, type: 2}
   m_defaultModel: {fileID: 8830635700421140409, guid: 541456daf1d86e4438171ca3752c5935, type: 3}
-  m_defaultTemplate: {fileID: 0}
+  m_defaultTemplate: {fileID: 9083524978690373285, guid: a4bdae7b47f0f5148ad6af6c6f033a47, type: 3}
   m_textures:
   - {fileID: 2800000, guid: d20262bcf47df0045a7568dcce2033ba, type: 3}
   - {fileID: 2800000, guid: 970d90481f5149941801d4515cedcf9d, type: 3}
