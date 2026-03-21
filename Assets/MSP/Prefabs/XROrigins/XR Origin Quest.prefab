@@ -46,6 +46,50 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_ActionAssets:
   - {fileID: -944628639613478452, guid: c348712bda248c246b8c49b3db54643f, type: 3}
+--- !u!1 &517729274554126775
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 934723072661627525}
+  - component: {fileID: 6397716480587555001}
+  m_Layer: 0
+  m_Name: XR UI Toolkit Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &934723072661627525
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 517729274554126775}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1699403092401854754}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6397716480587555001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 517729274554126775}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a00cff961714664a0cb9bc68a41d6f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.XR.Interaction.Toolkit::UnityEngine.XR.Interaction.Toolkit.UI.XRUIToolkitManager
 --- !u!1 &651824189982202710
 GameObject:
   m_ObjectHideFlags: 0
@@ -180,6 +224,8 @@ Transform:
   - {fileID: 4412551586198656590}
   - {fileID: 4411856422940562089}
   - {fileID: 1769657145293534489}
+  - {fileID: 5058104722967082014}
+  - {fileID: 934723072661627525}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1662182833565492682
@@ -831,6 +877,60 @@ Transform:
   m_Children: []
   m_Father: {fileID: 6282658307997505395}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &6103606433673954685
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5058104722967082014}
+  - component: {fileID: 2810820528324797648}
+  m_Layer: 0
+  m_Name: PanelInputConfiguration
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5058104722967082014
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6103606433673954685}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.82640004, y: -0.36409998, z: 0.5333}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1699403092401854754}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2810820528324797648
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6103606433673954685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19106, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.PanelInputConfiguration
+  m_Settings:
+    m_ProcessWorldSpaceInput: 1
+    m_InteractionLayers:
+      serializedVersion: 2
+      m_Bits: 1073872883
+    m_MaxInteractionDistance: Infinity
+    m_DefaultEventCameraIsMainCamera: 1
+    m_EventCameras: []
+    m_PanelInputRedirection: 1
+    m_AutoCreatePanelComponents: 1
 --- !u!1 &7172278114725463143
 GameObject:
   m_ObjectHideFlags: 0
@@ -1066,6 +1166,7 @@ MonoBehaviour:
   m_MinToMaxDelaySeconds: 1
   m_HideMenuWhenGazeDiverges: 1
   m_MenuVisibleGazeAngleDivergenceThreshold: 35
+  m_MenuHideGazeAngleDivergenceThresholdBuffer: 20
   m_AnimateMenuHideAndReveal: 1
   m_RevealHideAnimationDuration: 0.1
   m_HideMenuOnSelect: 1
@@ -1083,9 +1184,11 @@ MonoBehaviour:
       palmFacingUserDegreeAngleThreshold: 0
       requirePalmFacingUp: 0
       palmFacingUpDegreeAngleThreshold: 0
+      hideDelaySeconds: 0.25
+      PalmFacingUserHideMenuAngleThresholdDelta: 15
+      PalmFacingUpHideMenuAngleThresholdDelta: 15
       snapToGaze: 0
       snapToGazeAngleThreshold: 0
-      hideDelaySeconds: 0.25
       allowSmoothing: 1
       followLowerSmoothingValue: 12
       followUpperSmoothingValue: 16
@@ -1103,9 +1206,11 @@ MonoBehaviour:
       palmFacingUserDegreeAngleThreshold: 0
       requirePalmFacingUp: 0
       palmFacingUpDegreeAngleThreshold: 0
+      hideDelaySeconds: 0.25
+      PalmFacingUserHideMenuAngleThresholdDelta: 15
+      PalmFacingUpHideMenuAngleThresholdDelta: 15
       snapToGaze: 0
       snapToGazeAngleThreshold: 0
-      hideDelaySeconds: 0.25
       allowSmoothing: 1
       followLowerSmoothingValue: 12
       followUpperSmoothingValue: 16
