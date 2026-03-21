@@ -37,6 +37,7 @@ namespace POV_Unity
                 { "AreaModelScatter", typeof(DMAreaModelScatter) },
                 { "PointModel", typeof(DMPointModel) },
                 { "PointColour", typeof(DMPointColour) },
+                { "PointCard", typeof(DMPointCard) },
                 { "LineColour", typeof(DMLineColour) },
                 { "LineModel", typeof(DMLineModel) },
                 { "LineModelMovement", typeof(DMLineModelMovement) },
