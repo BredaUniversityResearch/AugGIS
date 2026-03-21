@@ -25,16 +25,12 @@
     background-color: rgb(151, 151, 151);
 }
 
-
-
 .AugGIS_label {
     -unity-font-definition: url("project://database/Assets/MSP/Fonts/Cabin/Cabin/Cabin-Medium.ttf?fileID=12800000&guid=2ce234350e105304385758f2965e2215&type=3#Cabin-Medium");
     color: rgb(255, 255, 255);
     white-space: pre-wrap;
     -unity-text-align: upper-left;
 }
-
-
 
 .AugGIS_heading {
     -unity-font-definition: url("project://database/Assets/MSP/Fonts/Cabin/Cabin/Cabin-Medium.ttf?fileID=12800000&guid=2ce234350e105304385758f2965e2215&type=3#Cabin-Medium");

@@ -6,8 +6,8 @@
             <ui:VisualElement name="Image" style="background-image: url(&quot;project://database/Assets/MSP/Sprites/Logo/AugGIS-Logo-Quest_Icon.png?fileID=21300000&amp;guid=40ab31283cb92b149abd6f6011d8a581&amp;type=3#AugGIS-Logo-Quest_Icon&quot;); width: 50px; height: 50px;"/>
         </ui:VisualElement>
         <ui:VisualElement name="Body" style="width: 100%; height: 846px; align-items: center; justify-content: center; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; padding-top: 25px; padding-right: 25px; padding-bottom: 25px; padding-left: 25px; background-color: rgba(0, 0, 0, 0.38); border-top-left-radius: 10px; border-top-right-radius: 10px; color: rgba(11, 13, 23, 0.5);">
-            <ui:Label text="&quot;Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.&quot;&#10;&#10;" class="AugGIS_label"/>
-            <ui:Button text="Accept" name="accept-button" enabled="true" class="AugGIS_button" style="width: 100%;"/>
+            <ui:Label text="&quot;Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.&quot;&#10;&#10;" name="text" class="AugGIS_label"/>
+            <ui:Button text="Accept" name="accept-button" class="AugGIS_button" style="width: 100%; height: 40px; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;"/>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

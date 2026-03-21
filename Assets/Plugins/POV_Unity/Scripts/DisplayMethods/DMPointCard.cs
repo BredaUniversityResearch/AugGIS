@@ -9,30 +9,22 @@ namespace POV_Unity
 {
 	public class DMPointCard : AVectorDisplayMethod
 	{
-		public string model;
-		public float offset = 0f;
-		public string material = null;//"Unlit";
-		public float scale;
+        public string title;
+        public string description;
 
-        public string type_model;
-		public string type_offset;
-		public string type_material;
-
-		public string meta_model;
-		public string meta_offset;
-        public string meta_material;
-        public string meta_name;
-        public string meta_description;
+		public string meta_title;
+		public string meta_description;
 
         protected override IDisplayMethodRenderData DisplayVectorLayer(VectorLayer a_layer, GameObject a_displayMethodRoot)
 		{
-			int objectsPlaced = 0;
+
+            int objectsPlaced = 0;
             foreach (VectorObject obj in a_layer.data)
-			{
+            {
                 GameObject go = new GameObject("PointCard_" + objectsPlaced.ToString());
 				go.transform.SetParent(a_displayMethodRoot.transform, false);
 				go.transform.localPosition = obj.FirstPosition;
-                go.AddComponent<CardObject>().Initialise(this);
+                go.AddComponent<CardObject>().Initialise(a_layer, obj, this);
 				objectsPlaced++;
             }
 
