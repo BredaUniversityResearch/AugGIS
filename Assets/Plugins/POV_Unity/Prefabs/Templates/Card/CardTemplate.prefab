@@ -387,6 +387,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5504767394888463347}
+  - component: {fileID: 3801833792542991598}
   m_Layer: 0
   m_Name: CardTemplate
   m_TagString: Untagged
@@ -412,3 +413,16 @@ Transform:
   - {fileID: 2768144854486490096}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3801833792542991598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9083524978690373285}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef59d102415891e409637fb27e7de1fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp-firstpass::POV_Unity.CardItem
+  Document: {fileID: 9040849840576863384}

@@ -1,0 +1,48 @@
+:root {
+}
+
+.AugGIS_button {
+    background-color: rgb(4, 93, 99);
+    color: rgb(255, 255, 255);
+    border-width: 0;
+    border-radius: 19px;
+    margin: 10px 0 10px 0;
+}
+
+.AugGIS_button:hover {
+    background-color: rgb(4, 150, 150);
+}
+
+.AugGIS_button:active {
+    background-color: rgb(4, 93, 99);
+}
+
+.AugGIS_button:focus {
+    background-color: rgb(247, 160, 43);
+}
+
+.AugGIS_button:disabled {
+    background-color: rgb(151, 151, 151);
+}
+
+
+
+.AugGIS_label {
+    -unity-font-definition: url("project://database/Assets/MSP/Fonts/Cabin/Cabin/Cabin-Medium.ttf?fileID=12800000&guid=2ce234350e105304385758f2965e2215&type=3#Cabin-Medium");
+    color: rgb(255, 255, 255);
+    white-space: pre-wrap;
+    -unity-text-align: upper-left;
+}
+
+
+
+.AugGIS_heading {
+    -unity-font-definition: url("project://database/Assets/MSP/Fonts/Cabin/Cabin/Cabin-Medium.ttf?fileID=12800000&guid=2ce234350e105304385758f2965e2215&type=3#Cabin-Medium");
+    color: rgb(255, 255, 255);
+    white-space: pre-wrap;
+    -unity-text-align: upper-left;
+    font-size: 36px;
+    -unity-font-style: bold;
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgb(106, 106, 106);
+}
