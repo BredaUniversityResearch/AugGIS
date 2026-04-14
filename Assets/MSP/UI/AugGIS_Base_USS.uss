@@ -8,6 +8,18 @@
     border-radius: 19px;
     margin: 10px 0 10px 0;
     -unity-font-definition: url("project://database/Assets/MSP/Fonts/Cabin/Cabin/Cabin-Bold.ttf?fileID=12800000&guid=e4c4a9aa06ace9445a3d32ada2619351&type=3#Cabin-Bold");
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
 }
 
 .AugGIS_button:hover {
@@ -42,4 +54,48 @@
     -unity-font-style: bold;
     -unity-text-outline-width: 1px;
     -unity-text-outline-color: rgb(106, 106, 106);
+}
+
+
+
+
+
+.unity-tab__header {
+    border-width: 0;
+    border-radius: 19px;
+    margin: 10px 0 10px 0;
+    -unity-font-definition: url("project://database/Assets/MSP/Fonts/Cabin/Cabin/Cabin-Bold.ttf?fileID=12800000&guid=e4c4a9aa06ace9445a3d32ada2619351&type=3#Cabin-Bold");
+    margin-top: 0;
+    margin-right: 2px;
+    margin-bottom: 0;
+    margin-left: 2px;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    color: rgb(255, 255, 255);
+    background-color: rgb(4, 93, 99);
+    width: 40px;
+    height: 40px;
+}
+
+
+
+
+
+
+
+.unity-tab__header:checked {
+    border-width: 0;
+    border-radius: 19px;
+    margin: 10px 0 10px 0;
+    background-color: rgb(247, 160, 43);
+    margin-top: 0;
+    margin-right: 2px;
+    margin-bottom: 0;
+    margin-left: 2px;
 }

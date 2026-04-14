@@ -327,3 +327,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::POV_Unity.InfoCard
   Document: {fileID: 0}
+  m_cardID: 
+  m_title: 
+  m_description: 

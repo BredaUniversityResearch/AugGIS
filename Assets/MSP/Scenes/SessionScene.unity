@@ -14983,7 +14983,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  m_loadConfigFromLocalFile: 1
+  m_loadConfigFromLocalFile: 0
   m_worldPoseData: {fileID: 11400000, guid: 9c0dc120a59cb804cb1002fba622bb18, type: 2}
   m_firstAnchorData: {fileID: 11400000, guid: dfaf1d5867778834db223da4884153a9, type: 2}
   m_secondAnchorData: {fileID: 11400000, guid: a810736fe2283c24e88861d5e223ca15, type: 2}
