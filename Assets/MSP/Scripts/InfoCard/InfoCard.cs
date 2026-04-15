@@ -81,11 +81,11 @@ namespace POV_Unity
 
         public void SetDescription(string a_description)
         {
-            m_title = a_description;
+            m_description = a_description;
             if (Document != null)
             {
-                var ui_title = Document.rootVisualElement.Q<Label>("title");
-                ui_title.text = m_title;
+                var ui_text = Document.rootVisualElement.Q<Label>("text");
+                ui_text.text = m_description;
             }
         }
 
