@@ -310,6 +310,6 @@
             "colour":"#d500ff"
         }
     ],
-    "starting_layer_tags":["Bathymetry", "Topography", "Country", "River", "Port","Lighthouse"],
-    "static_layer_tags":["Bathymetry", "Topography", "Countries"]
+    "starting_layer_tags":["Bathymetry", "Topography", "Country", "River", "Basemap"],
+  "static_layer_tags": [ "Bathymetry", "Topography", "Countries", "Basemap" ]
 }
