@@ -1,5 +1,7 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -55,8 +57,10 @@ namespace POV_Unity
             {
                 var ui_title = Document.rootVisualElement.Q<Label>("title");
                 var ui_text = Document.rootVisualElement.Q<Label>("text");
+                var ui_images = Document.rootVisualElement.Q<VisualElement>("Images");
                 ui_title.text = m_title;
                 ui_text.text = m_description;
+                ui_images.visible = false;
 
                 var button = Document.rootVisualElement.Q<Button>("close-button");
                 button.clicked += CloseDocument;

@@ -5,22 +5,11 @@
             <ui:Label text="title" name="title" class="AugGIS_heading" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;"/>
         </ui:VisualElement>
         <ui:VisualElement name="Body" style="width: auto; height: auto; align-items: center; justify-content: space-between; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgba(0, 0, 0, 0.38); border-top-left-radius: 10px; border-top-right-radius: 10px; color: rgba(11, 13, 23, 0.5);">
-            <ui:VisualElement name="ImageElement" style="justify-content: space-between; width: 100%; height: 150px; align-items: center; flex-direction: row; display: flex;">
+            <ui:VisualElement name="Images" style="justify-content: space-between; width: 100%; height: 150px; align-items: center; flex-direction: row; display: flex;">
                 <ui:Image name="Image" source="project://database/Assets/MSP/Sprites/Background/Login_Background.png?fileID=2800000&amp;guid=1f71b570e2c1663469db62a283580cb8&amp;type=3#Login_Background" scale-mode="ScaleToFit" style="top: 0; left: 0; bottom: 0; right: 0; position: absolute;"/>
                 <ui:Button text="" icon-image="project://database/Assets/UI%20Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss?fileID=-1008301579157283121&amp;guid=4d8cdeb9feac3e44c94c0c8e6a80b259&amp;type=3#arrow-left@2x" name="PreviousImage" class="AugGIS_button_transparent AugGIS_button" style="width: 40px; height: 40px;"/>
                 <ui:Button text="" icon-image="project://database/Assets/UI%20Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss?fileID=-1087164816274819069&amp;guid=4d8cdeb9feac3e44c94c0c8e6a80b259&amp;type=3#arrow-right@2x" name="NextImage" class="AugGIS_button" style="width: 40px; height: 40px;"/>
             </ui:VisualElement>
-            <ui:TabView view-data-key="TabbedMenu" reorderable="true" name="TabView" style="width: 100%; flex-direction: column-reverse;">
-                <ui:Tab label="Three" view-data-key="ThreeTab">
-                    <ui:Label text="Label" class="AugGIS_label"/>
-                </ui:Tab>
-                <ui:Tab label="Two" view-data-key="TwoTab">
-                    <ui:Label text="Label" class="AugGIS_label"/>
-                </ui:Tab>
-                <ui:Tab label="One" view-data-key="OneTab">
-                    <ui:Label text="Label" class="AugGIS_label"/>
-                </ui:Tab>
-            </ui:TabView>
             <ui:Label text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. &#10;&#10;Ut enim: ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. &#10;&#10;&lt;b&gt;Duis aute: &lt;/b&gt;irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.&#10;&#10;" name="text" class="AugGIS_label" style="padding-left: 2px;"/>
             <ui:Button text="Close" name="close-button" class="AugGIS_button" style="width: 100%; height: 40px;"/>
         </ui:VisualElement>
