@@ -120,7 +120,25 @@ namespace POV_Unity
 
         void CloseDocument()
         {
+            ClearImages();
 
+            CloseInfoCardEvent?.Invoke();
+
+            Destroy(this.gameObject);
+        }
+
+        public void CloseDocument(bool a_invokeEvent = true)
+        {
+            ClearImages();
+
+            if (a_invokeEvent)
+                CloseInfoCardEvent?.Invoke();
+
+            Destroy(this.gameObject);
+        }
+
+        void ClearImages()
+        {
             if (!string.IsNullOrEmpty(m_imageName))
             {
                 // Clear from UI
@@ -129,9 +147,6 @@ namespace POV_Unity
                 // Tell FileLoader we no longer need it
                 FileLoader.Instance.ReleaseImage(m_imageName);
             }
-
-            CloseInfoCardEvent?.Invoke();
-            Destroy(this.gameObject);
         }
     }
 }

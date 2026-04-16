@@ -90,6 +90,7 @@ namespace POV_Unity
             {
                 m_infoCards.Remove(a_cardID);
                 infoCard.CloseInfoCardEvent -= () => DestroyInfoCard(infoCard.CardID);
+                infoCard.CloseDocument(false);
             }
 
             if (IsServer)
