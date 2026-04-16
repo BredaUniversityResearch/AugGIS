@@ -46,9 +46,9 @@ namespace POV_Unity
         }
 
         [Button]
-        public void SpawnInfoCard(Vector3 a_localPosition, string a_title, string a_description)
+        public void SpawnInfoCard(Vector3 a_localPosition, string a_title, string a_description, string a_image)
         {
-            SpawnInfoCardServerRPC(a_localPosition, a_title, a_description);
+            SpawnInfoCardServerRPC(a_localPosition, a_title, a_description, a_image);
         }
 
         [Button]
@@ -58,27 +58,27 @@ namespace POV_Unity
         }
 
         [Button]
-        public void UpdateInfoCard(string a_cardID, Vector3 a_localPosition, string a_title, string a_description, string a_images="")
+        public void UpdateInfoCard(string a_cardID, Vector3 a_localPosition, string a_title, string a_description, string a_image = "")
         {
-            UpdateInfoCardServerRPC(a_cardID, a_localPosition, a_title, a_description);
+            UpdateInfoCardServerRPC(a_cardID, a_localPosition, a_title, a_description, a_image);
         }
 
         [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-        private void SpawnInfoCardServerRPC(Vector3 a_localPosition, string a_title, string a_description)
+        private void SpawnInfoCardServerRPC(Vector3 a_localPosition, string a_title, string a_description, string a_image)
         {
             string newCardID = Guid.NewGuid().ToString();
             m_infoCardIDs.Add(newCardID);
 
-            SpawnInfoCardClientRPC(newCardID, a_localPosition, a_title, a_description,RpcTarget.Everyone);    
+            SpawnInfoCardClientRPC(newCardID, a_localPosition, a_title, a_description,a_image,RpcTarget.Everyone);    
         }
 
         [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
-        private void SpawnInfoCardClientRPC(string a_cardID, Vector3 a_localPosition, string a_title, string a_description, RpcParams rpcParams = default)
+        private void SpawnInfoCardClientRPC(string a_cardID, Vector3 a_localPosition, string a_title, string a_description, string a_image, RpcParams rpcParams = default)
         {
             InfoCard infoCard = Instantiate(m_infoCardPrefab);
             infoCard.transform.parent = m_infoCardRootTransformRef.TransformRef;
             infoCard.transform.localPosition = a_localPosition;
-            infoCard.Initialise(a_title, a_description, a_cardID);
+            infoCard.Initialise(a_title, a_description, a_cardID, a_image);
             m_infoCards.Add(infoCard.CardID, infoCard);
             infoCard.CloseInfoCardEvent += () => DestroyInfoCard(infoCard.CardID);
         }
@@ -90,7 +90,6 @@ namespace POV_Unity
             {
                 m_infoCards.Remove(a_cardID);
                 infoCard.CloseInfoCardEvent -= () => DestroyInfoCard(infoCard.CardID);
-                Destroy(infoCard.gameObject);                
             }
 
             if (IsServer)
@@ -98,7 +97,7 @@ namespace POV_Unity
         }
 
         [Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Everyone)]
-        private void UpdateInfoCardServerRPC(string a_cardID, Vector3 a_localPosition, string a_title, string a_description)
+        private void UpdateInfoCardServerRPC(string a_cardID, Vector3 a_localPosition, string a_title, string a_description, string a_image)
         {
             if (m_infoCards.TryGetValue(a_cardID, out InfoCard infoCard))
             {
@@ -129,7 +128,7 @@ namespace POV_Unity
         {
             if (m_infoCards.TryGetValue(a_cardID.ToString(), out InfoCard infoCard))
             {
-                SpawnInfoCardClientRPC(infoCard.CardID, infoCard.transform.localPosition, infoCard.CardTitle, infoCard.CardDescription, RpcTarget.Single(a_clientId, RpcTargetUse.Temp));
+                SpawnInfoCardClientRPC(infoCard.CardID, infoCard.transform.localPosition, infoCard.CardTitle, infoCard.CardDescription, infoCard.CardImage, RpcTarget.Single(a_clientId, RpcTargetUse.Temp));
             }
         }
     }

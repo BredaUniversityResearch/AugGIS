@@ -1,3 +1,4 @@
+using GLTFast.Schema;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -35,14 +36,19 @@ namespace POV_Unity
         private string m_description;
         public string CardDescription => m_description;
 
+        [SerializeField]
+        private string m_imageName;
+        public string CardImage => m_imageName;
+
         public event Action CloseInfoCardEvent;
 
-        public void Initialise(string a_title, string a_description, string a_cardID)
+        public void Initialise(string a_title, string a_description, string a_cardID, string a_imageName = "")
         {
             m_title = a_title;
             m_description = a_description;
             m_cardID = a_cardID;
-
+            m_imageName = a_imageName;
+            
             if (Document == null)
                 Document = GetComponentInChildren<UIDocument>();
 
@@ -52,19 +58,27 @@ namespace POV_Unity
         private IEnumerator InitGUI()
         {
             yield return null;
-
             if (Document != null)
             {
                 var ui_title = Document.rootVisualElement.Q<Label>("title");
                 var ui_text = Document.rootVisualElement.Q<Label>("text");
-                var ui_images = Document.rootVisualElement.Q<VisualElement>("Images");
                 ui_title.text = m_title;
                 ui_text.text = m_description;
-                ui_images.visible = false;
+
+                var ui_imagecontainer = Document.rootVisualElement.Q<VisualElement>("imagecontainer");
+                var ui_images = Document.rootVisualElement.Q<UnityEngine.UIElements.Image>("card-image");
+
+                if (string.IsNullOrEmpty(m_imageName))
+                {
+                    ui_imagecontainer.visible = false;
+                }
+                else
+                {
+                    LoadImageAsync(ui_images);
+                }
 
                 var button = Document.rootVisualElement.Q<Button>("close-button");
                 button.clicked += CloseDocument;
-
                 Document.gameObject.GetComponent<BoxCollider>();
             }
         }
@@ -89,9 +103,35 @@ namespace POV_Unity
             }
         }
 
+        private async void LoadImageAsync(UnityEngine.UIElements.Image a_image)
+        {
+            var texture = await FileLoader.Instance.GetImageAsync(m_imageName);
+            if (texture != null)
+            {
+                a_image.image = texture;
+            }
+            else
+            {
+                // Optionally hide the container if loading failed
+                //a_imageContainer.visible = false;
+                Debug.LogWarning($"[ImageCard] Failed to load image: {m_imageName}");
+            }
+        }
+
         void CloseDocument()
         {
+
+            if (!string.IsNullOrEmpty(m_imageName))
+            {
+                // Clear from UI
+                Document.rootVisualElement.Q<VisualElement>("card-image").style.backgroundImage = StyleKeyword.Null;
+
+                // Tell FileLoader we no longer need it
+                FileLoader.Instance.ReleaseImage(m_imageName);
+            }
+
             CloseInfoCardEvent?.Invoke();
+            Destroy(this.gameObject);
         }
     }
 }
