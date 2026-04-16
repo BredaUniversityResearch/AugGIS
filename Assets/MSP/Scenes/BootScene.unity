@@ -131,8 +131,8 @@ GameObject:
   - component: {fileID: 1613032}
   - component: {fileID: 1613031}
   - component: {fileID: 1613030}
-  - component: {fileID: 1613029}
   - component: {fileID: 1613034}
+  - component: {fileID: 1613029}
   m_Layer: 0
   m_Name: FileManager
   m_TagString: Untagged
