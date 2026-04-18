@@ -31,7 +31,7 @@ namespace POV_Unity
             foreach (VectorObject obj in a_layer.data)
 			{
                 GameObject go = new GameObject("PointObject_" + objectsPlaced.ToString());
-				go.transform.SetParent(a_displayMethodRoot.transform, false);
+                go.transform.SetParent(a_displayMethodRoot.transform, false);
 				go.transform.localPosition = obj.FirstPosition;
                 go.AddComponent<ModelObject>().Initialise(a_layer, obj, this);
                 float modelScale = GetVariable<float>("scale", a_layer, obj);

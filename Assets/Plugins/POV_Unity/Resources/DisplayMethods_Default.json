@@ -1,6 +1,18 @@
 {
   "display_methods": [
     {
+      "name": "Tourism Info Card",
+      "method": "TourismPointCard",
+      "tag_includes": [ "Tourism" ],
+      "visualization_mode": 3,
+      "meta_title": "title",
+      "meta_description": "description",
+      "meta_category": "category",
+      "meta_type": "type",
+      "meta_rating": "rating",
+      "meta_website": "website"
+    },
+    {
       "name": "Bathymetry quad",
       "method": "ValueMapQuad",
       "tag_includes": [ "Bathymetry", "ValueMap" ],

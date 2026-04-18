@@ -29,13 +29,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7094759779502827537}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.1, z: 0}
+  m_LocalRotation: {x: 0.2164396, y: 0, z: 0, w: 0.97629607}
+  m_LocalPosition: {x: 0, y: 0.095, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5504767394888463347}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 25, y: 0, z: 0}
 --- !u!114 &9040849840576863384
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -217,8 +217,8 @@ Transform:
   m_GameObject: {fileID: 8996441948253669573}
   serializedVersion: 2
   m_LocalRotation: {x: 1, y: -0, z: -0, w: -0.00000035762784}
-  m_LocalPosition: {x: 0, y: 0.0919, z: 0}
-  m_LocalScale: {x: 0.38128, y: 0.49051672, z: 0.38128}
+  m_LocalPosition: {x: 0, y: 0.0379, z: 0}
+  m_LocalScale: {x: 0.15885651, y: 0.20436889, z: 0.15885651}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5504767394888463347}
@@ -330,3 +330,4 @@ MonoBehaviour:
   m_cardID: 
   m_title: 
   m_description: 
+  m_imageName: 

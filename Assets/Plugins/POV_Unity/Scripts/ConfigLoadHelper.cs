@@ -42,6 +42,7 @@ namespace POV_Unity
                 { "LineModel", typeof(DMLineModel) },
                 { "LineModelMovement", typeof(DMLineModelMovement) },
                 { "LineModelInterval", typeof(DMLineModelInterval) },
+                { "TourismPointCard", typeof(DMTourismPointCard) },
                 { "RasterQuad", typeof(DMRasterQuad) }
             };
 		}

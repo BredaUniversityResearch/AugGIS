@@ -1,5 +1,5 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/MSP/UI/AugGIS_Base_USS.uss?fileID=7433441132597879392&amp;guid=7ddc7ad81607c60458250f0a7ccc6645&amp;type=3#AugGIS_Base_USS"/>
+    <Style src="project://database/Assets/MSP/UI/AugGIS_Base_USS.uss?fileID=7433441132597879392&amp;guid=7ddc7ad81607c60458250f0a7ccc6645&amp;type=3"/>
     <ui:VisualElement style="flex-direction: column; width: 300px;">
         <ui:VisualElement name="Header" style="width: 100%; height: auto; flex-direction: row; align-items: center; justify-content: space-around; border-top-left-radius: 26px; border-top-right-radius: 26px; align-self: center;">
             <ui:Label text="title" name="title" class="AugGIS_heading" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;"/>
@@ -7,11 +7,50 @@
         <ui:VisualElement name="Body" style="width: auto; height: auto; align-items: center; justify-content: space-between; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgba(0, 0, 0, 0.38); border-top-left-radius: 10px; border-top-right-radius: 10px; color: rgba(11, 13, 23, 0.5);">
             <ui:VisualElement name="Images" style="justify-content: space-between; width: 100%; height: 150px; align-items: center; flex-direction: row; display: flex;">
                 <ui:Image name="card-image" source="project://database/Assets/MSP/Sprites/Background/Login_Background.png?fileID=2800000&amp;guid=1f71b570e2c1663469db62a283580cb8&amp;type=3#Login_Background" scale-mode="ScaleToFit" style="top: 0; left: 0; bottom: 0; right: 0; position: absolute;"/>
-                <ui:Button text="" icon-image="project://database/Assets/UI%20Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss?fileID=-1008301579157283121&amp;guid=4d8cdeb9feac3e44c94c0c8e6a80b259&amp;type=3#arrow-left@2x" name="PreviousImage" class="AugGIS_button_transparent AugGIS_button" style="width: 40px; height: 40px;"/>
-                <ui:Button text="" icon-image="project://database/Assets/UI%20Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss?fileID=-1087164816274819069&amp;guid=4d8cdeb9feac3e44c94c0c8e6a80b259&amp;type=3#arrow-right@2x" name="NextImage" class="AugGIS_button" style="width: 40px; height: 40px;"/>
+                <ui:Button text="" icon-image="project://database/Assets/MSP/Sprites/SVG/UIToolkit/noun-arrow-left-3134100-FFFFFF.svg?fileID=7388822144124034973&amp;guid=00ec5e09dac8db143bd722a025c41a52&amp;type=3#noun-arrow-left-3134100-FFFFFF" name="PreviousImage" class="AugGIS_button_transparent AugGIS_button" style="width: 40px; height: 40px; padding-left: 5px; padding-top: 5px; padding-right: 5px; padding-bottom: 5px;"/>
+                <ui:Button text="" icon-image="project://database/Assets/MSP/Sprites/SVG/UIToolkit/noun-arrow-right-3134100-FFFFFF.svg?fileID=7388822144124034973&amp;guid=90802f6648f39c84fa9b6ae9a4726182&amp;type=3#noun-arrow-right-3134100-FFFFFF" name="NextImage" class="AugGIS_button" style="width: 40px; height: 40px; padding-left: 5px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px;"/>
             </ui:VisualElement>
-            <ui:Label text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. &#10;&#10;Ut enim: ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. &#10;&#10;&lt;b&gt;Duis aute: &lt;/b&gt;irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.&#10;&#10;" name="text" class="AugGIS_label" style="padding-left: 2px;"/>
+            <ui:TabView name="Content" style="margin-top: 5px; width: 100%; margin-bottom: 5px;">
+                <ui:Tab label="" name="Details" icon-image="project://database/Assets/MSP/Sprites/SVG/UIToolkit/noun-description-7776120-FFFFFF.svg?fileID=7388822144124034973&amp;guid=f382c7f56ca473647a1a1f41a7b90bf1&amp;type=3#noun-description-7776120-FFFFFF" style="border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0; border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 0;">
+                    <ui:Label text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. &#10;&#10;Ut enim: ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. &#10;&#10;&lt;b&gt;Duis aute: &lt;/b&gt;irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.&#10;&#10;" name="text" class="AugGIS_label" style="padding-left: 2px;"/>
+                </ui:Tab>
+                <ui:Tab label="" name="Time_Cost" icon-image="project://database/Assets/MSP/Sprites/SVG/UIToolkit/noun-money-time-2518824-FFFFFF.svg?fileID=7388822144124034973&amp;guid=0a3a261fe3b189b499b01ccf9b7bb7d7&amp;type=3#noun-money-time-2518824-FFFFFF" tabindex="1">
+                    <ui:VisualElement name="TimeElement" style="flex-direction: row; justify-content: flex-start;">
+                        <ui:Image source="project://database/Assets/MSP/Sprites/SVG/UIToolkit/noun-money-time-2518824-FFFFFF.svg?fileID=7388822144124034973&amp;guid=0a3a261fe3b189b499b01ccf9b7bb7d7&amp;type=3#noun-money-time-2518824-FFFFFF" name="Image" style="width: 25px; height: 25px;"/>
+                        <ui:Label text="text" name="text" class="AugGIS_label" style="padding-left: 2px; margin-left: 10px;"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="CostElement" style="flex-direction: row; justify-content: flex-start;">
+                        <ui:Image source="project://database/Assets/MSP/Sprites/SVG/UIToolkit/noun-money-time-2518824-FFFFFF.svg?fileID=7388822144124034973&amp;guid=0a3a261fe3b189b499b01ccf9b7bb7d7&amp;type=3#noun-money-time-2518824-FFFFFF" style="width: 25px; height: 25px;"/>
+                        <ui:Label text="Child (&lt;18) or Copenhagen Card: Free&#10;Adult: 140 DKK&#10;Student: 90 DKK" name="text" class="AugGIS_label" style="padding-left: 2px; margin-left: 10px;"/>
+                    </ui:VisualElement>
+                </ui:Tab>
+                <ui:Tab label="" name="Info" icon-image="project://database/Assets/MSP/Sprites/SVG/UIToolkit/noun-info-8261243-FFFFFF.svg?fileID=7388822144124034973&amp;guid=9f02267523056b74d97751bd98f9e03e&amp;type=3#noun-info-8261243-FFFFFF" tabindex="2">
+                    <ui:VisualElement name="PhoneElement" style="flex-direction: row; justify-content: flex-start;">
+                        <ui:Image source="project://database/Assets/MSP/Sprites/SVG/UIToolkit/noun-money-time-2518824-FFFFFF.svg?fileID=7388822144124034973&amp;guid=0a3a261fe3b189b499b01ccf9b7bb7d7&amp;type=3#noun-money-time-2518824-FFFFFF" name="Image" style="width: 25px; height: 25px;"/>
+                        <ui:Label text="text" name="text" class="AugGIS_label" style="padding-left: 2px; margin-left: 10px;"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="AddressElement" style="flex-direction: row; justify-content: flex-start;">
+                        <ui:Image source="project://database/Assets/MSP/Sprites/SVG/UIToolkit/noun-money-time-2518824-FFFFFF.svg?fileID=7388822144124034973&amp;guid=0a3a261fe3b189b499b01ccf9b7bb7d7&amp;type=3#noun-money-time-2518824-FFFFFF" name="Image" style="width: 25px; height: 25px;"/>
+                        <ui:Label text="text" name="text" class="AugGIS_label" style="padding-left: 2px; margin-left: 10px;"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="RatingElement" style="flex-direction: row; justify-content: flex-start;">
+                        <ui:Image source="project://database/Assets/MSP/Sprites/SVG/UIToolkit/noun-money-time-2518824-FFFFFF.svg?fileID=7388822144124034973&amp;guid=0a3a261fe3b189b499b01ccf9b7bb7d7&amp;type=3#noun-money-time-2518824-FFFFFF" name="Image" style="width: 25px; height: 25px;"/>
+                        <ui:VisualElement name="Ratings" style="flex-grow: 1; flex-direction: row; margin-left: 10px;">
+                            <ui:Image source="project://database/Assets/MSP/Sprites/SVG/UIToolkit/noun-money-time-2518824-FFFFFF.svg?fileID=7388822144124034973&amp;guid=0a3a261fe3b189b499b01ccf9b7bb7d7&amp;type=3#noun-money-time-2518824-FFFFFF" name="rating1" style="width: 25px; height: 25px;"/>
+                            <ui:Image source="project://database/Assets/MSP/Sprites/SVG/UIToolkit/noun-money-time-2518824-FFFFFF.svg?fileID=7388822144124034973&amp;guid=0a3a261fe3b189b499b01ccf9b7bb7d7&amp;type=3#noun-money-time-2518824-FFFFFF" name="rating2" style="width: 25px; height: 25px;"/>
+                            <ui:Image source="project://database/Assets/MSP/Sprites/SVG/UIToolkit/noun-money-time-2518824-FFFFFF.svg?fileID=7388822144124034973&amp;guid=0a3a261fe3b189b499b01ccf9b7bb7d7&amp;type=3#noun-money-time-2518824-FFFFFF" name="rating3" style="width: 25px; height: 25px;"/>
+                            <ui:Image source="project://database/Assets/MSP/Sprites/SVG/UIToolkit/noun-money-time-2518824-FFFFFF.svg?fileID=7388822144124034973&amp;guid=0a3a261fe3b189b499b01ccf9b7bb7d7&amp;type=3#noun-money-time-2518824-FFFFFF" name="rating4" style="width: 25px; height: 25px;"/>
+                            <ui:Image source="project://database/Assets/MSP/Sprites/SVG/UIToolkit/noun-money-time-2518824-FFFFFF.svg?fileID=7388822144124034973&amp;guid=0a3a261fe3b189b499b01ccf9b7bb7d7&amp;type=3#noun-money-time-2518824-FFFFFF" name="rating5" style="width: 25px; height: 25px;"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="WebsiteElement" style="flex-direction: row; justify-content: flex-start;">
+                        <ui:Image source="project://database/Assets/MSP/Sprites/SVG/UIToolkit/noun-money-time-2518824-FFFFFF.svg?fileID=7388822144124034973&amp;guid=0a3a261fe3b189b499b01ccf9b7bb7d7&amp;type=3#noun-money-time-2518824-FFFFFF" name="Image" style="width: 25px; height: 25px;"/>
+                        <ui:Label text="text" name="text" class="AugGIS_label" style="padding-left: 2px; margin-left: 10px;"/>
+                    </ui:VisualElement>
+                </ui:Tab>
+            </ui:TabView>
             <ui:Button text="Close" name="close-button" class="AugGIS_button" style="width: 100%; height: 40px;"/>
         </ui:VisualElement>
     </ui:VisualElement>
+    <ui:Image source="project://database/Assets/MSP/Sprites/SVG/UIToolkit/noun-money-time-2518824-FFFFFF.svg?fileID=7388822144124034973&amp;guid=0a3a261fe3b189b499b01ccf9b7bb7d7&amp;type=3#noun-money-time-2518824-FFFFFF" name="Image" style="width: 25px; height: 25px;"/>
 </ui:UXML>
