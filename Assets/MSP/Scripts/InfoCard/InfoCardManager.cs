@@ -11,12 +11,6 @@ namespace POV_Unity
 {
     public class InfoCardManager : NetworkBehaviour
     {
-
-        // Setup card prefab
-        // Determine default amount of cards to instantiate
-        // Call to and from to perform action with card
-        // How to have one manager for a bunch of different cards?
-
         [SerializeField]
         [Required]
         private TransformReference m_infoCardRootTransformRef;
@@ -40,13 +34,13 @@ namespace POV_Unity
             }
             else
             {
-                //TODO Should only do this after all data is loaded, or we will miss image data
+                //TODO Should only do this after all data is loaded, or we might miss image data
                 RefreshInfoCards(NetworkManager.Singleton.LocalClientId);
             }
         }
 
         [Button]
-        public void SpawnInfoCard(Vector3 a_localPosition, string a_title, string a_description, string a_image, string a_time, string a_cost, string a_phone, string a_location, string a_rating, string a_website)
+        public void SpawnInfoCard(Vector3 a_localPosition, string a_title = "test1", string a_description = "test2", string a_image = "Picture1.png", string a_time = "test3", string a_cost = "test4", string a_phone = "test5", string a_location = "test6", string a_rating = "test7", string a_website = "test7")
         {
             InfoCardData infoCardData = new InfoCardData
             {
@@ -94,6 +88,8 @@ namespace POV_Unity
             infoCard.Initialise(ParseInfoCardDataJson(a_infoCardData));
             m_infoCards.Add(infoCard.CardID, infoCard);
             infoCard.CloseInfoCardEvent += () => DestroyInfoCard(infoCard.CardID);
+            infoCard.ChangeImageEvent += (int imageIndex) => ChangeImageServerRPC(infoCard.CardID,imageIndex);
+            infoCard.ChangeTabEvent += (int tabIndex) => ChangeTabServerRPC(infoCard.CardID, tabIndex);
         }
 
         [Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Everyone)]
@@ -103,11 +99,31 @@ namespace POV_Unity
             {
                 m_infoCards.Remove(a_cardID);
                 infoCard.CloseInfoCardEvent -= () => DestroyInfoCard(infoCard.CardID);
+                infoCard.ChangeImageEvent -= (int imageIndex) => ChangeImageServerRPC(infoCard.CardID, imageIndex);
+                infoCard.ChangeTabEvent -= (int tabIndex) => ChangeTabServerRPC(infoCard.CardID, tabIndex);
                 infoCard.CloseCard(false);
             }
 
             if (IsServer)
                 m_infoCardIDs.Remove(infoCard.CardID);
+        }
+
+        [Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Everyone)]
+        private void ChangeImageServerRPC(string a_cardID, int a_imageIndex)
+        {
+            if (m_infoCards.TryGetValue(a_cardID, out InfoCard infoCard))
+            {
+                infoCard.ChangeImage(a_imageIndex);
+            }
+        }
+
+        [Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Everyone)]
+        private void ChangeTabServerRPC(string a_cardID, int a_tabIndex)
+        {
+            if (m_infoCards.TryGetValue(a_cardID, out InfoCard infoCard))
+            {
+                infoCard.ChangeTab(a_tabIndex);
+            }
         }
 
         //[Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Everyone)]

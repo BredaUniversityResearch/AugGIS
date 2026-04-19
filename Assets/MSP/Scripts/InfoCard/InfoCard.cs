@@ -3,20 +3,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
-
-
-// Should become a generic class, with some default functions
-//  Initiaze with title
-//  Close / open
-// Additional cards inherit and add their own functionality
-
-
-// Probably want a default with categories. If only one then show that, if multiple then show several.
-// Each option should just have a text-field, where new fields are added as needed
-// 
-
 
 namespace POV_Unity
 {
@@ -37,6 +26,8 @@ namespace POV_Unity
         public int CurrentImage => m_currentImage;
 
         public event Action CloseInfoCardEvent;
+        public event Action<int> ChangeTabEvent;
+        public event Action<int> ChangeImageEvent;
 
         public void Initialise(InfoCardData a_infoCardData)
         {
@@ -58,7 +49,7 @@ namespace POV_Unity
                 var ui_imagecontainer = Document.rootVisualElement.Q<VisualElement>("Images");
                 var ui_images = Document.rootVisualElement.Q<UnityEngine.UIElements.Image>("cardImage");
 
-                if (CardContent.images.Length < 0)
+                if (CardContent.images.Length <= 0)
                 {
                     ui_imagecontainer.visible = false;
                 }
@@ -70,12 +61,17 @@ namespace POV_Unity
                 var closeButton = Document.rootVisualElement.Q<Button>("close-button");
                 closeButton.clicked += CloseCard;
                 var nextButton = Document.rootVisualElement.Q<Button>("nextImageBtn");
-                nextButton.clicked += NextImage;
+                nextButton.clicked += OnNextImage;
                 var previousButton = Document.rootVisualElement.Q<Button>("previousImageBtn");
-                previousButton.clicked += PreviousImage;
-                //TO DO ADD CALLBACK FOR TAB SWITCHING
+                previousButton.clicked += OnPreviousImage;
+                var contentTab = Document.rootVisualElement.Q<TabView>("Content");
+                contentTab.activeTabChanged += OnTabChanged;
 
-                Document.gameObject.GetComponent<BoxCollider>();
+                if (CardContent.images.Length < 2)
+                {
+                    nextButton.visible = false;
+                    previousButton.visible = false;
+                }
             }
         }
 
@@ -112,28 +108,51 @@ namespace POV_Unity
             }
         }
 
-        //TO DO, NETWORK THIS
-        void NextImage()
+        void OnNextImage()
         {
             if (CardContent.images.Length == 0)
                 return;
             m_currentImage = (m_currentImage + 1) % CardContent.images.Length;
             var ui_image = Document.rootVisualElement.Q<UnityEngine.UIElements.Image>("cardImage");
             LoadImageAsync(ui_image);
+            ChangeImageEvent?.Invoke(m_currentImage);
         }
 
-        //TO DO, NETWORK THIS
-        void PreviousImage()
+        void OnPreviousImage()
         {
             if (CardContent.images.Length == 0)
                 return;
-            m_currentImage = (m_currentImage - 1 + CardContent.images.Length) % CardContent.images.Length;
+            m_currentImage = (m_currentImage - 1) % CardContent.images.Length;
             var ui_image = Document.rootVisualElement.Q<UnityEngine.UIElements.Image>("cardImage");
             LoadImageAsync(ui_image);
+            ChangeImageEvent?.Invoke(m_currentImage);
         }
 
+        public void ChangeImage(int a_imageIndex)
+        {
+            if (CardContent.images.Length == 0)
+                return;
+            m_currentImage = a_imageIndex % CardContent.images.Length;
+            var ui_image = Document.rootVisualElement.Q<UnityEngine.UIElements.Image>("cardImage");
+            LoadImageAsync(ui_image);
+            ChangeImageEvent?.Invoke(m_currentImage);
+        }
 
-        //TO DO, ADD NETWORKING FOR THE TAB SWITCHING!!!
+        public void ChangeTab(int a_tabIndex)
+        {
+            var contentTab = Document.rootVisualElement.Q<TabView>("Content");
+            contentTab.activeTabChanged -= OnTabChanged;
+            contentTab.activeTab = contentTab.GetTab(a_tabIndex);
+            contentTab.activeTabChanged += OnTabChanged;
+        }
+
+        void OnTabChanged(Tab a_oldTab,Tab a_newTab)
+        {
+            var contentTab = Document.rootVisualElement.Q<TabView>("Content");
+            contentTab.activeTabChanged -= OnTabChanged;
+            ChangeTabEvent?.Invoke(a_newTab.tabIndex);
+            contentTab.activeTabChanged += OnTabChanged;
+        }
 
         void CloseCard()
         {
