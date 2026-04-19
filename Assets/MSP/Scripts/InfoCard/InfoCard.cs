@@ -29,8 +29,10 @@ namespace POV_Unity
         public event Action<int> ChangeTabEvent;
         public event Action<int> ChangeImageEvent;
 
-        public void Initialise(InfoCardData a_infoCardData)
+        public void Initialise(InfoCardData a_infoCardData, string a_cardID)
         {
+            m_cardID = a_cardID;
+
             m_cardContent = a_infoCardData;
 
             if (Document == null)
@@ -95,7 +97,7 @@ namespace POV_Unity
 
         private async void LoadImageAsync(UnityEngine.UIElements.Image a_image)
         {
-            var texture = await FileLoader.Instance.GetImageAsync(m_cardContent.images[0]);
+            var texture = await FileLoader.Instance.GetImageAsync(m_cardContent.images[m_currentImage]);
             if (texture != null)
             {
                 a_image.image = texture;
@@ -104,7 +106,7 @@ namespace POV_Unity
             {
                 // Optionally hide the container if loading failed
                 //a_imageContainer.visible = false;
-                Debug.LogWarning($"[ImageCard] Failed to load image: {m_cardContent.images[0]}");
+                Debug.LogWarning($"[ImageCard] Failed to load image: {m_cardContent.images[m_currentImage]}");
             }
         }
 
@@ -122,7 +124,7 @@ namespace POV_Unity
         {
             if (CardContent.images.Length == 0)
                 return;
-            m_currentImage = (m_currentImage - 1) % CardContent.images.Length;
+            m_currentImage = (m_currentImage - 1 + CardContent.images.Length) % CardContent.images.Length;
             var ui_image = Document.rootVisualElement.Q<UnityEngine.UIElements.Image>("cardImage");
             LoadImageAsync(ui_image);
             ChangeImageEvent?.Invoke(m_currentImage);
@@ -135,7 +137,6 @@ namespace POV_Unity
             m_currentImage = a_imageIndex % CardContent.images.Length;
             var ui_image = Document.rootVisualElement.Q<UnityEngine.UIElements.Image>("cardImage");
             LoadImageAsync(ui_image);
-            ChangeImageEvent?.Invoke(m_currentImage);
         }
 
         public void ChangeTab(int a_tabIndex)
@@ -149,9 +150,7 @@ namespace POV_Unity
         void OnTabChanged(Tab a_oldTab,Tab a_newTab)
         {
             var contentTab = Document.rootVisualElement.Q<TabView>("Content");
-            contentTab.activeTabChanged -= OnTabChanged;
             ChangeTabEvent?.Invoke(a_newTab.tabIndex);
-            contentTab.activeTabChanged += OnTabChanged;
         }
 
         void CloseCard()

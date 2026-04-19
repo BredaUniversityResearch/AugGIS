@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using Unity.Collections;
 using Unity.Netcode;
@@ -6,6 +7,15 @@ using UnityEngine;
 
 public class SessionFileManager : NetworkBehaviour
 {
+    public static SessionFileManager Instance { get; private set; }
+
+    public event Action OnHostUrlReady;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
+
     private NetworkVariable<FixedString64Bytes> _hostUrl = new(
         writePerm: NetworkVariableWritePermission.Server
     );
@@ -27,6 +37,7 @@ public class SessionFileManager : NetworkBehaviour
 
             // Set it directly for the host, don't rely on the callback
             FileLoader.Instance.SetHostUrl(ip, port);
+            OnHostUrlReady?.Invoke();
 
             HostFileServer.Instance.StartServer();
         }
@@ -37,6 +48,7 @@ public class SessionFileManager : NetworkBehaviour
             Debug.Log($"[SessionManager] OnValueChanged fired: {newVal}");
             var parts = newVal.ToString().Split(':');
             FileLoader.Instance.SetHostUrl(parts[0], int.Parse(parts[1]));
+            OnHostUrlReady?.Invoke();
         };
 
         if (!IsServer && !string.IsNullOrEmpty(_hostUrl.Value.ToString()))

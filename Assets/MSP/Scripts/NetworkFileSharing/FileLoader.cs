@@ -11,8 +11,11 @@ public class FileLoader : MonoBehaviour
     public static FileLoader Instance { get; private set; }
 
     private string _baseUrl;
+    public string BaseUrl => _baseUrl;
+
 
     private void Awake() => Instance = this;
+
 
     // Call this once you know the host IP (see Step 5)
     public void SetHostUrl(string hostIp, int port)
@@ -121,39 +124,45 @@ public class FileLoader : MonoBehaviour
         float timeout = 5f;
         while (string.IsNullOrEmpty(_baseUrl))
         {
-            timeout -= Time.deltaTime;
+            Debug.Log($"[FileLoader] GetImageAsync called, _baseUrl: '{_baseUrl}'");
+
+            timeout -= 0.1f;
             if (timeout <= 0)
             {
                 Debug.LogError($"[FileLoader] Timed out waiting for host URL");
                 return null;
             }
-            await Awaitable.NextFrameAsync();
+            await Awaitable.WaitForSecondsAsync(0.1f);
         }
-
-        Debug.Log($"[FileLoader] Requesting: {_baseUrl}/{fileName}");
 
         if (_textureCache.TryGetValue(fileName, out var cached))
-            return cached;
-
-        var url = $"{_baseUrl}/{fileName}";
-        using var req = UnityWebRequestTexture.GetTexture(url);
-        await req.SendWebRequest();
-
-        if (req.result != UnityWebRequest.Result.Success)
         {
-            Debug.LogError($"[FileLoader] Failed to load image: {fileName}");
-            return null;
+            _textureRefCount[fileName]++;
+            return cached;
         }
 
+        var url = $"{_baseUrl}/{fileName}";
+        var req = UnityWebRequestTexture.GetTexture(url);
 
-        var texture = DownloadHandlerTexture.GetContent(req);
-        // Update GetImageAsync to track refs:
-        _textureCache[fileName] = texture;
-        _textureRefCount[fileName] = 0;
+        try
+        {
+            await req.SendWebRequest();
 
-        // And increment on each fetch:
-        _textureRefCount[fileName]++;
-        return _textureCache[fileName];
+            if (req.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogWarning($"[FileLoader] Image not found: {fileName}");
+                return null;
+            }
+
+            var texture = DownloadHandlerTexture.GetContent(req);
+            _textureCache[fileName] = texture;
+            _textureRefCount[fileName] = 1;
+            return texture;
+        }
+        finally
+        {
+            req.Dispose();
+        }
     }
 
     public void ReleaseImage(string fileName)

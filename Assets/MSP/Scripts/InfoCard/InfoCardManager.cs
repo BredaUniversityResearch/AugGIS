@@ -29,13 +29,17 @@ namespace POV_Unity
             base.OnNetworkSpawn();
 
             if (IsServer)
-            {
                 return;
+
+            // If URL is already set (e.g. host), refresh immediately
+            if (!string.IsNullOrEmpty(FileLoader.Instance.BaseUrl))
+            {
+                RefreshInfoCards(NetworkManager.Singleton.LocalClientId);
             }
             else
             {
-                //TODO Should only do this after all data is loaded, or we might miss image data
-                RefreshInfoCards(NetworkManager.Singleton.LocalClientId);
+                // Wait for host URL to be ready before requesting cards
+                SessionFileManager.Instance.OnHostUrlReady += OnHostUrlReady;
             }
         }
 
@@ -46,7 +50,7 @@ namespace POV_Unity
             {
                 title = a_title,
                 description = a_description,
-                images = new string[] { a_image },
+                images = new string[] { "Picture1.png", "Picture2.png", "Picture3.png" },
                 time = a_time,
                 cost = a_cost,
                 phone = a_phone,
@@ -76,7 +80,7 @@ namespace POV_Unity
             string newCardID = Guid.NewGuid().ToString();
             m_infoCardIDs.Add(newCardID);
 
-            SpawnInfoCardClientRPC(newCardID, a_localPosition, a_infoCardData , RpcTarget.Everyone);    
+            SpawnInfoCardClientRPC(newCardID, a_localPosition, a_infoCardData, RpcTarget.Everyone);
         }
 
         [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
@@ -85,7 +89,7 @@ namespace POV_Unity
             InfoCard infoCard = Instantiate(m_infoCardPrefab);
             infoCard.transform.parent = m_infoCardRootTransformRef.TransformRef;
             infoCard.transform.localPosition = a_localPosition;
-            infoCard.Initialise(ParseInfoCardDataJson(a_infoCardData));
+            infoCard.Initialise(ParseInfoCardDataJson(a_infoCardData),a_cardID);
             m_infoCards.Add(infoCard.CardID, infoCard);
             infoCard.CloseInfoCardEvent += () => DestroyInfoCard(infoCard.CardID);
             infoCard.ChangeImageEvent += (int imageIndex) => ChangeImageServerRPC(infoCard.CardID,imageIndex);
@@ -105,10 +109,12 @@ namespace POV_Unity
             }
 
             if (IsServer)
+            {
                 m_infoCardIDs.Remove(infoCard.CardID);
+            }
         }
 
-        [Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Everyone)]
+        [Rpc(SendTo.NotMe, InvokePermission = RpcInvokePermission.Everyone)]
         private void ChangeImageServerRPC(string a_cardID, int a_imageIndex)
         {
             if (m_infoCards.TryGetValue(a_cardID, out InfoCard infoCard))
@@ -117,7 +123,7 @@ namespace POV_Unity
             }
         }
 
-        [Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Everyone)]
+        [Rpc(SendTo.NotMe, InvokePermission = RpcInvokePermission.Everyone)]
         private void ChangeTabServerRPC(string a_cardID, int a_tabIndex)
         {
             if (m_infoCards.TryGetValue(a_cardID, out InfoCard infoCard))
@@ -137,6 +143,12 @@ namespace POV_Unity
         //}
 
         //TODO needs to wait until card is spawned or declined before moving to next
+        private void OnHostUrlReady()
+        {
+            SessionFileManager.Instance.OnHostUrlReady -= OnHostUrlReady;
+            RefreshInfoCards(NetworkManager.Singleton.LocalClientId);
+        }
+
         private void RefreshInfoCards(ulong a_clientId)
         {
             foreach (var cardID in m_infoCardIDs)
@@ -155,9 +167,15 @@ namespace POV_Unity
         [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
         private void RequestInfoCardServerRPC(ulong a_clientId, string a_cardID)
         {
-            if (m_infoCards.TryGetValue(a_cardID.ToString(), out InfoCard infoCard))
+            if (m_infoCards.TryGetValue(a_cardID, out InfoCard infoCard))
             {
-                SpawnInfoCardClientRPC(infoCard.CardID, infoCard.transform.localPosition, GetInfoCardDataJson(infoCard.CardContent), RpcTarget.Single(a_clientId, RpcTargetUse.Temp));
+                SpawnInfoCardClientRPC(infoCard.CardID, infoCard.transform.localPosition,
+                    GetInfoCardDataJson(infoCard.CardContent),
+                    RpcTarget.Single(a_clientId, RpcTargetUse.Temp));
+            }
+            else
+            {
+                Debug.LogWarning($"[InfoCardManager] Card not found on server: {a_cardID}");
             }
         }
 

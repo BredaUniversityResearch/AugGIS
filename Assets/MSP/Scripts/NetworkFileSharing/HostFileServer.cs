@@ -18,6 +18,9 @@ public class HostFileServer : MonoBehaviour
     public int Port => port;
     public string FolderPath => servedFolderPath;
 
+    private void OnDestroy() => StopServer();
+    private void OnApplicationQuit() => StopServer();
+
     private void Awake()
     {
         Instance = this;
@@ -42,8 +45,26 @@ public class HostFileServer : MonoBehaviour
 
     public void StopServer()
     {
-        _listener?.Stop();
-        _listenerThread?.Abort();
+        try
+        {
+            _listener?.Stop();
+            _listener?.Close();
+            _listener = null;
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"[HostFileServer] Error stopping server: {e.Message}");
+        }
+
+        try
+        {
+            _listenerThread?.Abort();
+            _listenerThread = null;
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"[HostFileServer] Error stopping thread: {e.Message}");
+        }
     }
 
     private void HandleRequests()
@@ -110,6 +131,4 @@ public class HostFileServer : MonoBehaviour
             _ => "application/octet-stream" // fallback for unknown types
         };
     }
-
-    private void OnDestroy() => StopServer();
 }
