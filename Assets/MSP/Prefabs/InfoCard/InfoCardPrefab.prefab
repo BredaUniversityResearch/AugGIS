@@ -326,7 +326,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a9cedd3197a1f74cab7bc1e4349d4b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::POV_Unity.InfoCard
-  Document: {fileID: 0}
+  Document: {fileID: 9040849840576863384}
   m_cardID: 
   m_title: 
   m_description: 

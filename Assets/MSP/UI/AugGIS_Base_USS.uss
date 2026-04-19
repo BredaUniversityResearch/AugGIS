@@ -121,3 +121,22 @@
     margin-top: 5px;
     margin-bottom: 5px;
 }
+
+
+
+.unity-tab-view__content-container {
+    border-width: 0;
+    border-radius: 19px;
+    margin: 10px 0 10px 0;
+    flex-direction: row;
+    width: 100%;
+    justify-content: flex-start;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 5px;
+    padding-right: 0;
+    padding-bottom: 5px;
+    padding-left: 0;
+    margin-right: 0;
+    margin-left: 0;
+}
