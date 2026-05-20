@@ -1,0 +1,7 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Template name="GenericCardContentElementTemplate" src="project://database/Assets/Resources/GenericCardContentElementTemplate.uxml?fileID=9197481963319205126&amp;guid=474f555a5f4ccb14ab67d74682d9e84e&amp;type=3#GenericCardContentElementTemplate"/>
+    <ui:Instance template="GenericCardContentElementTemplate" name="TextContainer" style="flex-direction: row;">
+        <ui:Label text="Title" name="itemTitle" class="AugGIS_label"/>
+        <ui:Label text="Content i what this is and you know that is actually fine!" name="itemContent" class="AugGIS_label"/>
+    </ui:Instance>
+</ui:UXML>

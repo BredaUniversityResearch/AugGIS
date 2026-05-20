@@ -17,9 +17,9 @@ namespace POV_Unity
 
         [SerializeField]
         [Required]
-        private InfoCard m_infoCardPrefab = null;
+        private InfoCard_generic m_infoCardPrefab = null;
 
-        private Dictionary<string,InfoCard> m_infoCards = new Dictionary<string, InfoCard>();
+        private Dictionary<string, InfoCard_generic> m_infoCards = new Dictionary<string, InfoCard_generic>();
 
         [SerializeField]
         private NetworkList<FixedString64Bytes> m_infoCardIDs = new NetworkList<FixedString64Bytes>(new List<FixedString64Bytes>(), NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
@@ -50,7 +50,7 @@ namespace POV_Unity
             {
                 title = a_title,
                 description = a_description,
-                images = new string[] { "Picture1.png", "Picture2.png", "Picture3.png" },
+                images = new string[] { },// { "Picture1.png", "Picture2.png", "Picture3.png" },
                 time = a_time,
                 cost = a_cost,
                 phone = a_phone,
@@ -59,7 +59,53 @@ namespace POV_Unity
                 website = a_website
             };
 
-            SpawnInfoCardServerRPC(a_localPosition, GetInfoCardDataJson(infoCardData));
+            InfoCardGenericData infoCardGenericData = new InfoCardGenericData
+            {
+                type = "text",
+                title = "textheader",                
+            };
+
+           for (int i = 0; i < 5; i++)
+            {
+                InfoCardGenericContentData newContent = new InfoCardGenericContentData
+                {
+                    category = "home",
+                    type = "text",
+                    title = "title" + i.ToString(),
+                    content = "content" + i.ToString()
+                };
+
+                infoCardGenericData.content = infoCardGenericData.content.Append(newContent).ToArray();
+            }
+            for (int i = 0; i < 5; i++)
+            {
+                InfoCardGenericContentData newContent = new InfoCardGenericContentData
+                {
+                    category = "two",
+                    type = "text",
+                    title = "titleTwo" + i.ToString(),
+                    content = "contentTwo" + i.ToString()
+                };
+
+                infoCardGenericData.content = infoCardGenericData.content.Append(newContent).ToArray();
+            }
+            for (int i = 0; i < 5; i++)
+            {
+                InfoCardGenericContentData newContent = new InfoCardGenericContentData
+                {
+                    category = "yes",
+                    type = "text",
+                    title = null,
+                    content = "contentTwo" + i.ToString()
+                };
+
+                infoCardGenericData.content = infoCardGenericData.content.Append(newContent).ToArray();
+            }
+
+            string genericInfoCardJson = JsonUtility.ToJson(infoCardGenericData);
+            print(genericInfoCardJson);
+
+            SpawnInfoCardServerRPC(a_localPosition, genericInfoCardJson);
         }
 
         [Button]
@@ -86,10 +132,10 @@ namespace POV_Unity
         [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
         private void SpawnInfoCardClientRPC(string a_cardID, Vector3 a_localPosition, string a_infoCardData, RpcParams rpcParams = default)
         {
-            InfoCard infoCard = Instantiate(m_infoCardPrefab);
+            InfoCard_generic infoCard = Instantiate(m_infoCardPrefab);
             infoCard.transform.parent = m_infoCardRootTransformRef.TransformRef;
             infoCard.transform.localPosition = a_localPosition;
-            infoCard.Initialise(ParseInfoCardDataJson(a_infoCardData),a_cardID);
+            infoCard.Initialise(infoCard.ParseInfoCardDataJson(a_infoCardData),a_cardID);
             m_infoCards.Add(infoCard.CardID, infoCard);
             infoCard.CloseInfoCardEvent += () => DestroyInfoCard(infoCard.CardID);
             infoCard.ChangeImageEvent += (int imageIndex) => ChangeImageServerRPC(infoCard.CardID,imageIndex);
@@ -99,7 +145,7 @@ namespace POV_Unity
         [Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Everyone)]
         private void DestroyInfoCardServerRPC(string a_cardID)
         {
-            if (m_infoCards.TryGetValue(a_cardID, out InfoCard infoCard))
+            if (m_infoCards.TryGetValue(a_cardID, out InfoCard_generic infoCard))
             {
                 m_infoCards.Remove(a_cardID);
                 infoCard.CloseInfoCardEvent -= () => DestroyInfoCard(infoCard.CardID);
@@ -117,7 +163,7 @@ namespace POV_Unity
         [Rpc(SendTo.NotMe, InvokePermission = RpcInvokePermission.Everyone)]
         private void ChangeImageServerRPC(string a_cardID, int a_imageIndex)
         {
-            if (m_infoCards.TryGetValue(a_cardID, out InfoCard infoCard))
+            if (m_infoCards.TryGetValue(a_cardID, out InfoCard_generic infoCard))
             {
                 infoCard.ChangeImage(a_imageIndex);
             }
@@ -126,7 +172,7 @@ namespace POV_Unity
         [Rpc(SendTo.NotMe, InvokePermission = RpcInvokePermission.Everyone)]
         private void ChangeTabServerRPC(string a_cardID, int a_tabIndex)
         {
-            if (m_infoCards.TryGetValue(a_cardID, out InfoCard infoCard))
+            if (m_infoCards.TryGetValue(a_cardID, out InfoCard_generic infoCard))
             {
                 infoCard.ChangeTab(a_tabIndex);
             }
@@ -153,7 +199,7 @@ namespace POV_Unity
         {
             foreach (var cardID in m_infoCardIDs)
             {
-                if (m_infoCards.TryGetValue(cardID.ToString(), out InfoCard infoCard))
+                if (m_infoCards.TryGetValue(cardID.ToString(), out InfoCard_generic infoCard))
                 {
                     Debug.Log("Card Exists");
                 }
@@ -167,10 +213,10 @@ namespace POV_Unity
         [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
         private void RequestInfoCardServerRPC(ulong a_clientId, string a_cardID)
         {
-            if (m_infoCards.TryGetValue(a_cardID, out InfoCard infoCard))
+            if (m_infoCards.TryGetValue(a_cardID, out InfoCard_generic infoCard))
             {
                 SpawnInfoCardClientRPC(infoCard.CardID, infoCard.transform.localPosition,
-                    GetInfoCardDataJson(infoCard.CardContent),
+                    infoCard.GetInfoCardDataJson(),
                     RpcTarget.Single(a_clientId, RpcTargetUse.Temp));
             }
             else

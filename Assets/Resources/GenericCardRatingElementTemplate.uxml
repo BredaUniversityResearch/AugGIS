@@ -1,0 +1,11 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Template name="GenericCardContentElementTemplate" src="project://database/Assets/Resources/GenericCardContentElementTemplate.uxml?fileID=9197481963319205126&amp;guid=474f555a5f4ccb14ab67d74682d9e84e&amp;type=3#GenericCardContentElementTemplate"/>
+    <ui:Instance template="GenericCardContentElementTemplate" name="RatingContainer" style="flex-direction: row;">
+        <ui:Label text="Title" name="itemTitle" class="AugGIS_label"/>
+        <ui:VisualElement name="Stars" style="flex-direction: row; height: 25px; margin-top: 4px; margin-right: 4px; margin-bottom: 2px; margin-left: 2px; padding-top: 4px; padding-right: 2px; padding-bottom: 4px; padding-left: 1px;">
+            <ui:Image source="project://database/Assets/MSP/Sprites/SVG/UIToolkit/noun-star-3058132-FFFFFF.svg?fileID=7388822144124034973&amp;guid=9a33302715339994781d045c0bd9de11&amp;type=3#noun-star-3058132-FFFFFF" name="whole" style="flex-basis: 25px;"/>
+            <ui:Image source="project://database/Assets/MSP/Sprites/SVG/UIToolkit/noun-star-half-3058137-FFFFFF.svg?fileID=7388822144124034973&amp;guid=cdfb9cfcadfc53f45a02cd0ab742151d&amp;type=3#noun-star-half-3058137-FFFFFF" name="half" style="flex-basis: 25px;"/>
+            <ui:Image source="project://database/Assets/MSP/Sprites/SVG/UIToolkit/noun-star-3058133-FFFFFF.svg?fileID=7388822144124034973&amp;guid=2d1de90c990cc7446b6513b96d47bade&amp;type=3#noun-star-3058133-FFFFFF" name="empty" style="flex-basis: 25px;"/>
+        </ui:VisualElement>
+    </ui:Instance>
+</ui:UXML>

@@ -48,32 +48,31 @@ namespace POV_Unity
             {
                 SetCardData();
 
-                var ui_imagecontainer = Document.rootVisualElement.Q<VisualElement>("Images");
-                var ui_images = Document.rootVisualElement.Q<UnityEngine.UIElements.Image>("cardImage");
+                var ui_imagecontainer = Document.rootVisualElement.Q<VisualElement>("image-container");
+                var ui_images = ui_imagecontainer.Q<UnityEngine.UIElements.Image>("cardImage");
 
                 if (CardContent.images.Length <= 0)
                 {
-                    ui_imagecontainer.visible = false;
+                    ui_imagecontainer.style.display = DisplayStyle.None;
                 }
                 else
                 {
                     LoadImageAsync(ui_images);
+
+                    var nextButton = ui_imagecontainer.Q<Button>("nextImageBtn");
+                    nextButton.clicked += OnNextImage;
+                    var previousButton = ui_imagecontainer.Q<Button>("previousImageBtn");
+                    previousButton.clicked += OnPreviousImage;
+
+                    if (CardContent.images.Length < 2)
+                    {
+                        nextButton.style.display = DisplayStyle.None;
+                        previousButton.style.display = DisplayStyle.None;
+                    }
                 }
 
                 var closeButton = Document.rootVisualElement.Q<Button>("close-button");
                 closeButton.clicked += CloseCard;
-                var nextButton = Document.rootVisualElement.Q<Button>("nextImageBtn");
-                nextButton.clicked += OnNextImage;
-                var previousButton = Document.rootVisualElement.Q<Button>("previousImageBtn");
-                previousButton.clicked += OnPreviousImage;
-                var contentTab = Document.rootVisualElement.Q<TabView>("Content");
-                contentTab.activeTabChanged += OnTabChanged;
-
-                if (CardContent.images.Length < 2)
-                {
-                    nextButton.visible = false;
-                    previousButton.visible = false;
-                }
             }
         }
 
@@ -86,7 +85,48 @@ namespace POV_Unity
 
         void SetCardData()
         {
-            Document.rootVisualElement.Q<Label>("title").text = m_cardContent.title;
+            Document.rootVisualElement.Q<Label>("cardTitle").text = m_cardContent.title;
+
+            var tabView = Document.rootVisualElement.Q<TabView>("content-container");
+
+            foreach (var item in m_cardContent.content)
+            {
+                //Check if tab exists, otherwise create it
+                var itemTab = tabView.Q<Tab>(item.category);
+                if (itemTab == null)
+                {
+                    itemTab = new Tab(item.category);
+                    itemTab.name = item.category;
+                    tabView.Add(itemTab);
+                }
+
+                var template = Resources.Load<VisualTreeAsset>("GenericCardTextElementTemplate");
+                var itemElement = template.CloneTree();
+                itemTab.Add(itemElement);
+
+                var titleLabel = itemElement.Q<Label>("itemTitle");
+                // Optional title
+                if (!string.IsNullOrEmpty(item.title))
+                {
+                    itemElement.name = item.title;
+                    titleLabel.text = item.title;
+                }
+                else
+                    titleLabel.style.display = DisplayStyle.None;
+
+                var contentLabel = itemElement.Q<Label>("itemContent");
+                contentLabel.text = item.content;
+
+                tabView.activeTabChanged += OnTabChanged;
+            }
+
+            //Hide header if only 1 tab
+            var headerContainer = tabView.Q<VisualElement>("unity-tab-view__header-container");
+            var tabs = tabView.Query<Tab>().ToList();
+            if (tabs.Count <= 1)
+            {
+                headerContainer.style.display = DisplayStyle.None;
+            }
         }
 
         private async void LoadImageAsync(UnityEngine.UIElements.Image a_image)
@@ -178,26 +218,29 @@ namespace POV_Unity
             }
         }
 
-        string GetInfoCardDataJson()
+        public string GetInfoCardDataJson()
         {
             string jsonData = JsonUtility.ToJson(m_cardContent);
             return jsonData;
         }
 
-        void ParseInfoCardDataJson(string a_jsonData)
+       public InfoCardGenericData ParseInfoCardDataJson(string a_jsonData)
         {
             InfoCardGenericData cardData = JsonUtility.FromJson<InfoCardGenericData>(a_jsonData);
             m_cardContent = cardData;
+            return cardData;
         }
     }
 
+    [System.Serializable]
     public class InfoCardGenericData
     {
         public string type = "";
         public string title = "";
         public string[] images = new string[0];
-        public InfoCardGenericData[] content = new InfoCardGenericData[0];
+        public InfoCardGenericContentData[] content = new InfoCardGenericContentData[0];
     }
+    [System.Serializable]
     public class InfoCardGenericContentData
     {
         public string category = "";
