@@ -55,7 +55,7 @@ MonoBehaviour:
     - {fileID: 1181300606944344, guid: 22346e6621a9fe0449138bc33e99db2d, type: 3}
     - {fileID: 1181300606944344, guid: eb2bd99c114e3554fa17dc8ddb877ede, type: 3}
     - {fileID: 1181300606944344, guid: 73bd4f00fadab4b788ba1534f0794b67, type: 3}
-    - {fileID: 9083524978690373285, guid: a4bdae7b47f0f5148ad6af6c6f033a47, type: 3}
+    - {fileID: 8398714936341085755, guid: a1b929874266370418126533de713eb1, type: 3}
     SerializedBytesString: 
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
@@ -584,7 +584,7 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: CardTemplate
+      Data: PressablePoint
     - Name: $v
       Entry: 10
       Data: 39

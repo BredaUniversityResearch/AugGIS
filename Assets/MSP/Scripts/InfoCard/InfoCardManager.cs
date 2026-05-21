@@ -24,6 +24,19 @@ namespace POV_Unity
         [SerializeField]
         private NetworkList<FixedString64Bytes> m_infoCardIDs = new NetworkList<FixedString64Bytes>(new List<FixedString64Bytes>(), NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
+        public static InfoCardManager Instance { get; private set; }
+
+        private void Awake()
+        {
+            if (Instance != null)
+            {
+                Debug.LogWarning("Multiple instances of InfoCardManager detected. There should only be one instance in the scene.");
+                Destroy(gameObject);
+                return;
+            }
+            Instance = this;
+        }
+        
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();

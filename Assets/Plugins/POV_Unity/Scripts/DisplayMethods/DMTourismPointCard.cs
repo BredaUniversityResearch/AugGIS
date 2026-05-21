@@ -23,6 +23,7 @@ namespace POV_Unity
         public string meta_rating;
         public string meta_website;
 
+
         protected override IDisplayMethodRenderData DisplayVectorLayer(VectorLayer a_layer, GameObject a_displayMethodRoot)
 		{
 
@@ -39,19 +40,19 @@ namespace POV_Unity
                 GameObject go = new GameObject("TourismPointCard_" + objectsPlaced.ToString());
                 go.transform.SetParent(a_displayMethodRoot.transform, false);
 				go.transform.localPosition = obj.FirstPosition;
-                GameObject go1 = new GameObject("description:" + description);
-                GameObject go2 = new GameObject("category:" + category);
-                GameObject go3 = new GameObject("rating:" + rating);
-                GameObject go4 = new GameObject("type:" + type);
-                GameObject go5 = new GameObject("website:" + website);
-                go1.transform.SetParent(go.transform, false);
-                go2.transform.SetParent(go.transform, false);
-                go3.transform.SetParent(go.transform, false);
-                go4.transform.SetParent(go.transform, false);
-                go5.transform.SetParent(go.transform, false);
-                //go.AddComponent<CardObject>().Initialise(a_layer, obj, this);
+                //GameObject go1 = new GameObject("description:" + description);
+                //GameObject go2 = new GameObject("category:" + category);
+                //GameObject go3 = new GameObject("rating:" + rating);
+                //GameObject go4 = new GameObject("type:" + type);
+                //GameObject go5 = new GameObject("website:" + website);
+                //go1.transform.SetParent(go.transform, false);
+                //go2.transform.SetParent(go.transform, false);
+                //go3.transform.SetParent(go.transform, false);
+                //go4.transform.SetParent(go.transform, false);
+                //go5.transform.SetParent(go.transform, false);
+                go.AddComponent<CardObject>().Initialise(a_layer, obj, this);
                 objectsPlaced++;
-
+                
             }
 
             return null;

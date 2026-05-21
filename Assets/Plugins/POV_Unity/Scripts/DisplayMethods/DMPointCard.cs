@@ -26,8 +26,6 @@ namespace POV_Unity
 				go.transform.localPosition = obj.FirstPosition;
                 go.AddComponent<CardObject>().Initialise(a_layer, obj, this);
 				objectsPlaced++;
-
-
             }
 
             return null;
