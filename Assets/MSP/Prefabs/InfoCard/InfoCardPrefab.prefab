@@ -50,7 +50,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
   m_PanelSettings: {fileID: 11400000, guid: 7adb7e22a5cbc2f4e9a4ad1bc6bd8ca3, type: 2}
   m_ParentUI: {fileID: 0}
-  sourceAsset: {fileID: 9197481963319205126, guid: a5cc576544c187142b75ea57758fb920, type: 3}
+  sourceAsset: {fileID: 9197481963319205126, guid: f4fe41df940fd304aaeb1341629f485b, type: 3}
   m_SortingOrder: 0
   m_Position: 0
   m_WorldSpaceSizeMode: 0
@@ -289,7 +289,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5504767394888463347}
-  - component: {fileID: 1299969921216414684}
+  - component: {fileID: 3205861502486874912}
   m_Layer: 0
   m_Name: InfoCardPrefab
   m_TagString: Untagged
@@ -314,7 +314,7 @@ Transform:
   - {fileID: 2768144854486490096}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1299969921216414684
+--- !u!114 &3205861502486874912
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -328,6 +328,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::POV_Unity.InfoCard
   Document: {fileID: 9040849840576863384}
   m_cardID: 
-  m_title: 
-  m_description: 
-  m_imageName: 
+  m_currentImage: 0

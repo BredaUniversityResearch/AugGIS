@@ -48,32 +48,31 @@ namespace POV_Unity
             {
                 SetCardData();
 
-                var ui_imagecontainer = Document.rootVisualElement.Q<VisualElement>("Images");
-                var ui_images = Document.rootVisualElement.Q<UnityEngine.UIElements.Image>("cardImage");
+                var ui_imagecontainer = Document.rootVisualElement.Q<VisualElement>("image-container");
+                var ui_images = ui_imagecontainer.Q<UnityEngine.UIElements.Image>("cardImage");
 
                 if (CardContent.images.Length <= 0)
                 {
-                    ui_imagecontainer.visible = false;
+                    ui_imagecontainer.style.display = DisplayStyle.None;
                 }
                 else
                 {
                     LoadImageAsync(ui_images);
+
+                    var nextButton = ui_imagecontainer.Q<Button>("nextImageBtn");
+                    nextButton.clicked += OnNextImage;
+                    var previousButton = ui_imagecontainer.Q<Button>("previousImageBtn");
+                    previousButton.clicked += OnPreviousImage;
+
+                    if (CardContent.images.Length < 2)
+                    {
+                        nextButton.style.display = DisplayStyle.None;
+                        previousButton.style.display = DisplayStyle.None;
+                    }
                 }
 
                 var closeButton = Document.rootVisualElement.Q<Button>("close-button");
                 closeButton.clicked += CloseCard;
-                var nextButton = Document.rootVisualElement.Q<Button>("nextImageBtn");
-                nextButton.clicked += OnNextImage;
-                var previousButton = Document.rootVisualElement.Q<Button>("previousImageBtn");
-                previousButton.clicked += OnPreviousImage;
-                var contentTab = Document.rootVisualElement.Q<TabView>("Content");
-                contentTab.activeTabChanged += OnTabChanged;
-
-                if (CardContent.images.Length < 2)
-                {
-                    nextButton.visible = false;
-                    previousButton.visible = false;
-                }
             }
         }
 
@@ -86,13 +85,48 @@ namespace POV_Unity
 
         void SetCardData()
         {
-            Document.rootVisualElement.Q<Label>("title").text = m_cardContent.title;
-            Document.rootVisualElement.Q<Label>("descriptionText").text = m_cardContent.description;
-            Document.rootVisualElement.Q<Label>("timeText").text = m_cardContent.time;
-            Document.rootVisualElement.Q<Label>("costText").text = m_cardContent.cost;
-            Document.rootVisualElement.Q<Label>("phoneText").text = m_cardContent.phone;
-            Document.rootVisualElement.Q<Label>("addressText").text = m_cardContent.location;
-            Document.rootVisualElement.Q<Label>("websiteText").text = m_cardContent.cost;
+            Document.rootVisualElement.Q<Label>("cardTitle").text = m_cardContent.title;
+
+            var tabView = Document.rootVisualElement.Q<TabView>("content-container");
+
+            foreach (var item in m_cardContent.content)
+            {
+                //Check if tab exists, otherwise create it
+                var itemTab = tabView.Q<Tab>(item.category);
+                if (itemTab == null)
+                {
+                    itemTab = new Tab(item.category);
+                    itemTab.name = item.category;
+                    tabView.Add(itemTab);
+                }
+
+                var template = Resources.Load<VisualTreeAsset>("GenericCardTextElementTemplate");
+                var itemElement = template.CloneTree();
+                itemTab.Add(itemElement);
+
+                var titleLabel = itemElement.Q<Label>("itemTitle");
+                // Optional title
+                if (!string.IsNullOrEmpty(item.title))
+                {
+                    itemElement.name = item.title;
+                    titleLabel.text = item.title;
+                }
+                else
+                    titleLabel.style.display = DisplayStyle.None;
+
+                var contentLabel = itemElement.Q<Label>("itemContent");
+                contentLabel.text = item.content;
+
+                tabView.activeTabChanged += OnTabChanged;
+            }
+
+            //Hide header if only 1 tab
+            var headerContainer = tabView.Q<VisualElement>("unity-tab-view__header-container");
+            var tabs = tabView.Query<Tab>().ToList();
+            if (tabs.Count <= 1)
+            {
+                headerContainer.style.display = DisplayStyle.None;
+            }
         }
 
         private async void LoadImageAsync(UnityEngine.UIElements.Image a_image)
@@ -147,7 +181,7 @@ namespace POV_Unity
             contentTab.activeTabChanged += OnTabChanged;
         }
 
-        void OnTabChanged(Tab a_oldTab,Tab a_newTab)
+        void OnTabChanged(Tab a_oldTab, Tab a_newTab)
         {
             var contentTab = Document.rootVisualElement.Q<TabView>("Content");
             ChangeTabEvent?.Invoke(a_newTab.tabIndex);
@@ -174,7 +208,7 @@ namespace POV_Unity
 
         void ClearImages()
         {
-            if (CardContent.images.Length>0)
+            if (CardContent.images.Length > 0)
             {
                 // Clear from UI
                 Document.rootVisualElement.Q<VisualElement>("cardImage").style.backgroundImage = StyleKeyword.Null;
@@ -184,29 +218,34 @@ namespace POV_Unity
             }
         }
 
-        string GetInfoCardDataJson()
+        public string GetInfoCardDataJson()
         {
             string jsonData = JsonUtility.ToJson(m_cardContent);
             return jsonData;
         }
 
-        void ParseInfoCardDataJson(string a_jsonData)
+        public InfoCardData ParseInfoCardDataJson(string a_jsonData)
         {
             InfoCardData cardData = JsonUtility.FromJson<InfoCardData>(a_jsonData);
             m_cardContent = cardData;
+            return cardData;
         }
     }
 
+    [System.Serializable]
     public class InfoCardData
     {
+        public string type = "";
         public string title = "";
-        public string description = "";
         public string[] images = new string[0];
-        public string time = "";
-        public string cost = "";
-        public string phone = "";
-        public string location = "";
-        public string rating = "";
-        public string website = "";
+        public InfoCardContentData[] content = new InfoCardContentData[0];
+    }
+    [System.Serializable]
+    public class InfoCardContentData
+    {
+        public string category = "";
+        public string type = "";
+        public string title = "";
+        public string content = "";
     }
 }
