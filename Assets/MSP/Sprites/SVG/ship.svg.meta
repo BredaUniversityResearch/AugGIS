@@ -39,15 +39,15 @@ ScriptedImporter:
   useSVGPixelsPerUnit: 0
   spriteData:
     TessellationDetail: 0
-    SpriteName: 
-    SpritePivot: {x: 0, y: 0}
+    SpriteName: shipSprite
+    SpritePivot: {x: 0.5, y: 0.5}
     SpriteAlignment: 0
     SpriteBorder: {x: 0, y: 0, z: 0, w: 0}
     SpriteRect:
       serializedVersion: 2
       x: 0
       y: 0
-      width: 0
-      height: 0
+      width: 419.83997
+      height: 252.92
     SpriteID: 9eb10a987cfdc4d4caf64c08b53cd356
     PhysicsOutlines: []

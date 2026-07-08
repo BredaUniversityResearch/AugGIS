@@ -39,15 +39,15 @@ ScriptedImporter:
   useSVGPixelsPerUnit: 0
   spriteData:
     TessellationDetail: 0
-    SpriteName: 
-    SpritePivot: {x: 0, y: 0}
+    SpriteName: walkingSprite
+    SpritePivot: {x: 0.5, y: 0.5}
     SpriteAlignment: 0
     SpriteBorder: {x: 0, y: 0, z: 0, w: 0}
     SpriteRect:
       serializedVersion: 2
       x: 0
       y: 0
-      width: 0
-      height: 0
+      width: 315.31943
+      height: 486.0514
     SpriteID: ae2d5166714026844a894c4aca630372
     PhysicsOutlines: []
