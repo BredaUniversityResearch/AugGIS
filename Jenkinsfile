@@ -108,28 +108,63 @@ try {
                     def (outputFolder, buildName, tempMessageIfStageFailure) = getBuildDetails(buildTarget, params.DEVELOPMENT, buildNumber, commit, context)
                     messageIfStageFailure = tempMessageIfStageFailure
                     if (params[paramNameMap[buildTarget]]) {
+                        def prevStageSuccess = true
+
                         stage(buildTarget+'Build') {
-                            build(Node, WorkingDir, output, outputFolder, "${unityBuildName}${unityBuildNameExtensionMap[buildTarget]}", "BuildUtility.${buildTarget}${env}Builder", unityVersion, discordWebhook)
+                            try{
+                                build(Node, WorkingDir, output, outputFolder, "${unityBuildName}${unityBuildNameExtensionMap[buildTarget]}", "BuildUtility.${buildTarget}${env}Builder", unityVersion, discordWebhook)
+                            } catch (Exception e) {
+                                prevStageSuccess = false
+                                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                                    error("Build failed for ${buildTarget}")
+                                }
+                            }
                         }
                         stage("Zip${buildTarget}Build") {
-                            zip.pack(".\\${output}\\${outputFolder}", buildName)
+                            try{
+                                if(prevStageSuccess){
+                                    zip.pack(".\\${output}\\${outputFolder}", buildName)
+                                }else{
+                                    catchError(buildResult: 'FAILURE', stageResult: 'ABORTED') {
+                                        error("Previous stage failed for ${buildTarget}, skipping zip")
+                                    }
+                                }
+                            } catch (Exception e) {
+                                prevStageSuccess = false
+                                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                                    error("Zip failed for ${buildTarget}")
+                                }
+                            }
                         }
                         stage("Upload${buildTarget}Build") {
-                            nexus.upload("${nexusRepo}", buildName, "application/x-zip-compressed", buildTarget, 'NEXUS_CREDENTIALS')
+                            try{
+                                if(prevStageSuccess){
+                                    nexus.upload("${nexusRepo}", buildName, "application/x-zip-compressed", buildTarget, 'NEXUS_CREDENTIALS')
+                                }else{
+                                    catchError(buildResult: 'FAILURE', stageResult: 'ABORTED') {
+                                        error("Previous stage failed for ${buildTarget}, skipping upload")
+                                    }
+                                }
+                            } catch (Exception e) {
+                                prevStageSuccess = false
+                                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                                    error("Upload failed for ${buildTarget}")
+                                }
+                            }
                         }
                     } else {
                         stage(buildTarget+'Build') {
-                            catchError(buildResult: 'SUCCESS', stageResult: 'ABORTED') {
+                            catchError(buildResult: 'SUCCESS', stageResult: 'NOT_BUILT') {
                                 error(descriptionMap[buildTarget]+' Build was skipped')
                             }
                         }
                         stage("Zip${buildTarget}Build") {
-                            catchError(buildResult: 'SUCCESS', stageResult: 'ABORTED') {
+                            catchError(buildResult: 'SUCCESS', stageResult: 'NOT_BUILT') {
                                 error(descriptionMap[buildTarget]+' Zip was skipped')
                             }
                         }
                         stage("Upload${buildTarget}Build") {
-                            catchError(buildResult: 'SUCCESS', stageResult: 'ABORTED') {
+                            catchError(buildResult: 'SUCCESS', stageResult: 'NOT_BUILT') {
                                 error(descriptionMap[buildTarget]+' Upload was skipped')
                             }
                         }
