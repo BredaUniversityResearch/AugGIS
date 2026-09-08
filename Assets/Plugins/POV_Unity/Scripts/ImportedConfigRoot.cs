@@ -30,7 +30,7 @@ namespace POV_Unity
 
 		[SerializeField, HideInInspector] Vector3 m_configToWorldOffset;
 		[SerializeField, HideInInspector] float m_configToWorldScale;
-		[SerializeField, HideInInspector] Dictionary<Type, List<ADisplayMethod>> m_displayMethodsByType;
+		[SerializeField, HideInInspector] Dictionary<string, List<ADisplayMethod>> m_displayMethodsByType;
 		int m_nextLayerToLoad = 0;
 		bool m_horizontalLongEdge;
 		float m_areaAspectRatio;
@@ -107,7 +107,7 @@ namespace POV_Unity
 			m_importStepIncrement = 100f / (a_displayMethodConfig.display_methods.Length + a_dataConfig.datamodel.raster_layers.Length + a_dataConfig.datamodel.vector_layers.Length);
 			m_dataConfig = a_dataConfig;
 			m_displayMethodConfig = a_displayMethodConfig;
-			m_displayMethodsByType = new Dictionary<Type, List<ADisplayMethod>>();
+			m_displayMethodsByType = new Dictionary<string, List<ADisplayMethod>>();
 			m_areaCornerBL = new Vector2(a_dataConfig.datamodel.coordinate0[0], a_dataConfig.datamodel.coordinate0[1]);
 			m_areaCornerTR = new Vector2(a_dataConfig.datamodel.coordinate1[0], a_dataConfig.datamodel.coordinate1[1]);
 			m_areaPath = new PathD(new PointD[] {
@@ -212,13 +212,13 @@ namespace POV_Unity
 				LoadNextStep($"Loading display method ({m_displayMethodConfig.display_methods[i].name}");
 
 				Debug.Log($"Config import progress: Loading DisplayMethod ({i+1}/{m_displayMethodConfig.display_methods.Length}, {m_displayMethodConfig.display_methods[i].name})");
-				if (m_displayMethodsByType.TryGetValue(m_displayMethodConfig.display_methods[i].GetType(), out var list))
+				if (m_displayMethodsByType.TryGetValue(m_displayMethodConfig.display_methods[i].GetType().AssemblyQualifiedName, out var list))
 				{
 					list.Add(m_displayMethodConfig.display_methods[i]);
 				}
 				else
 				{
-					m_displayMethodsByType.Add(m_displayMethodConfig.display_methods[i].GetType(), new List<ADisplayMethod>() { m_displayMethodConfig.display_methods[i] });
+					m_displayMethodsByType.Add(m_displayMethodConfig.display_methods[i].GetType().AssemblyQualifiedName, new List<ADisplayMethod>() { m_displayMethodConfig.display_methods[i] });
 				}
 
 				ADisplayMethod result = null;

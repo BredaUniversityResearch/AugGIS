@@ -18,7 +18,7 @@ String discordFriendlyName = "Auggis"
 String nexusRepo = "MSP_ProceduralOceanViewUnity-Main"
 
 String unityBuildName = "Auggis"
-String unityVersion = "6000.3.6f1"
+String unityVersion = "6000.6.0f1"
 
 String output = "Output"
 
