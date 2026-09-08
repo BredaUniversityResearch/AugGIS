@@ -78,95 +78,62 @@ Boolean cleanupAfter = true
 
 String commit = ""
 String messageIfStageFailure = ""
-try {
+try { // we catch any exception that was unhandled
     stage('Clone') {
-        messageIfStageFailure = "Failed to clean workspace"
-        if (cleanupBefore) {
-            node(Node) {
-                dir(WorkingDir) {
-                    script {
+        node(Node) {
+            try {
+                if (cleanupBefore) {
+                    dir(WorkingDir) {
                         deleteDir()
                     }
+                    cleanWs()
                 }
-                cleanWs()
+            } catch (Exception e) {
+                messageIfStageFailure += "Failed to clean workspace: ${e.message}\n"
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    error("Failed to clean workspace Exception: ${e.message}")
+                }
+                // Unrecoverable error, rethrowing to prevent next stages from executing
+                throw e
             }
-        }
-        messageIfStageFailure = "Failed to clone repositories"
-        node(Node) {
-            git.checkoutWithSubModules("https://github.com/${gitHubRepo}", "${gitHubBranch}", 'CRADLE_WEBMASTER_CREDENTIALS')
-            commit = git.fetchCommitHash('CRADLE_WEBMASTER_CREDENTIALS')
+            try {
+                git.checkoutWithSubModules("https://github.com/${gitHubRepo}", "${gitHubBranch}", 'CRADLE_WEBMASTER_CREDENTIALS')
+                commit = git.fetchCommitHash('CRADLE_WEBMASTER_CREDENTIALS')
+            } catch (Exception e) {
+                messageIfStageFailure += "Failed to clone repositories: ${e.message}\n"
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    error("Failed to clone repositories Exception: ${e.message}")
+                }
+                // Unrecoverable error, rethrowing to prevent next stages from executing
+                throw e
+            }
         }
     }
 
     stage('Build') {
         node(Node) {
-            script {
-                def context = createContext(buildNameMap, buildNameDevMap, outputFolderMap, outputFolderDevMap, descriptionMap)
-                String env = params.DEVELOPMENT ? "Dev" : ""
-                String buildNumber = "${currentBuild.number}"
-                for (buildTarget in buildTargets) {
-                    def (outputFolder, buildName, tempMessageIfStageFailure) = getBuildDetails(buildTarget, params.DEVELOPMENT, buildNumber, commit, context)
-                    messageIfStageFailure = tempMessageIfStageFailure
-                    if (params[paramNameMap[buildTarget]]) {
-                        def prevStageSuccess = true
-
-                        stage(buildTarget+'Build') {
-                            try{
-                                build(Node, WorkingDir, output, outputFolder, "${unityBuildName}${unityBuildNameExtensionMap[buildTarget]}", "BuildUtility.${buildTarget}${env}Builder", unityVersion, discordWebhook)
-                            } catch (Exception e) {
-                                prevStageSuccess = false
-                                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                                    error("Build failed for ${buildTarget}")
-                                }
-                            }
+            def context = createContext(buildNameMap, buildNameDevMap, outputFolderMap, outputFolderDevMap, descriptionMap)
+            String env = params.DEVELOPMENT ? "Dev" : ""
+            String buildNumber = "${currentBuild.number}"
+            for (buildTarget in buildTargets) {
+                def (outputFolder, buildName, tempMessageIfStageFailure) = getBuildDetails(buildTarget, params.DEVELOPMENT, buildNumber, commit, context)
+                messageIfStageFailure += tempMessageIfStageFailure + "\n"
+                if (params[paramNameMap[buildTarget]]) {
+                    stagesBuildAndUpload(buildTarget, outputFolder, buildName, env)
+                } else {
+                    stage(buildTarget+'Build') {
+                        catchError(buildResult: 'SUCCESS', stageResult: 'NOT_BUILT') {
+                            error(descriptionMap[buildTarget]+' Build was skipped')
                         }
-                        stage("Zip${buildTarget}Build") {
-                            try{
-                                if(prevStageSuccess){
-                                    zip.pack(".\\${output}\\${outputFolder}", buildName)
-                                }else{
-                                    catchError(buildResult: 'FAILURE', stageResult: 'ABORTED') {
-                                        error("Previous stage failed for ${buildTarget}, skipping zip")
-                                    }
-                                }
-                            } catch (Exception e) {
-                                prevStageSuccess = false
-                                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                                    error("Zip failed for ${buildTarget}")
-                                }
-                            }
+                    }
+                    stage("Zip${buildTarget}Build") {
+                        catchError(buildResult: 'SUCCESS', stageResult: 'NOT_BUILT') {
+                            error(descriptionMap[buildTarget]+' Zip was skipped')
                         }
-                        stage("Upload${buildTarget}Build") {
-                            try{
-                                if(prevStageSuccess){
-                                    nexus.upload("${nexusRepo}", buildName, "application/x-zip-compressed", buildTarget, 'NEXUS_CREDENTIALS')
-                                }else{
-                                    catchError(buildResult: 'FAILURE', stageResult: 'ABORTED') {
-                                        error("Previous stage failed for ${buildTarget}, skipping upload")
-                                    }
-                                }
-                            } catch (Exception e) {
-                                prevStageSuccess = false
-                                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                                    error("Upload failed for ${buildTarget}")
-                                }
-                            }
-                        }
-                    } else {
-                        stage(buildTarget+'Build') {
-                            catchError(buildResult: 'SUCCESS', stageResult: 'NOT_BUILT') {
-                                error(descriptionMap[buildTarget]+' Build was skipped')
-                            }
-                        }
-                        stage("Zip${buildTarget}Build") {
-                            catchError(buildResult: 'SUCCESS', stageResult: 'NOT_BUILT') {
-                                error(descriptionMap[buildTarget]+' Zip was skipped')
-                            }
-                        }
-                        stage("Upload${buildTarget}Build") {
-                            catchError(buildResult: 'SUCCESS', stageResult: 'NOT_BUILT') {
-                                error(descriptionMap[buildTarget]+' Upload was skipped')
-                            }
+                    }
+                    stage("Upload${buildTarget}Build") {
+                        catchError(buildResult: 'SUCCESS', stageResult: 'NOT_BUILT') {
+                            error(descriptionMap[buildTarget]+' Upload was skipped')
                         }
                     }
                 }
@@ -183,46 +150,40 @@ try {
         error()
     }
     node(Node) {
-        script {
-            discord.failed(discordWebhook, "${discordFriendlyName}", "${messageIfStageFailure}\n\n${e}")
-        }
+        discord.failed(discordWebhook, "${discordFriendlyName}", "${messageIfStageFailure}\n\n${e}")
     }
     throw (e)
 } finally {
     try {
         stage('Report-Results') {
             node(Node) {
-                script {
-                    switch (currentBuild.result) {
-                        case "UNSTABLE":
-                            echo "Build was unstable"
-                            break
-                        case "FAILURE":
-                            echo "Build failed"
-                            break
-                        case "ABORTED":
-                            echo "Build was aborted"
-                            break
-                        default: // case "SUCCESS":
-                            if (currentBuild.result != 'SUCCESS') {
-                                echo "Unknown result, assuming build was successful"
+                switch (currentBuild.result) {
+                    case "UNSTABLE":
+                        echo "Build was unstable"
+                        break
+                    case "FAILURE":
+                        echo "Build failed"
+                        break
+                    case "ABORTED":
+                        echo "Build was aborted"
+                        break
+                    default: // case "SUCCESS":
+                        if (currentBuild.result != 'SUCCESS') {
+                            echo "Unknown result, assuming build was successful"
+                        }
+                        def context = createContext(buildNameMap, buildNameDevMap, outputFolderMap, outputFolderDevMap, descriptionMap)
+                        String links = ""
+                        String buildNumber = "${currentBuild.number}"
+                        for (buildTarget in buildTargets) {
+                            if (params[paramNameMap[buildTarget]]) {
+                                String buildName = getBuildName(buildTarget, params.DEVELOPMENT, buildNumber, commit, context)
+                                String link = "https://nexus.cradle.buas.nl/#browse/browse:${nexusRepo}:${buildTarget}%%2F${buildName}"
+                                links += "[Download ${descriptionMap[buildTarget]} Build from Nexus](${link});"
                             }
-                            def context = createContext(buildNameMap, buildNameDevMap, outputFolderMap, outputFolderDevMap, descriptionMap)
-                            String links = ""
-                            String discordMessageTitle = "${discordFriendlyName}" + (params.DEVELOPMENT ? " (Dev)" : "")
-                            String env = params.DEVELOPMENT ? "Dev" : ""
-                            String buildNumber = "${currentBuild.number}"
-                            for (buildTarget in buildTargets) {
-                                if (params[paramNameMap[buildTarget]]) {
-                                    String buildName = getBuildName(buildTarget, params.DEVELOPMENT, buildNumber, commit, context)
-                                    String link = "https://nexus.cradle.buas.nl/#browse/browse:${nexusRepo}:${buildTarget}%%2F${buildName}"
-                                    links += "[Download ${descriptionMap[buildTarget]} Build from Nexus](${link});"
-                                }
-                            }
-                            links = links.substring(0, links.length() - 1)
-                            discord.succeeded(discordWebhook, discordFriendlyName, links)
-                            break
-                    }
+                        }
+                        links = links.substring(0, links.length() - 1)
+                        discord.succeeded(discordWebhook, discordFriendlyName, links)
+                        break
                 }
             }
         }
@@ -242,9 +203,7 @@ try {
                 try {
                     node(Node) {
                         dir(WorkingDir) {
-                            script {
-                                deleteDir()
-                            }
+                            deleteDir()
                         }
                         cleanWs()
                     }
@@ -252,9 +211,7 @@ try {
                     echo "Unexpected failure during cleanup, retrying once..."
                     node(Node) {
                         dir(WorkingDir) {
-                            script {
-                                deleteDir()
-                            }
+                            deleteDir()
                         }
                         cleanWs()
                     }
@@ -312,4 +269,51 @@ def build(Node, WorkingDir, output, outputFolder, buildName, buildMethod, unityV
         string(name: 'BUILD_METHOD', value: buildMethod),
         string(name: 'DISCORD_WEBHOOK', value: discordWebhook)
     ]
+}
+
+def stagesBuildAndUpload(buildTarget, outputFolder, buildName, env)
+{
+    def prevStageSuccess = true
+    stage(buildTarget+'Build') {
+        try{
+            build(Node, WorkingDir, output, outputFolder, "${unityBuildName}${unityBuildNameExtensionMap[buildTarget]}", "BuildUtility.${buildTarget}${env}Builder", unityVersion, discordWebhook)
+        } catch (Exception e) {
+            prevStageSuccess = false
+            catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                error("Build failed for ${buildTarget} Exception: ${e.message}")
+            }
+        }
+    }
+    stage("Zip${buildTarget}Build") {
+        try{
+            if(prevStageSuccess){
+                zip.pack(".\\${output}\\${outputFolder}", buildName)
+            }else{
+                catchError(buildResult: 'FAILURE', stageResult: 'ABORTED') {
+                    error("Previous stage failed for ${buildTarget}, skipping zip")
+                }
+            }
+        } catch (Exception e) {
+            prevStageSuccess = false
+            catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                error("Zip failed for ${buildTarget} Exception: ${e.message}")
+            }
+        }
+    }
+    stage("Upload${buildTarget}Build") {
+        try{
+            if(prevStageSuccess){
+                nexus.upload("${nexusRepo}", buildName, "application/x-zip-compressed", buildTarget, 'NEXUS_CREDENTIALS')
+            }else{
+                catchError(buildResult: 'FAILURE', stageResult: 'ABORTED') {
+                    error("Previous stage failed for ${buildTarget}, skipping upload")
+                }
+            }
+        } catch (Exception e) {
+            prevStageSuccess = false
+            catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                error("Upload failed for ${buildTarget}")
+            }
+        }
+    }
 }
