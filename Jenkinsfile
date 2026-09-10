@@ -109,7 +109,6 @@ try { // we catch any exception that was unhandled
             }
         }
     }
-
     stage('Build') {
         node(Node) {
             def context = createContext(buildNameMap, buildNameDevMap, outputFolderMap, outputFolderDevMap, descriptionMap)
@@ -117,7 +116,7 @@ try { // we catch any exception that was unhandled
             String buildNumber = "${currentBuild.number}"
             for (buildTarget in buildTargets) {
                 def (outputFolder, buildName, tempMessageIfStageFailure) = getBuildDetails(buildTarget, params.DEVELOPMENT, buildNumber, commit, context)
-                messageIfStageFailure += tempMessageIfStageFailure + "\n"
+                //messageIfStageFailure += tempMessageIfStageFailure + "\n"
                 if (params[paramNameMap[buildTarget]]) {
                     stagesBuildAndUpload(buildTarget, outputFolder, buildName, env)
                 } else {
@@ -149,23 +148,26 @@ try { // we catch any exception that was unhandled
     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
         error()
     }
-    node(Node) {
-        discord.failed(discordWebhook, "${discordFriendlyName}", "${messageIfStageFailure}\n\n${e}")
-    }
     throw (e)
 } finally {
-    try {
-        stage('Report-Results') {
-            node(Node) {
+    stage('Report-Results') {
+        node(Node) {
+            try {
                 switch (currentBuild.result) {
+                    // discord unstable and failed use: webhook, name, reason
+                    // discord succeeded uses: webhook, name, artifactlinks
+
                     case "UNSTABLE":
                         echo "Build was unstable"
+                        discord.unstable(discordWebhook, discordFriendlyName, messageIfStageFailure)
                         break
                     case "FAILURE":
                         echo "Build failed"
+                        discord.failed(discordWebhook, discordFriendlyName, messageIfStageFailure)
                         break
                     case "ABORTED":
                         echo "Build was aborted"
+                        discord.failed(discordWebhook, discordFriendlyName, "Build was aborted")
                         break
                     default: // case "SUCCESS":
                         if (currentBuild.result != 'SUCCESS') {
@@ -185,21 +187,29 @@ try { // we catch any exception that was unhandled
                         discord.succeeded(discordWebhook, discordFriendlyName, links)
                         break
                 }
+            // Catch any exceptions but we swallow them to ensure the cleanup happens
+            } catch (InterruptedException e) {
+                catchError(buildResult: 'ABORTED', stageResult: 'ABORTED') {
+                    error()
+                }
+            } catch (Exception e) {
+                catchError(buildResult: currentBuild.currentResult, stageResult: 'FAILURE') {
+                    error("Unexpected failure during discord notification")
+                }
             }
         }
-    } catch (InterruptedException e) {
-        catchError(buildResult: 'ABORTED', stageResult: 'ABORTED') {
-            error()
-        }
-        throw (e)
-    } catch (Exception e) {
-        catchError(buildResult: currentBuild.currentResult, stageResult: 'FAILURE') {
-            error()
-        }
-        throw (e)
-    } finally {
-        stage('Cleanup') {
-            if (cleanupAfter) {
+    }
+    stage('Cleanup') {
+        if (cleanupAfter) {
+            try {
+                node(Node) {
+                    dir(WorkingDir) {
+                        deleteDir()
+                    }
+                    cleanWs()
+                }
+            } catch (Exception e) {
+                echo "Unexpected failure during cleanup, retrying once..."
                 try {
                     node(Node) {
                         dir(WorkingDir) {
@@ -207,15 +217,10 @@ try { // we catch any exception that was unhandled
                         }
                         cleanWs()
                     }
-                } catch (Exception e) {
-                    echo "Unexpected failure during cleanup, retrying once..."
-                    node(Node) {
-                        dir(WorkingDir) {
-                            deleteDir()
-                        }
-                        cleanWs()
-                    }
-                    throw (e)
+                }
+                catch (Exception ex) {
+                    echo "Unexpected failure during cleanup retry: ${ex}"
+                    throw (ex)
                 }
             }
         }
@@ -273,6 +278,8 @@ def build(Node, WorkingDir, output, outputFolder, buildName, buildMethod, unityV
 
 def stagesBuildAndUpload(buildTarget, outputFolder, buildName, env)
 {
+    // we swallow any exceptions during the build, zip, and upload stages to ensure the pipeline continues for other build targets
+
     def prevStageSuccess = true
     stage(buildTarget+'Build') {
         try{
