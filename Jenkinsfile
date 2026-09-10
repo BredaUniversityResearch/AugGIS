@@ -12,7 +12,11 @@ node('WindowsNode') {
 // Config section
 
 String gitHubRepo = "BredaUniversityResearch/Auggis"
-String gitHubBranch = "dev"
+String gitHubBranch = "${env.CHANGE_BRANCH}"
+if (gitHubBranch == null || gitHubBranch == "" || gitHubBranch == "null") {
+    gitHubBranch = "${env.BRANCH_NAME}"
+}
+
 String discordFriendlyName = "Auggis"
 
 String nexusRepo = "MSP_ProceduralOceanViewUnity-Main"
