@@ -1,0 +1,48 @@
+FIRST TIME
+
+docker volume create auggis-ollama
+docker compose -f voice-stack.yml up -d --build
+docker compose -f voice-stack.yml exec llm ollama pull llama3.2:3b
+
+
+RUN
+
+docker compose -f voice-stack.yml up -d
+irm http://localhost:8080/health
+python voice.py --layers "Population,Bathymetry,Shipping lanes,Wind farms"
+
+Enter starts recording, Enter stops it.
+
+
+PICK A MIC
+
+python voice.py --list-mics
+python voice.py --layers "Population,Bathymetry" --mic "Microphone (Camo)"
+
+
+NO MIC
+
+python voice.py --layers "Population,Bathymetry" --wav samples\test-hide-bathymetry.wav --once
+
+
+CHECKS
+
+docker compose -f voice-stack.yml ps
+docker compose -f voice-stack.yml logs helper --tail 40
+docker compose -f voice-stack.yml exec llm nvidia-smi
+
+
+AFTER EDITING prompt.json
+
+docker restart auggis-voice-helper
+
+
+STOP
+
+docker compose -f voice-stack.yml down
+
+
+DOCKER WILL NOT START
+
+rename %LOCALAPPDATA%\Docker\run to run.old, then start Docker Desktop
+do not click Reset to factory defaults

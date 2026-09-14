@@ -1,0 +1,59 @@
+# AugGIS voice stack.
+#
+#   docker compose -f voice-stack.yml up -d --build
+#
+# The caller only ever talks to `helper` on 8080. Whisper and the LLM are not published
+# to the network at all, they are reachable only from inside this compose network.
+
+services:
+  whisper:
+    image: onerahmet/openai-whisper-asr-webservice:latest-gpu
+    environment:
+      ASR_MODEL: small
+      ASR_ENGINE: faster_whisper
+    volumes:
+      # Named volume, or `compose down -v` re-downloads the model every time.
+      - whisper-cache:/root/.cache
+    deploy:
+      resources:
+        reservations:
+          devices: [{ driver: nvidia, count: 1, capabilities: [gpu] }]
+    restart: unless-stopped
+
+  llm:
+    image: ollama/ollama
+    environment:
+      # Ollama unloads an idle model after about 5 minutes, which puts a 20 second wait
+      # on whoever speaks next. Set here and on every request: the env var is the
+      # container default, the request value does not survive a restart.
+      OLLAMA_KEEP_ALIVE: "-1"
+    volumes:
+      - ollama:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices: [{ driver: nvidia, count: 1, capabilities: [gpu] }]
+    restart: unless-stopped
+
+  helper:
+    build: ./helper
+    container_name: auggis-voice-helper
+    ports:
+      - "8080:8080"
+    environment:
+      WHISPER_URL: http://whisper:9000
+      LLM_URL: http://llm:11434
+      LLM_MODEL: llama3.2:3b
+      PROMPT_PATH: /app/prompt.json
+    volumes:
+      # Bind-mounted read-only, so editing prompt.json and running
+      # `docker restart auggis-voice-helper` applies in about 3 seconds with no rebuild.
+      - ./helper/prompt.json:/app/prompt.json:ro
+    depends_on: [whisper, llm]
+    restart: unless-stopped
+
+volumes:
+  whisper-cache: {}
+  ollama:
+    name: auggis-ollama
+    external: true
