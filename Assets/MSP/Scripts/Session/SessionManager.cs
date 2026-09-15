@@ -80,6 +80,7 @@ public class SessionManager : MonoBehaviour
 			Debug.LogWarning("Instance of SessionManager already exists, destroying new instance");
 			
 			Destroy(gameObject);
+			return;
 		}
 
 		DontDestroyOnLoad(gameObject);
