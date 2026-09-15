@@ -84,6 +84,7 @@ namespace POV_Unity
 			{
 				Debug.LogError("instance of LayerManager already exists, removing new instance");
 				Destroy(gameObject);
+				return;
 			}
 			ms_instance = this;
 
