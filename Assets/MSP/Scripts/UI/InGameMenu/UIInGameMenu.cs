@@ -83,7 +83,6 @@ public class UIInGameMenu : MonoBehaviour
 
 		if (a_tabIndex == m_currentSelectedTabIndex)
 		{
-			Debug.LogWarning("Tab Index is already selected: " + a_tabIndex, this);
 			return;
 		}
 
