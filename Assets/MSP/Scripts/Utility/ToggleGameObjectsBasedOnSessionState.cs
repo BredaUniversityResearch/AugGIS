@@ -15,7 +15,7 @@ public class ToggleGameObjectsBasedOnSessionState : MonoBehaviour
 		SessionManager.Instance.SessionFSM.OnStateEnter += OnStateEntered;
 		SessionManager.Instance.SessionFSM.OnStateExit += OnStateExit;
 
-		ToggleGameObjects(SessionManager.Instance.SessionFSM.CurrentState.GetType() == m_targetSessionState.GetType());
+		ToggleGameObjects(SessionManager.Instance.SessionFSM.CurrentState.GetType() == m_targetSessionState.Type);
 	}
 
 
