@@ -8,13 +8,17 @@ using UnityEngine.XR.Interaction.Toolkit.UI;
 
 /// <summary>
 /// Builds the voice menu prefab out of the standard MSP UI prefabs (panel, toggle, text) and places
-/// one in the Quest scene. Editor menu: MSP/Voice. Command line: -executeMethod VoiceMenuPrefabBuilder.BuildAll
+/// one in the session scene. Editor menu: MSP/Voice. Command line: -executeMethod VoiceMenuPrefabBuilder.BuildAll
 /// </summary>
 public static class VoiceMenuPrefabBuilder
 {
 	private const string REGISTRY_PATH = "Assets/MSP/ScriptableObjects/MSPUIPrefabRegistry.asset";
 	private const string PREFAB_PATH = "Assets/MSP/Prefabs/Menus/VoiceMenu.prefab";
 	private const string QUEST_SCENE_PATH = "Assets/MSP/Scenes/QuestScene.unity";
+	private const string SESSION_SCENE_PATH = "Assets/MSP/Scenes/SessionScene.unity";
+
+	// The menu is only useful once the map has loaded and there are layers to name.
+	private const string VISIBLE_IN_STATE = "WorldViewSessionState";
 
 	// UI is authored in canvas units and scaled down to metres, like the other world-space menus.
 	private const float CANVAS_SCALE = 0.001f;
@@ -27,7 +31,7 @@ public static class VoiceMenuPrefabBuilder
 	public static void BuildAll()
 	{
 		BuildPrefab();
-		AddToQuestScene();
+		MoveToSessionScene();
 	}
 
 	[MenuItem("MSP/Voice/Build Voice Menu Prefab")]
@@ -103,8 +107,8 @@ public static class VoiceMenuPrefabBuilder
 		}
 	}
 
-	[MenuItem("MSP/Voice/Add Voice Menu To Quest Scene")]
-	public static void AddToQuestScene()
+	[MenuItem("MSP/Voice/Move Voice Menu To Session Scene")]
+	public static void MoveToSessionScene()
 	{
 		GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PREFAB_PATH);
 		if (prefab == null)
@@ -113,21 +117,93 @@ public static class VoiceMenuPrefabBuilder
 			return;
 		}
 
+		RemoveFromQuestScene();
+		AddToSessionScene(prefab);
+	}
+
+	// The Quest scene is never unloaded, so a menu left there is up in the main menu too.
+	private static void RemoveFromQuestScene()
+	{
 		Scene scene = EditorSceneManager.OpenScene(QUEST_SCENE_PATH, OpenSceneMode.Single);
+
+		bool removedAny = false;
+		foreach (GameObject rootObject in scene.GetRootGameObjects())
+		{
+			if (rootObject.GetComponent<VoiceMenu>() != null)
+			{
+				Object.DestroyImmediate(rootObject);
+				removedAny = true;
+			}
+		}
+
+		if (!removedAny)
+		{
+			Debug.Log("[Voice] Quest scene had no voice menu to remove.");
+			return;
+		}
+
+		EditorSceneManager.MarkSceneDirty(scene);
+		EditorSceneManager.SaveScene(scene);
+		Debug.Log($"[Voice] Voice menu removed from {QUEST_SCENE_PATH}");
+	}
+
+	private static void AddToSessionScene(GameObject a_prefab)
+	{
+		Scene scene = EditorSceneManager.OpenScene(SESSION_SCENE_PATH, OpenSceneMode.Single);
 
 		foreach (GameObject rootObject in scene.GetRootGameObjects())
 		{
 			if (rootObject.GetComponent<VoiceMenu>() != null)
 			{
-				Debug.Log("[Voice] Quest scene already has a voice menu.");
+				Debug.Log("[Voice] Session scene already has a voice menu.");
 				return;
 			}
 		}
 
-		PrefabUtility.InstantiatePrefab(prefab, scene);
+		ToggleGameObjectsBasedOnSessionState worldViewToggle = FindWorldViewToggle(scene);
+		if (worldViewToggle == null)
+		{
+			Debug.LogError($"[Voice] No {nameof(ToggleGameObjectsBasedOnSessionState)} targeting {VISIBLE_IN_STATE} in {SESSION_SCENE_PATH}.");
+			return;
+		}
+
+		GameObject menu = (GameObject)PrefabUtility.InstantiatePrefab(a_prefab, scene);
+		// Left active like the other objects on the toggle; its Start() hides them before the first frame.
+		AddToToggleList(worldViewToggle, menu);
+
 		EditorSceneManager.MarkSceneDirty(scene);
 		EditorSceneManager.SaveScene(scene);
-		Debug.Log($"[Voice] Voice menu added to {QUEST_SCENE_PATH}");
+		Debug.Log($"[Voice] Voice menu added to {SESSION_SCENE_PATH}, shown with the other {VISIBLE_IN_STATE} objects");
+	}
+
+	// The scene already has one of these for the world view; the menu joins its list rather than adding a second.
+	private static ToggleGameObjectsBasedOnSessionState FindWorldViewToggle(Scene a_scene)
+	{
+		foreach (GameObject rootObject in a_scene.GetRootGameObjects())
+		{
+			ToggleGameObjectsBasedOnSessionState[] toggles = rootObject.GetComponentsInChildren<ToggleGameObjectsBasedOnSessionState>(true);
+			foreach (ToggleGameObjectsBasedOnSessionState toggle in toggles)
+			{
+				SerializedObject serialised = new SerializedObject(toggle);
+				string targetState = serialised.FindProperty("m_targetSessionState").FindPropertyRelative("name").stringValue;
+				if (targetState == VISIBLE_IN_STATE)
+				{
+					return toggle;
+				}
+			}
+		}
+		return null;
+	}
+
+	private static void AddToToggleList(ToggleGameObjectsBasedOnSessionState a_toggle, GameObject a_menu)
+	{
+		SerializedObject serialised = new SerializedObject(a_toggle);
+		SerializedProperty toggled = serialised.FindProperty("m_gameObjectsToToggle");
+
+		int index = toggled.arraySize;
+		toggled.arraySize = index + 1;
+		toggled.GetArrayElementAtIndex(index).objectReferenceValue = a_menu;
+		serialised.ApplyModifiedPropertiesWithoutUndo();
 	}
 
 	// Linked prefab instances, so a restyle of the MSP prefabs carries into this menu.

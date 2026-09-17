@@ -2,8 +2,8 @@ using TMPro;
 using UnityEngine;
 
 /// <summary>
-/// The small panel that follows the player: a Record toggle, a status line, and the transcript and
-/// commands that came back from the voice helper. Commands are only shown; nothing is applied to layers.
+/// The small panel that follows the player inside a session: a Record toggle, a status line, and the
+/// transcript and commands that came back from the voice helper. Commands are shown, never applied.
 /// </summary>
 [RequireComponent(typeof(VoiceRecorder))]
 [RequireComponent(typeof(VoiceClient))]
@@ -65,6 +65,15 @@ public class VoiceMenu : MonoBehaviour
 
 	private void OnRecordToggled()
 	{
+		bool startingRecording = m_recorder.State == VoiceRecorder.EVoiceRecorderState.Idle;
+		if (startingRecording && !m_client.HasLayers)
+		{
+			// The helper constrains the model to the names it is sent, so an empty list has nothing to answer with.
+			m_statusText.text = "No layers loaded";
+			m_recordToggle.IsSelected = false;
+			return;
+		}
+
 		m_recorder.Toggle();
 		// A press while a previous recording is still being sent is ignored by the recorder, so put the toggle back.
 		bool isRecording = m_recorder.State == VoiceRecorder.EVoiceRecorderState.Recording;
@@ -108,8 +117,7 @@ public class VoiceMenu : MonoBehaviour
 			m_transcriptText.text = "Heard: nothing";
 		}
 
-		string layerSource = m_client.UsingTestLayers ? " (test layers, no session)" : "";
-		m_commandsText.text = $"Commands{layerSource}, not applied:\n{a_response.DescribeOperations()}";
+		m_commandsText.text = $"Commands, not applied:\n{a_response.DescribeOperations()}";
 
 		if (a_response.timings_ms != null)
 		{
