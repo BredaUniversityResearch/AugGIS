@@ -165,7 +165,6 @@ public class VoiceRecorder : MonoBehaviour
 		ClipReady?.Invoke(wav);
 	}
 
-	/// <summary>Called by the sender when the upload finished, either way, so the next press records again.</summary>
 	public void NotifySendComplete()
 	{
 		if (m_state == EVoiceRecorderState.Sending)

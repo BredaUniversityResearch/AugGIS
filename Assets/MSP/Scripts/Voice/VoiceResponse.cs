@@ -10,7 +10,6 @@ public class VoiceOperation
 	public string action;
 	public List<string> layers = new List<string>();
 
-	/// <summary>True when there is nothing to apply: no action, the action "none", or no layers.</summary>
 	public bool IsNone
 	{
 		get

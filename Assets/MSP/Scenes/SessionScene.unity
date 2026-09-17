@@ -151,10 +151,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 00000200010001000200030002000400030003000400050004000600050005000600070006000800070007000800090008000a00090009000a000b000a000c000b000b000c000d000c000e000d000d000e000f000e0010000f000f0010001100100012001100110012001300120014001300130014001500000000000000000000000000
+  m_IndexBuffer: 00000200010001000200030002000400030003000400050004000600050005000600070006000800070007000800090008000a00090009000a000b000a000c000b000b000c000d000c000e000d000d000e000f000e0010000f000f0010001100100012001100110012001300120014001300130014001500000000000000000000000000y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -272,8 +272,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 4.4063888, y: 1.4356654, z: 0}
     m_Extent: {x: 0.4786111, y: 1.4356654, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -329,10 +330,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -450,8 +451,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.022287402, y: 0.09013531, z: 0}
     m_Extent: {x: 0.04629648, y: 0.01977048, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -540,10 +542,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -661,8 +663,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: -0.059462138, y: 0.07332251, z: 0}
     m_Extent: {x: 0.03943526, y: 0.033919565, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -718,10 +721,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -839,8 +842,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.02833782, y: 0.05596204, z: 0}
     m_Extent: {x: 0.08416218, y: 0.05596204, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -896,10 +900,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -1017,8 +1021,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: -0.078124866, y: 0.00012316927, z: 0}
     m_Extent: {x: 0.034374867, y: 0.09730469, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -1103,10 +1108,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GlobalObjectIdHash: 4252882004
   InScenePlacedSourceGlobalObjectIdHash: 0
+  m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 0
+  m_InScenePlaced: 1
   ActiveSceneSynchronization: 0
   SceneMigrationSynchronization: 0
   SpawnWithObservers: 1
@@ -1146,10 +1153,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -1267,8 +1274,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.00000036880374, y: 0.038749907, z: 0}
     m_Extent: {x: 0.07749963, y: 0.038749907, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -1324,10 +1332,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -1445,8 +1453,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.021865353, y: -0.090252295, z: 0}
     m_Extent: {x: 0.046342663, y: 0.01964331, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -1531,10 +1540,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GlobalObjectIdHash: 1847179766
   InScenePlacedSourceGlobalObjectIdHash: 0
+  m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 0
+  m_InScenePlaced: 1
   ActiveSceneSynchronization: 0
   SceneMigrationSynchronization: 0
   SpawnWithObservers: 1
@@ -1574,10 +1585,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -1695,8 +1706,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.02833782, y: 0.05596204, z: 0}
     m_Extent: {x: 0.08416218, y: 0.05596204, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -1752,10 +1764,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -1873,8 +1885,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: -0.059462138, y: 0.07332251, z: 0}
     m_Extent: {x: 0.03943526, y: 0.033919565, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -1930,10 +1943,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -2051,8 +2064,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.020151338, y: 0.039795227, z: 0}
     m_Extent: {x: 0.05984866, y: 0.039795227, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -2108,10 +2122,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -2229,8 +2243,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: -0.05437491, y: 0.00008485094, z: 0}
     m_Extent: {x: 0.023124905, y: 0.06703211, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -2286,10 +2301,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -2407,8 +2422,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.019521609, y: 0.038551625, z: 0}
     m_Extent: {x: 0.05797839, y: 0.038551625, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -2576,10 +2592,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GlobalObjectIdHash: 2101043532
   InScenePlacedSourceGlobalObjectIdHash: 0
+  m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 0
+  m_InScenePlaced: 1
   ActiveSceneSynchronization: 0
   SceneMigrationSynchronization: 0
   SpawnWithObservers: 1
@@ -2633,10 +2651,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -2754,8 +2772,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: -0.095543474, y: 0.00021642074, z: 0}
     m_Extent: {x: 0.014456268, y: 0.0475108, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -2811,10 +2830,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -2932,8 +2951,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: -0.095543474, y: 0.00021642074, z: 0}
     m_Extent: {x: 0.014456268, y: 0.0475108, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -2989,10 +3009,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -3110,8 +3130,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.02833782, y: 0.05596204, z: 0}
     m_Extent: {x: 0.08416218, y: 0.05596204, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -3187,10 +3208,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GlobalObjectIdHash: 2875337610
   InScenePlacedSourceGlobalObjectIdHash: 0
+  m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 0
+  m_InScenePlaced: 1
   ActiveSceneSynchronization: 0
   SceneMigrationSynchronization: 0
   SpawnWithObservers: 1
@@ -3244,10 +3267,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -3365,8 +3388,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: -0.05437491, y: 0.00008485094, z: 0}
     m_Extent: {x: 0.023124905, y: 0.06703211, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -3422,10 +3446,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -3543,8 +3567,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: -0.05975806, y: -0.07309189, z: 0}
     m_Extent: {x: 0.039348528, y: 0.034042366, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -3600,10 +3625,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -3721,8 +3746,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.019374635, y: -0.038679406, z: 0}
     m_Extent: {x: 0.058124628, y: 0.03840658, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -3778,10 +3804,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -3899,8 +3925,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.02812447, y: -0.05614049, z: 0}
     m_Extent: {x: 0.08437446, y: 0.05575853, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -3961,10 +3988,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -4082,8 +4109,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.00000036880374, y: 0.038749907, z: 0}
     m_Extent: {x: 0.07749963, y: 0.038749907, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -4139,10 +4167,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -4260,8 +4288,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.02812447, y: -0.05614049, z: 0}
     m_Extent: {x: 0.08437446, y: 0.05575853, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -4285,6 +4314,112 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1001 &757199305
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4029552515288654057, guid: cde26dc8555d55442bd62e06e37e3410, type: 3}
+      propertyPath: m_Name
+      value: VoiceMenu
+      objectReference: {fileID: 0}
+    - target: {fileID: 4642097441388251985, guid: cde26dc8555d55442bd62e06e37e3410, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4642097441388251985, guid: cde26dc8555d55442bd62e06e37e3410, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4642097441388251985, guid: cde26dc8555d55442bd62e06e37e3410, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4642097441388251985, guid: cde26dc8555d55442bd62e06e37e3410, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4642097441388251985, guid: cde26dc8555d55442bd62e06e37e3410, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4642097441388251985, guid: cde26dc8555d55442bd62e06e37e3410, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4642097441388251985, guid: cde26dc8555d55442bd62e06e37e3410, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 320
+      objectReference: {fileID: 0}
+    - target: {fileID: 4642097441388251985, guid: cde26dc8555d55442bd62e06e37e3410, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 230
+      objectReference: {fileID: 0}
+    - target: {fileID: 4642097441388251985, guid: cde26dc8555d55442bd62e06e37e3410, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4642097441388251985, guid: cde26dc8555d55442bd62e06e37e3410, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4642097441388251985, guid: cde26dc8555d55442bd62e06e37e3410, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4642097441388251985, guid: cde26dc8555d55442bd62e06e37e3410, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4642097441388251985, guid: cde26dc8555d55442bd62e06e37e3410, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4642097441388251985, guid: cde26dc8555d55442bd62e06e37e3410, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4642097441388251985, guid: cde26dc8555d55442bd62e06e37e3410, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4642097441388251985, guid: cde26dc8555d55442bd62e06e37e3410, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4642097441388251985, guid: cde26dc8555d55442bd62e06e37e3410, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4642097441388251985, guid: cde26dc8555d55442bd62e06e37e3410, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4642097441388251985, guid: cde26dc8555d55442bd62e06e37e3410, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4642097441388251985, guid: cde26dc8555d55442bd62e06e37e3410, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6625048320997088689, guid: cde26dc8555d55442bd62e06e37e3410, type: 3}
+      propertyPath: serializationData.Prefab
+      value: 
+      objectReference: {fileID: 6625048320997088689, guid: cde26dc8555d55442bd62e06e37e3410, type: 3}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: cde26dc8555d55442bd62e06e37e3410, type: 3}
+--- !u!1 &757199306 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4029552515288654057, guid: cde26dc8555d55442bd62e06e37e3410, type: 3}
+  m_PrefabInstance: {fileID: 757199305}
+  m_PrefabAsset: {fileID: 0}
 --- !u!43 &761811578
 Mesh:
   m_ObjectHideFlags: 0
@@ -4317,10 +4452,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -4438,8 +4573,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.021865353, y: -0.090252295, z: 0}
     m_Extent: {x: 0.046342663, y: 0.01964331, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -4495,10 +4631,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -4616,8 +4752,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.019999623, y: -0.039917275, z: 0}
     m_Extent: {x: 0.059999615, y: 0.039655358, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -4673,10 +4810,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -4794,8 +4931,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.08321029, y: 0.04285069, z: 0}
     m_Extent: {x: 0.026789712, y: 0.04285069, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -4866,10 +5004,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GlobalObjectIdHash: 1158999477
   InScenePlacedSourceGlobalObjectIdHash: 0
+  m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 0
+  m_InScenePlaced: 1
   ActiveSceneSynchronization: 0
   SceneMigrationSynchronization: 0
   SpawnWithObservers: 1
@@ -4923,10 +5063,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -5044,8 +5184,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.019521609, y: 0.038551625, z: 0}
     m_Extent: {x: 0.05797839, y: 0.038551625, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -5101,10 +5242,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -5222,8 +5363,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: -0.00000036880374, y: -0.03874991, z: 0}
     m_Extent: {x: 0.07749963, y: 0.038749903, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -5279,10 +5421,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -5400,8 +5542,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: -0.05975806, y: -0.07309189, z: 0}
     m_Extent: {x: 0.039348528, y: 0.034042366, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -5457,10 +5600,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -5578,8 +5721,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.019374635, y: -0.038679406, z: 0}
     m_Extent: {x: 0.058124628, y: 0.03840658, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -5635,10 +5779,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -5756,8 +5900,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.022287402, y: 0.09013531, z: 0}
     m_Extent: {x: 0.04629648, y: 0.01977048, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -5813,10 +5958,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -5934,8 +6079,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: -0.05437491, y: 0.00008485094, z: 0}
     m_Extent: {x: 0.023124905, y: 0.06703211, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -5991,10 +6137,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -6112,8 +6258,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.022287402, y: 0.09013531, z: 0}
     m_Extent: {x: 0.04629648, y: 0.01977048, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -6169,10 +6316,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -6290,8 +6437,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.08305651, y: -0.04319707, z: 0}
     m_Extent: {x: 0.026942438, y: 0.04280441, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -6488,10 +6636,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -6609,8 +6757,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: -0.054999903, y: 0.000087589025, z: 0}
     m_Extent: {x: 0.0249999, y: 0.06919444, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -6666,10 +6815,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -6787,8 +6936,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: -0.059462138, y: 0.07332251, z: 0}
     m_Extent: {x: 0.03943526, y: 0.033919565, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -6844,10 +6994,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 00000200010001000200030002000400030003000400050004000600050005000600070006000800070007000800090008000a00090009000a000b000a000c000b000b000c000d000c000e000d000d000e000f000e0010000f000f0010001100100012001100110012001300120014001300130014001500000000000000000000000000
+  m_IndexBuffer: 00000200010001000200030002000400030003000400050004000600050005000600070006000800070007000800090008000a00090009000a000b000a000c000b000b000c000d000c000e000d000d000e000f000e0010000f000f0010001100100012001100110012001300120014001300130014001500000000000000000000000000y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -6965,8 +7115,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: -2.7261631, y: -3.7498038, z: 0}
     m_Extent: {x: 1.2258852, y: 0.89610696, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -7022,10 +7173,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 00000200010001000200030002000400030003000400050004000600050005000600070006000800070007000800090008000a00090009000a000b000a000c000b000b000c000d000c000e000d000d000e000f000e0010000f000f0010001100100012001100110012001300120014001300130014001500000000000000000000000000
+  m_IndexBuffer: 00000200010001000200030002000400030003000400050004000600050005000600070006000800070007000800090008000a00090009000a000b000a000c000b000b000c000d000c000e000d000d000e000f000e0010000f000f0010001100100012001100110012001300120014001300130014001500000000000000000000000000y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -7143,8 +7294,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: -4.4697046, y: 1.4562376, z: 0}
     m_Extent: {x: 0.48529541, y: 1.456238, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -7200,10 +7352,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 00000200010001000200030002000400030003000400050004000600050005000600070006000800070007000800090008000a00090009000a000b000a000c000b000b000c000d000c000e000d000d000e000f000e0010000f000f0010001100100012001100110012001300120014001300130014001500000000000000000000000000
+  m_IndexBuffer: 00000200010001000200030002000400030003000400050004000600050005000600070006000800070007000800090008000a00090009000a000b000a000c000b000b000c000d000c000e000d000d000e000f000e0010000f000f0010001100100012001100110012001300120014001300130014001500000000000000000000000000y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -7321,8 +7473,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.000000059604645, y: 4.751189, z: 0}
     m_Extent: {x: 1.5095477, y: 0.13381028, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -7378,10 +7531,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -7499,8 +7652,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.019374635, y: -0.038679406, z: 0}
     m_Extent: {x: 0.058124628, y: 0.03840658, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -7556,10 +7710,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 00000200010001000200030002000400030003000400050004000600050005000600070006000800070007000800090008000a00090009000a000b000a000c000b000b000c000d000c000e000d000d000e000f000e0010000f000f0010001100100012001100110012001300120014001300130014001500000000000000000000000000
+  m_IndexBuffer: 00000200010001000200030002000400030003000400050004000600050005000600070006000800070007000800090008000a00090009000a000b000a000c000b000b000c000d000c000e000d000d000e000f000e0010000f000f0010001100100012001100110012001300120014001300130014001500000000000000000000000000y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -7677,8 +7831,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: -4.4063888, y: 1.435665, z: 0}
     m_Extent: {x: 0.478611, y: 1.4356655, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -7763,10 +7918,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GlobalObjectIdHash: 2831697598
   InScenePlacedSourceGlobalObjectIdHash: 0
+  m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 0
+  m_InScenePlaced: 1
   ActiveSceneSynchronization: 0
   SceneMigrationSynchronization: 0
   SpawnWithObservers: 1
@@ -7806,10 +7963,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -7927,8 +8084,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.021865353, y: -0.090252295, z: 0}
     m_Extent: {x: 0.046342663, y: 0.01964331, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -7984,10 +8142,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -8105,8 +8263,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.019374635, y: -0.038679406, z: 0}
     m_Extent: {x: 0.058124628, y: 0.03840658, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -8162,10 +8321,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -8283,8 +8442,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.019374635, y: -0.038679406, z: 0}
     m_Extent: {x: 0.058124628, y: 0.03840658, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -8386,10 +8546,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -8507,8 +8667,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: -0.05975806, y: -0.07309189, z: 0}
     m_Extent: {x: 0.039348528, y: 0.034042366, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -8564,10 +8725,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 00000200010001000200030002000400030003000400050004000600050005000600070006000800070007000800090008000a00090009000a000b000a000c000b000b000c000d000c000e000d000d000e000f000e0010000f000f0010001100100012001100110012001300120014001300130014001500000000000000000000000000
+  m_IndexBuffer: 00000200010001000200030002000400030003000400050004000600050005000600070006000800070007000800090008000a00090009000a000b000a000c000b000b000c000d000c000e000d000d000e000f000e0010000f000f0010001100100012001100110012001300120014001300130014001500000000000000000000000000y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -8685,8 +8846,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: -2.7652943, y: -3.8036633, z: 0}
     m_Extent: {x: 1.2433851, y: 0.9088216, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -8742,10 +8904,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -8863,8 +9025,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.00000036880374, y: 0.038749907, z: 0}
     m_Extent: {x: 0.07749963, y: 0.038749907, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -8925,10 +9088,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 00000200010001000200030002000400030003000400050004000600050005000600070006000800070007000800090008000a00090009000a000b000a000c000b000b000c000d000c000e000d000d000e000f000e0010000f000f0010001100100012001100110012001300120014001300130014001500000000000000000000000000
+  m_IndexBuffer: 00000200010001000200030002000400030003000400050004000600050005000600070006000800070007000800090008000a00090009000a000b000a000c000b000b000c000d000c000e000d000d000e000f000e0010000f000f0010001100100012001100110012001300120014001300130014001500000000000000000000000000y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -9046,8 +9209,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 2.765294, y: -3.8036637, z: 0}
     m_Extent: {x: 1.2433848, y: 0.9088211, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -9103,10 +9267,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 00000200010001000200030002000400030003000400050004000600050005000600070006000800070007000800090008000a00090009000a000b000a000c000b000b000c000d000c000e000d000d000e000f000e0010000f000f0010001100100012001100110012001300120014001300130014001500000000000000000000000000
+  m_IndexBuffer: 00000200010001000200030002000400030003000400050004000600050005000600070006000800070007000800090008000a00090009000a000b000a000c000b000b000c000d000c000e000d000d000e000f000e0010000f000f0010001100100012001100110012001300120014001300130014001500000000000000000000000000y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -9224,8 +9388,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.000000059604645, y: 4.8194766, z: 0}
     m_Extent: {x: 1.531179, y: 0.13552332, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -9281,10 +9446,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -9402,8 +9567,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: -0.05437491, y: 0.00008485094, z: 0}
     m_Extent: {x: 0.023124905, y: 0.06703211, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -9459,10 +9625,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -9580,8 +9746,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.019521609, y: 0.038551625, z: 0}
     m_Extent: {x: 0.05797839, y: 0.038551625, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -9637,10 +9804,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -9758,8 +9925,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: -0.00000036880374, y: -0.03874991, z: 0}
     m_Extent: {x: 0.07749963, y: 0.038749903, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -9820,10 +9988,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -9941,8 +10109,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.019521609, y: 0.038551625, z: 0}
     m_Extent: {x: 0.05797839, y: 0.038551625, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -10027,10 +10196,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GlobalObjectIdHash: 4272773222
   InScenePlacedSourceGlobalObjectIdHash: 0
+  m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 0
+  m_InScenePlaced: 1
   ActiveSceneSynchronization: 0
   SceneMigrationSynchronization: 0
   SpawnWithObservers: 1
@@ -10070,10 +10241,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 00000200010001000200030002000400030003000400050004000600050005000600070006000800070007000800090008000a00090009000a000b000a000c000b000b000c000d000c000e000d000d000e000f000e0010000f000f0010001100100012001100110012001300120014001300130014001500000000000000000000000000
+  m_IndexBuffer: 00000200010001000200030002000400030003000400050004000600050005000600070006000800070007000800090008000a00090009000a000b000a000c000b000b000c000d000c000e000d000d000e000f000e0010000f000f0010001100100012001100110012001300120014001300130014001500000000000000000000000000y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -10191,8 +10362,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 4.4697046, y: 1.4562379, z: 0}
     m_Extent: {x: 0.48529553, y: 1.4562379, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -10248,10 +10420,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -10369,8 +10541,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.08305651, y: -0.04319707, z: 0}
     m_Extent: {x: 0.026942438, y: 0.04280441, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -10426,10 +10599,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -10547,8 +10720,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.019521609, y: 0.038551625, z: 0}
     m_Extent: {x: 0.05797839, y: 0.038551625, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -10604,10 +10778,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -10725,8 +10899,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: -0.095543474, y: 0.00021642074, z: 0}
     m_Extent: {x: 0.014456268, y: 0.0475108, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -10782,10 +10957,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -10903,8 +11078,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.08321029, y: 0.04285069, z: 0}
     m_Extent: {x: 0.026789712, y: 0.04285069, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -10965,10 +11141,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -11086,8 +11262,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: -0.078124866, y: 0.00012316927, z: 0}
     m_Extent: {x: 0.034374867, y: 0.09730469, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -11143,10 +11320,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -11264,8 +11441,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: -0.078124866, y: 0.00012316927, z: 0}
     m_Extent: {x: 0.034374867, y: 0.09730469, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -11321,10 +11499,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 00000200010001000200030002000400030003000400050004000600050005000600070006000800070007000800090008000a00090009000a000b000a000c000b000b000c000d000c000e000d000d000e000f000e0010000f000f0010001100100012001100110012001300120014001300130014001500000000000000000000000000
+  m_IndexBuffer: 00000200010001000200030002000400030003000400050004000600050005000600070006000800070007000800090008000a00090009000a000b000a000c000b000b000c000d000c000e000d000d000e000f000e0010000f000f0010001100100012001100110012001300120014001300130014001500000000000000000000000000y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -11442,8 +11620,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 2.726163, y: -3.749804, z: 0}
     m_Extent: {x: 1.2258847, y: 0.8961066, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -11499,10 +11678,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -11620,8 +11799,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.08305651, y: -0.04319707, z: 0}
     m_Extent: {x: 0.026942438, y: 0.04280441, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -11706,10 +11886,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GlobalObjectIdHash: 1825571790
   InScenePlacedSourceGlobalObjectIdHash: 0
+  m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 0
+  m_InScenePlaced: 1
   ActiveSceneSynchronization: 0
   SceneMigrationSynchronization: 0
   SpawnWithObservers: 1
@@ -11824,10 +12006,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GlobalObjectIdHash: 3282909474
   InScenePlacedSourceGlobalObjectIdHash: 0
+  m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 0
+  m_InScenePlaced: 1
   ActiveSceneSynchronization: 0
   SceneMigrationSynchronization: 0
   SpawnWithObservers: 1
@@ -11867,10 +12051,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -11988,8 +12172,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: -0.00000036880374, y: -0.03874991, z: 0}
     m_Extent: {x: 0.07749963, y: 0.038749903, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -12045,10 +12230,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -12166,8 +12351,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: -0.05437491, y: 0.00008485094, z: 0}
     m_Extent: {x: 0.023124905, y: 0.06703211, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -12223,10 +12409,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -12344,8 +12530,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.019374635, y: -0.038679406, z: 0}
     m_Extent: {x: 0.058124628, y: 0.03840658, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -12401,10 +12588,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -12522,8 +12709,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.02812447, y: -0.05614049, z: 0}
     m_Extent: {x: 0.08437446, y: 0.05575853, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -12579,10 +12767,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -12700,8 +12888,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.019521609, y: 0.038551625, z: 0}
     m_Extent: {x: 0.05797839, y: 0.038551625, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -12757,10 +12946,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -12878,8 +13067,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: 0.08321029, y: 0.04285069, z: 0}
     m_Extent: {x: 0.026789712, y: 0.04285069, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -12935,10 +13125,10 @@ Mesh:
     m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
+  m_KeepVertices: 0
+  m_KeepIndices: 0
   m_IndexFormat: 0
-  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400
+  m_IndexBuffer: 0b000000010001000c000b000c000100020002000d000c000d000200030003000e000d000e000300040004000f000e000f0004000500050010000f00100005000600060011001000110006000700070012001100120007000800080013001200130008000900090014001300140009000a000a0015001400y
   m_VertexData:
     serializedVersion: 3
     m_VertexCount: 22
@@ -13056,8 +13246,9 @@ Mesh:
   m_LocalAABB:
     m_Center: {x: -0.05437491, y: 0.00008485094, z: 0}
     m_Extent: {x: 0.023124905, y: 0.06703211, z: 0}
-  m_MeshUsageFlags: 0
   m_CookingOptions: 30
+  m_PreBakeConvexCollisionMesh: 0
+  m_PreBakeTriangleCollisionMesh: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   'm_MeshMetrics[0]': 1
@@ -13105,6 +13296,7 @@ MonoBehaviour:
   - {fileID: 608167025}
   - {fileID: 1290582616}
   - {fileID: 1654074118}
+  - {fileID: 757199306}
 --- !u!1001 &206523287139407791
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13391,6 +13583,7 @@ MonoBehaviour:
       Data: 
   m_configToWorldOffset: {x: 0, y: 0, z: 0}
   m_configToWorldScale: 0
+  m_displayMethodsByType: []
 --- !u!114 &2234225493268123509
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13405,10 +13598,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GlobalObjectIdHash: 2594844533
   InScenePlacedSourceGlobalObjectIdHash: 2212672181
+  m_InScenePlacedDisabledByDefault: 1
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
+  m_InScenePlaced: 1
   ActiveSceneSynchronization: 0
   SceneMigrationSynchronization: 0
   SpawnWithObservers: 1
@@ -13686,6 +13881,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!33 &2726704045574292541
 MeshFilter:
@@ -13801,6 +13997,8 @@ MonoBehaviour:
   m_StartingHoverFilters: []
   m_StartingSelectFilters: []
   m_StartingInteractionStrengthFilters: []
+  m_AutoFindParentInteractableInHierarchy: 0
+  m_ParentInteractableObject: {fileID: 0}
   m_Handle: {fileID: 1877756312418095240}
   m_InteractorSnapTransform: {fileID: 8781455519284007212}
   m_Value: 0.5
@@ -14241,10 +14439,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GlobalObjectIdHash: 1221894542
   InScenePlacedSourceGlobalObjectIdHash: 2212672181
+  m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 0
+  m_InScenePlaced: 1
   ActiveSceneSynchronization: 0
   SceneMigrationSynchronization: 0
   SpawnWithObservers: 1
@@ -14297,10 +14497,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GlobalObjectIdHash: 1674191839
   InScenePlacedSourceGlobalObjectIdHash: 2212672181
+  m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 0
+  m_InScenePlaced: 1
   ActiveSceneSynchronization: 0
   SceneMigrationSynchronization: 0
   SpawnWithObservers: 1
@@ -14853,6 +15055,7 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
+      m_Priority: 0
     m_Reference: {fileID: -6595512345416212934, guid: c348712bda248c246b8c49b3db54643f, type: 3}
   m_SystemGestureStarted:
     m_PersistentCalls:
@@ -14980,6 +15183,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1001 &7280607023172587398
 PrefabInstance:
@@ -15499,3 +15703,4 @@ SceneRoots:
   - {fileID: 860030037}
   - {fileID: 1920730892}
   - {fileID: 1424213871}
+  - {fileID: 757199305}

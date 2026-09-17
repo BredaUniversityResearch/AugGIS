@@ -15,9 +15,6 @@ using UnityEngine.Networking;
 [RequireComponent(typeof(VoiceRecorder))]
 public class VoiceClient : MonoBehaviour
 {
-	// Used when no session is loaded, so the pipeline can be tried from the main menu.
-	private static readonly string[] TEST_LAYERS = { "Population", "Bathymetry", "Shipping lanes", "Wind farms" };
-
 	[SerializeField]
 	private string m_defaultHelperHost = "127.0.0.1";
 
@@ -31,8 +28,6 @@ public class VoiceClient : MonoBehaviour
 	public event Action<string> TranscriptReceived;
 	public event Action<VoiceResponse> ResponseReceived;
 	public event Action<string> Failed;
-
-	public bool UsingTestLayers { get; private set; }
 
 	private VoiceRecorder m_recorder;
 
@@ -96,31 +91,39 @@ public class VoiceClient : MonoBehaviour
 		return !isAny && !isLoopback;
 	}
 
-	/// <summary>The session's layer names, or a test set when no config is loaded.</summary>
+	public bool HasLayers
+	{
+		get
+		{
+			if (LayerManager.Instance == null)
+			{
+				return false;
+			}
+			return LayerManager.Instance.AllLayers.Count > 0;
+		}
+	}
+
+	/// <summary>The loaded session's layer names, using each layer's short name where it has one.</summary>
 	public List<string> CurrentLayerNames()
 	{
 		List<string> names = new List<string>();
 
-		if (LayerManager.Instance != null)
+		if (LayerManager.Instance == null)
 		{
-			foreach (ALayer layer in LayerManager.Instance.AllLayers)
-			{
-				string shortName = layer.@short;
-				if (string.IsNullOrEmpty(shortName))
-				{
-					names.Add(layer.name);
-				}
-				else
-				{
-					names.Add(shortName);
-				}
-			}
+			return names;
 		}
 
-		UsingTestLayers = names.Count == 0;
-		if (UsingTestLayers)
+		foreach (ALayer layer in LayerManager.Instance.AllLayers)
 		{
-			names.AddRange(TEST_LAYERS);
+			string shortName = layer.@short;
+			if (string.IsNullOrEmpty(shortName))
+			{
+				names.Add(layer.name);
+			}
+			else
+			{
+				names.Add(shortName);
+			}
 		}
 		return names;
 	}
