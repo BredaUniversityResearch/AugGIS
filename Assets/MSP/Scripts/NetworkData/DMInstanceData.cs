@@ -17,20 +17,9 @@ namespace POV_Unity
 
 		public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
 		{
-			if (serializer.IsReader)
-			{
-				var reader = serializer.GetFastBufferReader();
-				reader.ReadValueSafe(out m_layerIndex);
-				reader.ReadValueSafe(out m_DMIndexInLayer);
-				reader.ReadValueSafe(out m_active);
-			}
-			else
-			{
-				var writer = serializer.GetFastBufferWriter();
-				writer.WriteValueSafe(m_layerIndex);
-				writer.WriteValueSafe(m_DMIndexInLayer);
-				writer.WriteValueSafe(m_active);
-			}
+			serializer.SerializeValue(ref m_layerIndex);
+			serializer.SerializeValue(ref m_DMIndexInLayer);
+			serializer.SerializeValue(ref m_active);
 		}
 	}
 }

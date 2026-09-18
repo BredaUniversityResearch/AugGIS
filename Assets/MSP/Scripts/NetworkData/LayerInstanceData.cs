@@ -24,26 +24,12 @@ namespace POV_Unity
 
 		public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
 		{
-			if (serializer.IsReader)
-			{
-				var reader = serializer.GetFastBufferReader();
-				reader.ReadValueSafe(out m_layerIndex);
-				reader.ReadValueSafe(out m_visualizationMode);
-				reader.ReadValueSafe(out m_verticalStep);
-				reader.ReadValueSafe(out m_indexInStep);
-				reader.ReadValueSafe(out m_elementsInStep);
-				reader.ReadValueSafe(out m_ownerID);
-			}
-			else
-			{
-				var writer = serializer.GetFastBufferWriter();
-				writer.WriteValueSafe(m_layerIndex);
-				writer.WriteValueSafe(m_visualizationMode);
-				writer.WriteValueSafe(m_verticalStep);
-				writer.WriteValueSafe(m_indexInStep);
-				writer.WriteValueSafe(m_elementsInStep);
-				writer.WriteValueSafe(m_ownerID);
-			}
+			serializer.SerializeValue(ref m_layerIndex);
+			serializer.SerializeValue(ref m_visualizationMode);
+			serializer.SerializeValue(ref m_verticalStep);
+			serializer.SerializeValue(ref m_indexInStep);
+			serializer.SerializeValue(ref m_elementsInStep);
+			serializer.SerializeValue(ref m_ownerID);
 		}
 	}
 }

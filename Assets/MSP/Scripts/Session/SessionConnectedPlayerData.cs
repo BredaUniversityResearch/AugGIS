@@ -20,21 +20,9 @@ public struct SessionConnectedPlayerData : INetworkSerializable, IEquatable<Sess
 
 	public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
 	{
-		if (serializer.IsReader)
-		{
-			var reader = serializer.GetFastBufferReader();
-			reader.ReadValueSafe(out clientID);
-			reader.ReadValueSafe(out playerName);
-			reader.ReadValueSafe(out teamColor);
-			reader.ReadValueSafe(out isGameMaster);
-		}
-		else
-		{
-			var writer = serializer.GetFastBufferWriter();
-			writer.WriteValueSafe(clientID);
-			writer.WriteValueSafe(playerName);
-			writer.WriteValueSafe(teamColor);
-			writer.WriteValueSafe(isGameMaster);
-		}
+		serializer.SerializeValue(ref clientID);
+		serializer.SerializeValue(ref playerName);
+		serializer.SerializeValue(ref teamColor);
+		serializer.SerializeValue(ref isGameMaster);
 	}
 }

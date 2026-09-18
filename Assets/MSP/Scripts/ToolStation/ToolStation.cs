@@ -20,18 +20,8 @@ public class ToolStation : NetworkBehaviour
 
 		public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
 		{
-			if (serializer.IsReader)
-			{
-				var reader = serializer.GetFastBufferReader();
-				reader.ReadValueSafe(out CategoryIndex);
-				reader.ReadValueSafe(out EntryIndex);
-			}
-			else
-			{
-				var writer = serializer.GetFastBufferWriter();
-				writer.WriteValueSafe(CategoryIndex);
-				writer.WriteValueSafe(EntryIndex);
-			}
+			serializer.SerializeValue(ref CategoryIndex);
+			serializer.SerializeValue(ref EntryIndex);
 		}
 
 		public bool Equals(IndexData other)
