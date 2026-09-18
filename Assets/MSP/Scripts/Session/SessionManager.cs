@@ -271,8 +271,9 @@ public class SessionManager : MonoBehaviour
 				connectionEstablished = NetworkManager.Singleton.StartClient();
 			}
 		}
-		catch
+		catch (Exception e)
 		{
+			Debug.LogException(e);
 			connectionEstablished = false;
 		}
 
