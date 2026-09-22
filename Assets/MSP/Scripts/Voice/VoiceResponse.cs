@@ -33,7 +33,7 @@ public class VoiceOperation
 
 /// <summary>
 /// What <c>POST /command</c> on the voice helper returns: the transcript and a list of operations.
-/// The operations are shown, not applied; applying them to layers is a later step.
+/// <see cref="VoiceLayerCommands"/> applies the operations to the session's layers.
 /// </summary>
 [Serializable]
 public class VoiceResponse

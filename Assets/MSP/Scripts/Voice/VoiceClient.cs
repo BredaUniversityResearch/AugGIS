@@ -95,35 +95,63 @@ public class VoiceClient : MonoBehaviour
 	{
 		get
 		{
-			if (LayerManager.Instance == null)
-			{
-				return false;
-			}
-			return LayerManager.Instance.AllLayers.Count > 0;
+			return CommandableLayers().Count > 0;
 		}
 	}
 
-	/// <summary>The loaded session's layer names, using each layer's short name where it has one.</summary>
-	public List<string> CurrentLayerNames()
+	/// <summary>
+	/// The loaded session's layers a voice command may act on. Static layers and layers with no
+	/// display method are left out: the layer menu leaves them out too, and a static layer has no
+	/// control anywhere to switch it back on, so hiding one by voice would be a one-way trip.
+	/// </summary>
+	public List<ALayer> CommandableLayers()
 	{
-		List<string> names = new List<string>();
+		List<ALayer> layers = new List<ALayer>();
 
 		if (LayerManager.Instance == null)
 		{
-			return names;
+			return layers;
+		}
+
+		ImportedConfigRoot config = ImportedConfigRoot.Instance;
+		if (config == null || !config.ImportComplete)
+		{
+			// m_displayMethodConfig is only filled during the import, so there is nothing to filter on yet.
+			return layers;
 		}
 
 		foreach (ALayer layer in LayerManager.Instance.AllLayers)
 		{
-			string shortName = layer.@short;
-			if (string.IsNullOrEmpty(shortName))
+			if (layer.DisplayMethods.Count == 0)
 			{
-				names.Add(layer.name);
+				continue;
 			}
-			else
+			if (config.m_displayMethodConfig.IsStaticLayer(layer))
 			{
-				names.Add(shortName);
+				continue;
 			}
+			layers.Add(layer);
+		}
+		return layers;
+	}
+
+	/// <summary>The name a layer is sent and spoken by: its short name, or its full name when it has none.</summary>
+	public static string DisplayName(ALayer a_layer)
+	{
+		if (string.IsNullOrEmpty(a_layer.@short))
+		{
+			return a_layer.name;
+		}
+		return a_layer.@short;
+	}
+
+	/// <summary>The layer names sent to the helper, which constrains the model to exactly these.</summary>
+	public List<string> CurrentLayerNames()
+	{
+		List<string> names = new List<string>();
+		foreach (ALayer layer in CommandableLayers())
+		{
+			names.Add(DisplayName(layer));
 		}
 		return names;
 	}

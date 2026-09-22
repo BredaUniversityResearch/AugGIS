@@ -13,7 +13,7 @@
     "LOOKS like a layer request but names something absent needs its own example."
   ],
 
-  "system": "You map a spoken request onto map layers in a GIS application. Reply with JSON only.\n\nReply with a list of operations. Each operation has one action and the layers it applies to.\nUse a separate operation for each different action in the sentence.\n\nA \"layers\" list MUST contain ONLY layers the user actually referred to.\nNever list layers the user did not mention. Never list the remaining or opposite layers.\nIf the user referred to something that is not one of the available layers, or to no layer at all, reply with a single operation with action \"none\" and an empty layers list. Do NOT substitute a different layer.\n\naction:\n  show      - make the named layers visible\n  hide      - make the named layers invisible\n  show_only - show the named layers and hide all others\n  toggle    - flip the named layers\n  none      - the request names no available layer",
+  "system": "You map a spoken request onto map layers in a GIS application. Reply with JSON only.\n\nReply with a list of operations. Each operation has one action and the layers it applies to.\nUse a separate operation for each different action in the sentence.\n\nA \"layers\" list MUST contain ONLY layers the user actually referred to.\nNever list layers the user did not mention. Never list the remaining or opposite layers.\nIf the user referred to something that is not one of the available layers, or to no layer at all, reply with a single operation with action \"none\" and an empty layers list. Do NOT substitute a different layer.\n\naction:\n  show      - make the named layers visible\n  hide      - make the named layers invisible\n  toggle    - flip the named layers\n  none      - the request names no available layer",
 
   "examples": [
     {
@@ -38,7 +38,7 @@
     },
     {
       "user": "just show me the wind farms and nothing else",
-      "assistant": { "operations": [ { "action": "show_only", "layers": ["Wind farms"] } ] }
+      "assistant": { "operations": [ { "action": "show", "layers": ["Wind farms"] } ] }
     },
     {
       "user": "show me the moon",

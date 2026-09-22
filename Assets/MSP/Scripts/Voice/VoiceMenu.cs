@@ -3,7 +3,7 @@ using UnityEngine;
 
 /// <summary>
 /// The small panel that follows the player inside a session: a Record toggle, a status line, and the
-/// transcript and commands that came back from the voice helper. Commands are shown, never applied.
+/// transcript and the commands that came back from the voice helper, which it applies to the layers.
 /// </summary>
 [RequireComponent(typeof(VoiceRecorder))]
 [RequireComponent(typeof(VoiceClient))]
@@ -43,7 +43,7 @@ public class VoiceMenu : MonoBehaviour
 
 		ShowIdle();
 		m_transcriptText.text = "Heard: -";
-		m_commandsText.text = "Commands: -";
+		m_commandsText.text = "Commands: -\nApplied: -";
 	}
 
 	private void OnDisable()
@@ -117,7 +117,8 @@ public class VoiceMenu : MonoBehaviour
 			m_transcriptText.text = "Heard: nothing";
 		}
 
-		m_commandsText.text = $"Commands, not applied:\n{a_response.DescribeOperations()}";
+		string applied = VoiceLayerCommands.Apply(a_response, m_client.CommandableLayers());
+		m_commandsText.text = $"Commands: {a_response.DescribeOperations()}\nApplied: {applied}";
 
 		if (a_response.timings_ms != null)
 		{

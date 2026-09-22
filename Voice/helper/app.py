@@ -41,7 +41,7 @@ LLM_URL = os.getenv("LLM_URL", "http://llm:11434")
 LLM_MODEL = os.getenv("LLM_MODEL", "llama3.2:3b")
 PROMPT_PATH = os.getenv("PROMPT_PATH", "/app/prompt.json")
 
-ACTIONS = ["show", "hide", "toggle", "show_only", "none"]
+ACTIONS = ["show", "hide", "toggle", "none"]
 
 # Spellings of "off" accepted for the trim field. Callers write booleans differently and
 # a form field is always text, so a service that accepts only one spelling treats the
