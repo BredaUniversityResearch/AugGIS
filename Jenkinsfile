@@ -19,7 +19,7 @@ if (gitHubBranch == null || gitHubBranch == "" || gitHubBranch == "null") {
 
 String discordFriendlyName = "Auggis"
 
-String nexusRepo = "MSP_ProceduralOceanViewUnity-Main"
+String nexusRepo = "MSP_ProceduralOceanViewUnity-test"
 
 String unityBuildName = "Auggis"
 String unityVersion = "6000.6.0f1"
@@ -36,7 +36,6 @@ def buildTargets = [windowsServer, android, linuxServer]
 def buildNameMap = [:]
 def buildNameDevMap = [:]
 def outputFolderMap = [:]
-def outputFolderDevMap = [:]
 def paramNameMap = [:]
 def descriptionMap = [:]
 def unityBuildNameExtensionMap = [:]
@@ -45,7 +44,6 @@ def unityBuildNameExtensionMap = [:]
 buildNameMap[windowsServer] = "WindowsServer"
 buildNameDevMap[windowsServer] = "WindowsServerDev"
 outputFolderMap[windowsServer] = "CurrentWinBuild"
-outputFolderDevMap[windowsServer] = "CurrentWinDevBuild"
 paramNameMap[windowsServer] = "BUILD_WINDOWS_SERVER"
 descriptionMap[windowsServer] = "Windows Server"
 unityBuildNameExtensionMap[windowsServer] = '.exe'
@@ -53,7 +51,6 @@ unityBuildNameExtensionMap[windowsServer] = '.exe'
 buildNameMap[linuxServer] = "LinuxServer"
 buildNameDevMap[linuxServer] = "LinuxServerDev"
 outputFolderMap[linuxServer] = "CurrentUnityServerBuild"
-outputFolderDevMap[linuxServer] = "CurrentUnityServerDevBuild"
 paramNameMap[linuxServer] = "BUILD_LINUX_SERVER"
 descriptionMap[linuxServer] = "Linux Server"
 unityBuildNameExtensionMap[linuxServer] = ''
@@ -61,7 +58,6 @@ unityBuildNameExtensionMap[linuxServer] = ''
 buildNameMap[android] = "AndroidClient"
 buildNameDevMap[android] = "AndroidClientDev"
 outputFolderMap[android] = "CurrentAndroidBuild"
-outputFolderDevMap[android] = "CurrentAndroidDevBuild"
 paramNameMap[android] = "BUILD_ANDROID_CLIENT"
 descriptionMap[android] = "Android Client"
 unityBuildNameExtensionMap[android] = '.apk'
@@ -117,28 +113,27 @@ try { // we catch any exception that was unhandled
     }
     stage('Build') {
         node(Node) {
-            def context = createContext(buildNameMap, buildNameDevMap, outputFolderMap, outputFolderDevMap, descriptionMap)
+            def buildConfig = createBuildConfig(buildNameMap, buildNameDevMap, outputFolderMap, descriptionMap, unityBuildNameExtensionMap)
             String env = params.DEVELOPMENT ? "Dev" : ""
             String buildNumber = "${currentBuild.number}"
             for (buildTarget in buildTargets) {
-                def (outputFolder, buildName, tempMessageIfStageFailure) = getBuildDetails(buildTarget, params.DEVELOPMENT, buildNumber, commit, context)
-                //messageIfStageFailure += tempMessageIfStageFailure + "\n"
+                def platform = getPlatformContext(buildTarget, params.DEVELOPMENT, buildNumber, commit, buildConfig)
                 if (params[paramNameMap[buildTarget]]) {
-                    stagesBuildAndUpload(buildTarget, outputFolder, buildName, env)
+                    stagesBuildAndUpload(platform, env)
                 } else {
-                    stage(buildTarget+'Build') {
+                    stage(platform.target+'Build') {
                         catchError(buildResult: 'SUCCESS', stageResult: 'NOT_BUILT') {
-                            error(descriptionMap[buildTarget]+' Build was skipped')
+                            error(platform.description+' Build was skipped')
                         }
                     }
-                    stage("Zip${buildTarget}Build") {
+                    stage("Zip${platform.target}Build") {
                         catchError(buildResult: 'SUCCESS', stageResult: 'NOT_BUILT') {
-                            error(descriptionMap[buildTarget]+' Zip was skipped')
+                            error(platform.description+' Zip was skipped')
                         }
                     }
-                    stage("Upload${buildTarget}Build") {
+                    stage("Upload${platform.target}Build") {
                         catchError(buildResult: 'SUCCESS', stageResult: 'NOT_BUILT') {
-                            error(descriptionMap[buildTarget]+' Upload was skipped')
+                            error(platform.description+' Upload was skipped')
                         }
                     }
                 }
@@ -179,14 +174,14 @@ try { // we catch any exception that was unhandled
                         if (currentBuild.result != 'SUCCESS') {
                             echo "Unknown result, assuming build was successful"
                         }
-                        def context = createContext(buildNameMap, buildNameDevMap, outputFolderMap, outputFolderDevMap, descriptionMap)
+                        def buildConfig = createBuildConfig(buildNameMap, buildNameDevMap, outputFolderMap, descriptionMap, unityBuildNameExtensionMap)
                         String links = ""
                         String buildNumber = "${currentBuild.number}"
                         for (buildTarget in buildTargets) {
                             if (params[paramNameMap[buildTarget]]) {
-                                String buildName = getBuildName(buildTarget, params.DEVELOPMENT, buildNumber, commit, context)
-                                String link = "https://nexus.cradle.buas.nl/#browse/browse:${nexusRepo}:${buildTarget}%%2F${buildName}"
-                                links += "[Download ${descriptionMap[buildTarget]} Build from Nexus](${link});"
+                                def platform = getPlatformContext(buildTarget, params.DEVELOPMENT, buildNumber, commit, buildConfig)
+                                String link = "https://nexus.cradle.buas.nl/#browse/browse:${nexusRepo}:${buildTarget}%%2F${platform.buildName}"
+                                links += "[Download ${platform.description} Build from Nexus](${link});"
                             }
                         }
                         links = links.substring(0, links.length() - 1)
@@ -233,36 +228,38 @@ try { // we catch any exception that was unhandled
     }
 }
 
-def createContext(buildNameMap, buildNameDevMap, outputFolderMap, outputFolderDevMap, descriptionMap)
+def createBuildConfig(buildNameMap, buildNameDevMap, outputFolderMap, descriptionMap, unityBuildNameExtensionMap)
 {
-    def context = [:]
-    context['buildNameMap'] = buildNameMap
-    context['buildNameDevMap'] = buildNameDevMap
-    context['outputFolderMap'] = outputFolderMap
-    context['outputFolderDevMap'] = outputFolderDevMap
-    context['descriptionMap'] = descriptionMap
-    return context
+    return [
+        buildNameMap: buildNameMap,
+        buildNameDevMap: buildNameDevMap,
+        outputFolderMap: outputFolderMap,
+        descriptionMap: descriptionMap,
+        unityBuildNameExtensionMap: unityBuildNameExtensionMap
+    ]
 }
 
-def getBuildDetails(buildTarget, useDev, buildNumber, commit, context)
+// Unity build profile assets live here, named after the raw (pre-sanitized) build name, e.g. "WindowsServerDev.asset"
+def getBuildProfilePath(profileName)
 {
-    def outputFolder = getValue(buildTarget, context.outputFolderMap, context.outputFolderDevMap, useDev)
-    def buildName = getBuildName(buildTarget, useDev, buildNumber, commit, context)
-    def messageIfStageFailure = 'Failed to build '+context.descriptionMap[buildTarget]
-    return [outputFolder, buildName, messageIfStageFailure]
+    return "Assets/Settings/Build Profiles/${profileName}.asset"
 }
 
-def getBuildName(buildTarget, useDev, buildNumber, commit, context)
+// resolves the dev/non-dev maps for one target into a single flat, platform-agnostic object
+def getPlatformContext(buildTarget, useDev, buildNumber, commit, buildConfig)
 {
-    return sanitizeinput.buildName(getValue(buildTarget, context.buildNameMap, context.buildNameDevMap, useDev), buildNumber, commit, "zip")
+    def rawBuildName = useDev ? buildConfig.buildNameDevMap[buildTarget] : buildConfig.buildNameMap[buildTarget]
+    return [
+        target: buildTarget,
+        outputFolder: buildConfig.outputFolderMap[buildTarget],
+        buildName: sanitizeinput.buildName(rawBuildName, buildNumber, commit, "zip"),
+        buildProfilePath: getBuildProfilePath(rawBuildName),
+        description: buildConfig.descriptionMap[buildTarget],
+        extension: buildConfig.unityBuildNameExtensionMap[buildTarget]
+    ]
 }
 
-def getValue(buildTarget, values, devValues, useDev)
-{
-    return useDev ? devValues[buildTarget] : values[buildTarget]
-}
-
-def build(Node, WorkingDir, output, outputFolder, buildName, buildMethod, unityVersion, discordWebhook)
+def build(Node, WorkingDir, output, outputFolder, outputFileName, buildProfilePath, unityVersion, discordWebhook)
 {
     build job: 'Library/WindowsUnityBuildV2',
     parameters: [
@@ -271,64 +268,64 @@ def build(Node, WorkingDir, output, outputFolder, buildName, buildMethod, unityV
         string(name: 'DISCORD_WEBHOOK', value: discordWebhook),
         string(name: 'UNITY_VERSION', value: "${unityVersion}"),
         string(name: 'PROJECT_PATH', value: "%CD%"),
-        string(name: 'OUTPUT_PATH', value: "%CD%\\${output}\\${outputFolder}\\${buildName}"),
-        string(name: 'BUILD_PROFILE_PATH', value: buildName)
+        string(name: 'OUTPUT_PATH', value: "%CD%\\${output}\\${outputFolder}\\${outputFileName}"),
+        string(name: 'BUILD_PROFILE_PATH', value: buildProfilePath)
     ]
 }
 
-def stagesBuildAndUpload(buildTarget, outputFolder, buildName, env)
+def stagesBuildAndUpload(platform, env)
 {
     // we swallow any exceptions during the build, zip, and upload stages to ensure the pipeline continues for other build targets
 
     def prevStageSuccess = true
-    stage(buildTarget+'Build') {
+    stage(platform.target+'Build') {
         try{
             build(
                 Node, 
                 WorkingDir, 
                 outputBase, 
-                outputFolder, 
-                "${unityBuildName}${unityBuildNameExtensionMap[buildTarget]}", 
-                "BuildUtility.${buildTarget}${env}Builder", 
+                platform.outputFolder, 
+                "${unityBuildName}${platform.extension}", 
+                platform.buildProfilePath, 
                 unityVersion, 
                 discordWebhook)
 
         } catch (Exception e) {
             prevStageSuccess = false
             catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                error("Build failed for ${buildTarget} Exception: ${e.message}")
+                error("Build failed for ${platform.target} Exception: ${e.message}")
             }
         }
     }
-    stage("Zip${buildTarget}Build") {
+    stage("Zip${platform.target}Build") {
         try{
             if(prevStageSuccess){
-                zip.pack(".\\${outputBase}\\${outputFolder}", buildName)
+                zip.pack(".\\${outputBase}\\${platform.outputFolder}", platform.buildName)
             }else{
                 catchError(buildResult: 'FAILURE', stageResult: 'ABORTED') {
-                    error("Previous stage failed for ${buildTarget}, skipping zip")
+                    error("Previous stage failed for ${platform.target}, skipping zip")
                 }
             }
         } catch (Exception e) {
             prevStageSuccess = false
             catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                error("Zip failed for ${buildTarget} Exception: ${e.message}")
+                error("Zip failed for ${platform.target} Exception: ${e.message}")
             }
         }
     }
-    stage("Upload${buildTarget}Build") {
+    stage("Upload${platform.target}Build") {
         try{
             if(prevStageSuccess){
-                nexus.upload("${nexusRepo}", buildName, "application/x-zip-compressed", buildTarget, 'NEXUS_CREDENTIALS')
+                nexus.upload("${nexusRepo}", platform.buildName, "application/x-zip-compressed", platform.target, 'NEXUS_CREDENTIALS')
             }else{
                 catchError(buildResult: 'FAILURE', stageResult: 'ABORTED') {
-                    error("Previous stage failed for ${buildTarget}, skipping upload")
+                    error("Previous stage failed for ${platform.target}, skipping upload")
                 }
             }
         } catch (Exception e) {
             prevStageSuccess = false
             catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                error("Upload failed for ${buildTarget}")
+                error("Upload failed for ${platform.target}")
             }
         }
     }
