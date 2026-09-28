@@ -17,11 +17,16 @@ if (gitHubBranch == null || gitHubBranch == "" || gitHubBranch == "null") {
     gitHubBranch = "${env.BRANCH_NAME}"
 }
 if (gitHubBranch == null || gitHubBranch == "" || gitHubBranch == "null") {
-    // Falls back to the branch used to check out this Jenkinsfile itself (set when this isn't a Multibranch Pipeline job)
-    gitHubBranch = "${env.GIT_BRANCH}".replaceFirst(/^origin\//, "")
+    // 'Pipeline script from SCM' jobs don't inject GIT_BRANCH/BRANCH_NAME into env, but they do expose
+    // the job's own SCM configuration via the 'scm' global, so read the configured branch specifier from there.
+    try {
+        gitHubBranch = scm.branches[0].name.replaceFirst(/^\*\//, "").replaceFirst(/^origin\//, "")
+    } catch (Exception ignored) {
+        gitHubBranch = null
+    }
 }
 if (gitHubBranch == null || gitHubBranch == "" || gitHubBranch == "null") {
-    error("Could not determine which branch to build: env.CHANGE_BRANCH, env.BRANCH_NAME and env.GIT_BRANCH are all unset. Run this Jenkinsfile from a Multibranch Pipeline job, or a job configured with 'Pipeline script from SCM'.")
+    error("Could not determine which branch to build: env.CHANGE_BRANCH, env.BRANCH_NAME are unset, and no 'scm' branch specifier is available. Run this Jenkinsfile from a Multibranch Pipeline job, or a job configured with 'Pipeline script from SCM'.")
 }
 
 String discordFriendlyName = "Auggis"
