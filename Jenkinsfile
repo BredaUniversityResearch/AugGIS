@@ -16,6 +16,13 @@ String gitHubBranch = "${env.CHANGE_BRANCH}"
 if (gitHubBranch == null || gitHubBranch == "" || gitHubBranch == "null") {
     gitHubBranch = "${env.BRANCH_NAME}"
 }
+if (gitHubBranch == null || gitHubBranch == "" || gitHubBranch == "null") {
+    // Falls back to the branch used to check out this Jenkinsfile itself (set when this isn't a Multibranch Pipeline job)
+    gitHubBranch = "${env.GIT_BRANCH}".replaceFirst(/^origin\//, "")
+}
+if (gitHubBranch == null || gitHubBranch == "" || gitHubBranch == "null") {
+    error("Could not determine which branch to build: env.CHANGE_BRANCH, env.BRANCH_NAME and env.GIT_BRANCH are all unset. Run this Jenkinsfile from a Multibranch Pipeline job, or a job configured with 'Pipeline script from SCM'.")
+}
 
 String discordFriendlyName = "Auggis"
 
