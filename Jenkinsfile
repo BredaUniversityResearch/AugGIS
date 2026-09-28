@@ -1,4 +1,4 @@
-//@Library('CradleSharedLibrary') _ // Loaded implicitly
+@Library('CradleSharedLibrary@unity-buildprofiles') _ // Loaded implicitly
 
 String Node = ''
 String WorkingDir = ''
@@ -24,13 +24,13 @@ String nexusRepo = "MSP_ProceduralOceanViewUnity-Main"
 String unityBuildName = "Auggis"
 String unityVersion = "6000.6.0f1"
 
-String output = "Output"
+String outputBase = "Output"
 
 // "constants", used for the map keys
-String windows = "Windows"
+String windowsServer = "WindowsServer"
 String android = "Android"
-String unityServer = "UnityServer"
-def buildTargets = [windows, android, unityServer]
+String linuxServer = "LinuxServer"
+def buildTargets = [windowsServer, android, linuxServer]
 
 // maps
 def buildNameMap = [:]
@@ -42,34 +42,36 @@ def descriptionMap = [:]
 def unityBuildNameExtensionMap = [:]
 
 // map values
-buildNameMap[windows] = "Windows"
-buildNameMap[android] = "Android"
-buildNameMap[unityServer] = "UnityServer"
-buildNameDevMap[windows] = "Windows-Dev"
-buildNameDevMap[android] = "Android-Dev"
-buildNameDevMap[unityServer] = "UnityServer-Dev"
-outputFolderMap[windows] = "CurrentWinBuild"
+buildNameMap[windowsServer] = "WindowsServer"
+buildNameDevMap[windowsServer] = "WindowsServerDev"
+outputFolderMap[windowsServer] = "CurrentWinBuild"
+outputFolderDevMap[windowsServer] = "CurrentWinDevBuild"
+paramNameMap[windowsServer] = "BUILD_WINDOWS_SERVER"
+descriptionMap[windowsServer] = "Windows Server"
+unityBuildNameExtensionMap[windowsServer] = '.exe'
+
+buildNameMap[linuxServer] = "LinuxServer"
+buildNameDevMap[linuxServer] = "LinuxServerDev"
+outputFolderMap[linuxServer] = "CurrentUnityServerBuild"
+outputFolderDevMap[linuxServer] = "CurrentUnityServerDevBuild"
+paramNameMap[linuxServer] = "BUILD_LINUX_SERVER"
+descriptionMap[linuxServer] = "Linux Server"
+unityBuildNameExtensionMap[linuxServer] = ''
+
+buildNameMap[android] = "AndroidClient"
+buildNameDevMap[android] = "AndroidClientDev"
 outputFolderMap[android] = "CurrentAndroidBuild"
-outputFolderMap[unityServer] = "CurrentUnityServerBuild"
-outputFolderDevMap[windows] = "CurrentWinDevBuild"
 outputFolderDevMap[android] = "CurrentAndroidDevBuild"
-outputFolderDevMap[unityServer] = "CurrentUnityServerDevBuild"
-paramNameMap[windows] = "BUILD_WINDOWS"
-paramNameMap[android] = "BUILD_ANDROID"
-paramNameMap[unityServer] = "BUILD_UNITY_SERVER"
-descriptionMap[windows] = "Windows"
-descriptionMap[android] = "Android"
-descriptionMap[unityServer] = "Unity Server"
-unityBuildNameExtensionMap[windows] = '.exe'
+paramNameMap[android] = "BUILD_ANDROID_CLIENT"
+descriptionMap[android] = "Android Client"
 unityBuildNameExtensionMap[android] = '.apk'
-unityBuildNameExtensionMap[unityServer] = ''
 
 properties([
     parameters([
         booleanParam(name: 'DEVELOPMENT', defaultValue: false, description: 'Development build?'),
-        booleanParam(name: paramNameMap[windows], defaultValue: false, description: "Make a ${descriptionMap[windows]} build"),
+        booleanParam(name: paramNameMap[windowsServer], defaultValue: false, description: "Make a ${descriptionMap[windowsServer]} build"),
         booleanParam(name: paramNameMap[android], defaultValue: true, description: "Make a ${descriptionMap[android]} build"),
-        booleanParam(name: paramNameMap[unityServer], defaultValue: true, description: "Make a ${descriptionMap[unityServer]} build"),
+        booleanParam(name: paramNameMap[linuxServer], defaultValue: true, description: "Make a ${descriptionMap[linuxServer]} build")
     ])
 ])
 
@@ -244,7 +246,7 @@ def createContext(buildNameMap, buildNameDevMap, outputFolderMap, outputFolderDe
 
 def getBuildDetails(buildTarget, useDev, buildNumber, commit, context)
 {
-    def outputFolder = getFolder(buildTarget, useDev, context)
+    def outputFolder = getValue(buildTarget, context.outputFolderMap, context.outputFolderDevMap, useDev)
     def buildName = getBuildName(buildTarget, useDev, buildNumber, commit, context)
     def messageIfStageFailure = 'Failed to build '+context.descriptionMap[buildTarget]
     return [outputFolder, buildName, messageIfStageFailure]
@@ -255,11 +257,6 @@ def getBuildName(buildTarget, useDev, buildNumber, commit, context)
     return sanitizeinput.buildName(getValue(buildTarget, context.buildNameMap, context.buildNameDevMap, useDev), buildNumber, commit, "zip")
 }
 
-def getFolder(buildTarget, useDev, context)
-{
-    return getValue(buildTarget, context.outputFolderMap, context.outputFolderDevMap, useDev)
-}
-
 def getValue(buildTarget, values, devValues, useDev)
 {
     return useDev ? devValues[buildTarget] : values[buildTarget]
@@ -267,16 +264,15 @@ def getValue(buildTarget, values, devValues, useDev)
 
 def build(Node, WorkingDir, output, outputFolder, buildName, buildMethod, unityVersion, discordWebhook)
 {
-    build job: 'Library/WindowsUnityBuild',
+    build job: 'Library/WindowsUnityBuildV2',
     parameters: [
-        string(name: 'NODE', value: Node),
         string(name: 'WORKING_DIR', value: WorkingDir),
+        string(name: 'NODE', value: Node),
+        string(name: 'DISCORD_WEBHOOK', value: discordWebhook),
         string(name: 'UNITY_VERSION', value: "${unityVersion}"),
-        string(name: 'PROJECTPATH', value: "%CD%"),
-        string(name: 'EXPORTPATH', value: "%CD%\\${output}\\${outputFolder}\\${buildName}"),
-        string(name: 'BUILD_NAME', value: buildName),
-        string(name: 'BUILD_METHOD', value: buildMethod),
-        string(name: 'DISCORD_WEBHOOK', value: discordWebhook)
+        string(name: 'PROJECT_PATH', value: "%CD%"),
+        string(name: 'OUTPUT_PATH', value: "%CD%\\${output}\\${outputFolder}\\${buildName}"),
+        string(name: 'BUILD_PROFILE_PATH', value: buildName)
     ]
 }
 
@@ -287,7 +283,16 @@ def stagesBuildAndUpload(buildTarget, outputFolder, buildName, env)
     def prevStageSuccess = true
     stage(buildTarget+'Build') {
         try{
-            build(Node, WorkingDir, output, outputFolder, "${unityBuildName}${unityBuildNameExtensionMap[buildTarget]}", "BuildUtility.${buildTarget}${env}Builder", unityVersion, discordWebhook)
+            build(
+                Node, 
+                WorkingDir, 
+                outputBase, 
+                outputFolder, 
+                "${unityBuildName}${unityBuildNameExtensionMap[buildTarget]}", 
+                "BuildUtility.${buildTarget}${env}Builder", 
+                unityVersion, 
+                discordWebhook)
+
         } catch (Exception e) {
             prevStageSuccess = false
             catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
@@ -298,7 +303,7 @@ def stagesBuildAndUpload(buildTarget, outputFolder, buildName, env)
     stage("Zip${buildTarget}Build") {
         try{
             if(prevStageSuccess){
-                zip.pack(".\\${output}\\${outputFolder}", buildName)
+                zip.pack(".\\${outputBase}\\${outputFolder}", buildName)
             }else{
                 catchError(buildResult: 'FAILURE', stageResult: 'ABORTED') {
                     error("Previous stage failed for ${buildTarget}, skipping zip")
