@@ -131,7 +131,7 @@ try { // we catch any exception that was unhandled
             for (buildTarget in buildTargets) {
                 def platform = getPlatformContext(buildTarget, params.DEVELOPMENT, buildNumber, commit, buildConfig)
                 if (params[paramNameMap[buildTarget]]) {
-                    stagesBuildAndUpload(platform, env)
+                    stagesBuildAndUpload(Node, WorkingDir, platform, env)
                 } else {
                     stage(platform.target+'Build') {
                         catchError(buildResult: 'SUCCESS', stageResult: 'NOT_BUILT') {
@@ -285,7 +285,7 @@ def build(Node, WorkingDir, output, outputFolder, outputFileName, buildProfilePa
     ]
 }
 
-def stagesBuildAndUpload(platform, env)
+def stagesBuildAndUpload(Node, WorkingDir, platform, env)
 {
     // we swallow any exceptions during the build, zip, and upload stages to ensure the pipeline continues for other build targets
 
