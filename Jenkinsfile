@@ -31,7 +31,7 @@ if (gitHubBranch == null || gitHubBranch == "" || gitHubBranch == "null") {
 
 String discordFriendlyName = "Auggis"
 
-String nexusRepo = "MSP_ProceduralOceanViewUnity-test"
+String nexusRepo = "MSP_ProceduralOceanViewUnity-main"
 
 String unityBuildName = "Auggis"
 String unityVersion = "6000.6.0f1"
