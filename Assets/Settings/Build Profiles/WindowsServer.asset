@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 15003, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: WindowsDedicatedServer
+  m_Name: WindowsServer
   m_EditorClassIdentifier: 
   m_AssetVersion: 1
   m_BuildTarget: 19
@@ -45,8 +45,7 @@ MonoBehaviour:
     - line: '|   productName: AugGIS'
     - line: '|   defaultCursor: {instanceID: 0}'
     - line: '|   cursorHotspot: {x: 0, y: 0}'
-    - line: '|   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b:
-        0.1254902, a: 0}'
+    - line: '|   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 0}'
     - line: '|   m_ShowUnitySplashScreen: 0'
     - line: '|   m_ShowUnitySplashLogo: 1'
     - line: '|   m_SplashScreenOverlayOpacity: 1'
@@ -332,8 +331,7 @@ MonoBehaviour:
     - line: '|   - m_BuildTarget: '
     - line: '|     m_Icons:'
     - line: '|     - serializedVersion: 2'
-    - line: '|       m_Icon: {fileID: 2800000, guid: 5fdf9a952c7d77b48b075dbab9e1da1d,
-        type: 3}'
+    - line: '|       m_Icon: {fileID: 2800000, guid: 5fdf9a952c7d77b48b075dbab9e1da1d, type: 3}'
     - line: '|       m_Width: 128'
     - line: '|       m_Height: 128'
     - line: '|       m_Kind: 0'
@@ -857,10 +855,8 @@ MonoBehaviour:
     - line: '|   metroLastRequiredScene: 0'
     - line: '|   metroDefaultTileSize: 1'
     - line: '|   metroTileForegroundText: 2'
-    - line: '|   metroTileBackgroundColor: {r: 0.13333334, g: 0.17254902, b: 0.21568628,
-        a: 0}'
-    - line: '|   metroSplashScreenBackgroundColor: {r: 0.12941177, g: 0.17254902,
-        b: 0.21568628, a: 1}'
+    - line: '|   metroTileBackgroundColor: {r: 0.13333334, g: 0.17254902, b: 0.21568628, a: 0}'
+    - line: '|   metroSplashScreenBackgroundColor: {r: 0.12941177, g: 0.17254902, b: 0.21568628, a: 1}'
     - line: '|   metroSplashScreenUseBackgroundColor: 0'
     - line: '|   syncCapabilities: 0'
     - line: '|   platformCapabilities: {}'
