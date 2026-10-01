@@ -36,6 +36,8 @@ import httpx
 from fastapi import FastAPI, File, Form, UploadFile
 from fastapi.responses import JSONResponse
 
+import search
+
 WHISPER_URL = os.getenv("WHISPER_URL", "http://whisper:9000")
 LLM_URL = os.getenv("LLM_URL", "http://llm:11434")
 LLM_MODEL = os.getenv("LLM_MODEL", "llama3.2:3b")
@@ -386,3 +388,110 @@ async def command(audio: UploadFile = File(...), layers: str = Form(...), trim: 
 
     log.info("%r -> %s (%dms)", transcript, operations, result["timings_ms"]["total"])
     return result
+
+
+def is_catalogue(layers) -> bool:
+    """Check the layers field is a list of layers with the four fields search needs."""
+    if not isinstance(layers, list) or not layers:
+        return False
+    for layer in layers:
+        if not isinstance(layer, dict):
+            return False
+        for key in ("id", "source", "group", "spoken"):
+            if not isinstance(layer.get(key), str):
+                return False
+    return True
+
+
+async def heard(audio: UploadFile | None, text: str, trim: str) -> tuple[str, int, JSONResponse | None]:
+    """Get the request as text: transcribe the audio if there is any, otherwise use the text.
+
+    Whisper is given a short list of expected words, not the layer names: it keeps only the
+    last 224 tokens of its hint, and 820 names are about 12,000.
+
+    Returns:
+        The transcript ("" if nothing was said), the milliseconds speech-to-text took, and an
+        error reply to send instead, or None.
+    """
+    transcript = text.strip()
+    if audio is None and not transcript:
+        return "", 0, JSONResponse({"error": "send audio or text"}, status_code=400)
+    if audio is None:
+        return transcript, 0, None
+
+    vocabulary = search.load_search_prompt()["whisper_vocabulary"]
+    vad = str(trim).strip().lower() not in FALSE_WORDS
+    stage = time.perf_counter()
+    try:
+        transcript = await transcribe(await audio.read(), audio.filename or "a.wav", vocabulary, vad)
+    except Exception as exc:
+        log.exception("whisper failed")
+        return "", 0, JSONResponse({"error": f"speech-to-text unavailable: {exc}"}, status_code=503)
+    stt_ms = round((time.perf_counter() - stage) * 1000)
+
+    if is_prompt_echo(transcript, vocabulary):
+        log.info("prompt echo suppressed: %r", transcript)
+        transcript = ""
+    return transcript, stt_ms, None
+
+
+@app.post("/search")
+async def search_layers(
+    layers: str = Form(...),
+    audio: UploadFile | None = File(None),
+    text: str = Form(""),
+    trim: str = Form("true"),
+):
+    """Find the EMODnet layers that a spoken or typed request is about.
+
+    Args:
+        layers: JSON array of every layer, each {"id", "source", "group", "spoken"}.
+            Sent by the caller, the same way /command gets its layer names.
+        audio: The WAV file, 16 kHz mono PCM. Leave out to send text instead.
+        text: The request as text, used when there is no audio.
+        trim: "false", "0", "off" or "no" turns Whisper's silence filter off.
+
+    Returns:
+        The transcript, the matching layers and timings. 400 if the layers or the request are missing, 503 if a model service
+        did not answer.
+    """
+    started = time.perf_counter()
+
+    try:
+        catalogue = json.loads(layers)
+    except ValueError:
+        catalogue = None
+    if not is_catalogue(catalogue):
+        return JSONResponse({"error": "layers must be a JSON array of {id, source, group, spoken}"},
+                            status_code=400)
+
+    transcript, stt_ms, error = await heard(audio, text, trim)
+    if error is not None:
+        return error
+
+    if not transcript:
+        return {
+            "transcript": "",
+            "matches": {"emodnet": []},
+            "timings_ms": {"stt": stt_ms, "search": 0, "total": round((time.perf_counter() - started) * 1000)},
+        }
+
+    stage = time.perf_counter()
+    try:
+        result = await search.search(transcript, catalogue)
+    except Exception as exc:
+        log.exception("search failed")
+        return JSONResponse({"error": f"search unavailable: {exc}", "transcript": transcript},
+                            status_code=503)
+    search_ms = round((time.perf_counter() - stage) * 1000)
+
+    result["transcript"] = transcript
+    result["timings_ms"] = {
+        "stt": stt_ms,
+        "search": search_ms,
+        "total": round((time.perf_counter() - started) * 1000),
+    }
+    log.info("%r -> %d matches (%dms)", transcript, len(result["matches"]["emodnet"]),
+             result["timings_ms"]["total"])
+    return result
+

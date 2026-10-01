@@ -1,3 +1,5 @@
 # Scratch recording written by voice.py on every run
 _capture.wav
 __pycache__/
+# Layer list saved by layer_catalogue.py, refetched on every run
+_catalogue.json

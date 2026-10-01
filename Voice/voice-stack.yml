@@ -45,10 +45,12 @@ services:
       LLM_URL: http://llm:11434
       LLM_MODEL: llama3.2:3b
       PROMPT_PATH: /app/prompt.json
+      SEARCH_PROMPT_PATH: /app/search-prompt.json
     volumes:
       # Bind-mounted read-only, so editing prompt.json and running
       # `docker restart auggis-voice-helper` applies in about 3 seconds with no rebuild.
       - ./helper/prompt.json:/app/prompt.json:ro
+      - ./helper/search-prompt.json:/app/search-prompt.json:ro
     depends_on: [whisper, llm]
     restart: unless-stopped
 
