@@ -1,15 +1,16 @@
-"""Command-line demo: every layer on EMODnet, then find layers by voice.
+"""Command-line demo: every layer on both map servers, then find layers by voice.
 
     python layer_search.py
 
-1. Lists every layer on EMODnet's map servers (about 820).
+1. Lists every layer on the team's GeoServer and on EMODnet (about 1300).
 2. Press Enter, speak ("load the wind farms"), press Enter.
-3. Prints the layers the language model picked.
+3. Prints the matching layers from each server, with how many words each one shares.
 
 Nothing is downloaded and nothing goes on a map. This shows what the matching finds.
 
     python layer_search.py --type          type requests instead of speaking
     python layer_search.py --cached        use the list saved last time, skip the servers
+    python layer_search.py --shortlist     also print what the model chose from
 
 Uses the same containers as voice.py, through the helper's POST /search.
 """
@@ -29,8 +30,11 @@ from voice import paint
 HERE = Path(__file__).parent
 CAPTURE = HERE / "_capture.wav"
 
+SOURCE_TITLES = {"geoserver": "Team GeoServer", "emodnet": "EMODnet"}
+
+
 def print_catalogue(layers: list[dict], counts: dict) -> None:
-    """Print every layer, grouped by theme, in columns.
+    """Print every layer, grouped by server and then by region or theme, in columns.
 
     Args:
         layers: The catalogue.
@@ -40,23 +44,35 @@ def print_catalogue(layers: list[dict], counts: dict) -> None:
     column = 44
     per_row = max(1, width // column)
 
-    print()
-    print(paint(f"EMODnet  {len(layers)} layers", "cyan", "bold"))
+    for source in ("geoserver", "emodnet"):
+        in_source = []
+        for layer in layers:
+            if layer["source"] == source:
+                in_source.append(layer)
+        print()
+        print(paint(f"{SOURCE_TITLES[source]}  {len(in_source)} layers", "cyan", "bold"))
 
-    groups: dict[str, list[dict]] = {}
-    for layer in layers:
-        groups.setdefault(layer["group"], []).append(layer)
+        groups: dict[str, list[dict]] = {}
+        for layer in in_source:
+            groups.setdefault(layer["group"], []).append(layer)
 
-    for group, members in groups.items():
-        print(paint(f"  {group} ({len(members)})", "bold"))
-        for start in range(0, len(members), per_row):
-            cells = []
-            for layer in members[start:start + per_row]:
-                cell = f"{layer['id']:<5} {layer['spoken']}"
-                if len(cell) > column - 2:
-                    cell = cell[:column - 3] + "~"
-                cells.append(cell.ljust(column))
-            print("    " + "".join(cells).rstrip())
+        # Biggest group first, so the North Sea leads and GeoServer's demo data comes last.
+        by_size = []
+        for group, members in groups.items():
+            by_size.append((len(members), group))
+        by_size.sort(reverse=True)
+
+        for size, group in by_size:
+            members = groups[group]
+            print(paint(f"  {group} ({len(members)})", "bold"))
+            for start in range(0, len(members), per_row):
+                cells = []
+                for layer in members[start:start + per_row]:
+                    cell = f"{layer['id']:<5} {layer['spoken']}"
+                    if len(cell) > column - 2:
+                        cell = cell[:column - 3] + "~"
+                    cells.append(cell.ljust(column))
+                print("    " + "".join(cells).rstrip())
 
     print()
     summary = []
@@ -100,12 +116,13 @@ def search(helper: str, layers: list[dict], wav: Path | None, text: str) -> dict
     return response.json()
 
 
-def show(result: dict, by_id: dict) -> None:
-    """Print what was heard and the layers the model picked.
+def show(result: dict, by_id: dict, show_shortlist: bool) -> None:
+    """Print what was heard and the matches from each server.
 
     Args:
         result: The helper's answer.
         by_id: The catalogue by id.
+        show_shortlist: Also print the layers the model chose from.
     """
     transcript = result.get("transcript") or ""
     if not transcript:
@@ -113,14 +130,28 @@ def show(result: dict, by_id: dict) -> None:
         return
     print(paint("  heard  ", "dim") + paint(transcript, "bold"))
 
-    matches = result["matches"].get("emodnet") or []
-    print()
-    print(paint(f"  EMODnet  ({len(matches)})", "cyan", "bold"))
-    if not matches:
-        print(paint("    no match", "yellow"))
-    for match in matches:
-        layer = by_id[match["id"]]
-        print(f"    {layer['id']:<5} {layer['spoken']}  |  {layer['group']}")
+    if result.get("nothing_close"):
+        print(paint("  no layer on either server is about that", "yellow"))
+
+    for source in ("geoserver", "emodnet"):
+        matches = result["matches"].get(source) or []
+        print()
+        print(paint(f"  {SOURCE_TITLES[source]}  ({len(matches)})", "cyan", "bold"))
+        if not matches and not result.get("nothing_close"):
+            print(paint("    no match", "yellow"))
+
+        for match in matches:
+            layer = by_id[match["id"]]
+            print(f"    {match['words']:.2f}  {layer['id']:<5} {layer['spoken']}  |  {layer['group']}")
+
+        if show_shortlist:
+            picked = set()
+            for match in matches:
+                picked.add(match["id"])
+            print(paint("    chose from:", "dim"))
+            for layer_id in result["shortlists"].get(source) or []:
+                marker = "+" if layer_id in picked else " "
+                print(paint(f"      {marker} {layer_id:<5} {by_id[layer_id]['spoken']}", "dim"))
 
     timings = result.get("timings_ms") or {}
     print()
@@ -131,12 +162,14 @@ def show(result: dict, by_id: dict) -> None:
 def parse_args() -> argparse.Namespace:
     """Read the command line."""
     parser = argparse.ArgumentParser(
-        description="List every layer on EMODnet, then find layers by voice.")
+        description="List every layer on both map servers, then find layers by voice.")
     parser.add_argument("--type", action="store_true", help="type requests instead of speaking")
     parser.add_argument("--text", help="search for this one request and exit")
     parser.add_argument("--wav", type=Path, help="send this WAV instead of recording, then exit")
     parser.add_argument("--cached", action="store_true",
                         help="use the list saved last time instead of asking the servers")
+    parser.add_argument("--shortlist", action="store_true",
+                        help="also print the shortlist the model chose from")
     parser.add_argument("--no-list", action="store_true", help="do not print every layer")
     parser.add_argument("--mic", help="microphone name, see python voice.py --list-mics")
     parser.add_argument("--seconds", type=int,
@@ -155,7 +188,7 @@ def main() -> None:
     if args.cached:
         print(paint("  reading the saved layer list", "dim"))
     else:
-        print(paint("  asking the 7 EMODnet servers for their layers", "dim"))
+        print(paint("  asking the team's GeoServer and 7 EMODnet servers for their layers", "dim"))
     layers, counts = load_catalogue(refresh=not args.cached)
 
     by_id = {}
@@ -170,11 +203,11 @@ def main() -> None:
 
     if args.text:
         print()
-        show(search(args.helper, layers, None, args.text), by_id)
+        show(search(args.helper, layers, None, args.text), by_id, args.shortlist)
         return
     if args.wav:
         print()
-        show(search(args.helper, layers, args.wav, ""), by_id)
+        show(search(args.helper, layers, args.wav, ""), by_id, args.shortlist)
         return
 
     mic = None
@@ -188,7 +221,7 @@ def main() -> None:
                 request = input(paint("  type a request, Ctrl+C to quit: ", "dim")).strip()
                 if not request:
                     continue
-                show(search(args.helper, layers, None, request), by_id)
+                show(search(args.helper, layers, None, request), by_id, args.shortlist)
                 continue
 
             input(paint("  press Enter and speak, Ctrl+C to quit ", "dim"))
@@ -201,7 +234,7 @@ def main() -> None:
                 continue
 
             print(paint("  working...", "dim"))
-            show(search(args.helper, layers, CAPTURE, ""), by_id)
+            show(search(args.helper, layers, CAPTURE, ""), by_id, args.shortlist)
         except (EOFError, KeyboardInterrupt):
             print("\n  bye")
             return

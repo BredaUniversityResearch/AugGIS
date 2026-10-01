@@ -407,7 +407,7 @@ async def heard(audio: UploadFile | None, text: str, trim: str) -> tuple[str, in
     """Get the request as text: transcribe the audio if there is any, otherwise use the text.
 
     Whisper is given a short list of expected words, not the layer names: it keeps only the
-    last 224 tokens of its hint, and 820 names are about 12,000.
+    last 224 tokens of its hint, and 1300 names are about 20,000.
 
     Returns:
         The transcript ("" if nothing was said), the milliseconds speech-to-text took, and an
@@ -442,7 +442,7 @@ async def search_layers(
     text: str = Form(""),
     trim: str = Form("true"),
 ):
-    """Find the EMODnet layers that a spoken or typed request is about.
+    """Find the layers on each map server that a spoken or typed request is about.
 
     Args:
         layers: JSON array of every layer, each {"id", "source", "group", "spoken"}.
@@ -452,7 +452,8 @@ async def search_layers(
         trim: "false", "0", "off" or "no" turns Whisper's silence filter off.
 
     Returns:
-        The transcript, the matching layers and timings. 400 if the layers or the request are missing, 503 if a model service
+        The transcript, the matches per server with their scores, each server's shortlist,
+        and timings. 400 if the layers or the request are missing, 503 if a model service
         did not answer.
     """
     started = time.perf_counter()
@@ -472,7 +473,9 @@ async def search_layers(
     if not transcript:
         return {
             "transcript": "",
-            "matches": {"emodnet": []},
+            "nothing_close": True,
+            "matches": {"geoserver": [], "emodnet": []},
+            "shortlists": {"geoserver": [], "emodnet": []},
             "timings_ms": {"stt": stt_ms, "search": 0, "total": round((time.perf_counter() - started) * 1000)},
         }
 
@@ -491,7 +494,7 @@ async def search_layers(
         "search": search_ms,
         "total": round((time.perf_counter() - started) * 1000),
     }
-    log.info("%r -> %d matches (%dms)", transcript, len(result["matches"]["emodnet"]),
-             result["timings_ms"]["total"])
+    log.info("%r -> %d + %d matches (%dms)", transcript, len(result["matches"]["geoserver"]),
+             len(result["matches"]["emodnet"]), result["timings_ms"]["total"])
     return result
 

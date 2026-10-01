@@ -2,13 +2,14 @@
   "_comment": [
     "Prompt for POST /search. Edit and run 'docker restart auggis-voice-helper' to apply.",
     "",
-    "Every layer is appended to 'system' as 'id: name (theme)', one per line.",
+    "The shortlisted layers are appended to 'system' as 'id: name (region or theme)' lines.",
+    "Measured with exactly this wording; a change here is a change to re-measure.",
     "",
     "'whisper_vocabulary' is handed to Whisper as words to expect. It cannot be the layer",
-    "list: Whisper keeps only the last 224 tokens of it, and 820 names are about 12,000."
+    "list: Whisper keeps only the last 224 tokens of it, and 1300 names are about 20,000."
   ],
 
-  "system": "You find map layers for a spoken request in a GIS application. Reply with JSON only.\nBelow is the list of layers, one per line, as id: name (theme).\nReturn the ids of the layers the request is asking for, best first, at most 10.\nOnly return layers whose name is about what was asked. If no layer is about it, return an empty list.\n\nLayers:\n",
+  "system": "You find map layers for a spoken request in a GIS application. Reply with JSON only.\nBelow is the list of layers, one per line, as id: name (region or theme).\nReturn the ids of the layers the request is asking for, best first, at most 10.\nOnly return layers whose name is about what was asked. If no layer is about it, return an empty list.\nIf the request names a region, only return layers from that region.\n\nLayers:\n",
 
   "examples": [
     {
