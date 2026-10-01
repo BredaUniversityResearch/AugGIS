@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>sqlite-net-pcl</id>
+    <version>1.11.285</version>
+    <authors>SQLite-net</authors>
+    <license type="file">LICENSE.txt</license>
+    <licenseUrl>https://aka.ms/deprecateLicenseUrl</licenseUrl>
+    <icon>Logo-low.png</icon>
+    <projectUrl>https://github.com/praeclarum/sqlite-net</projectUrl>
+    <description>SQLite-net is an open source and light weight library providing easy SQLite database storage for .NET, Mono, and Xamarin applications.
+      This version uses SQLitePCLRaw to provide platform independent versions of SQLite.</description>
+    <tags>sqlite-net sqlite database orm</tags>
+    <repository type="git" url="https://github.com/praeclarum/sqlite-net.git" commit="21e525c7825f8947047c36b3b3a81f70d5710d33" />
+    <dependencies>
+      <group targetFramework="net8.0">
+        <dependency id="SQLitePCLRaw.core" version="3.0.3" exclude="Build,Analyzers" />
+        <dependency id="SQLitePCLRaw.provider.e_sqlite3" version="3.0.3" exclude="Build,Analyzers" />
+        <dependency id="SourceGear.sqlite3" version="3.53.3" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework="net8.0-ios18.0">
+        <dependency id="SQLitePCLRaw.core" version="3.0.3" exclude="Build,Analyzers" />
+        <dependency id="SQLitePCLRaw.provider.sqlite3" version="3.0.3" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="SQLitePCLRaw.core" version="3.0.3" exclude="Build,Analyzers" />
+        <dependency id="SQLitePCLRaw.provider.e_sqlite3" version="3.0.3" exclude="Build,Analyzers" />
+        <dependency id="SourceGear.sqlite3" version="3.53.3" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>
