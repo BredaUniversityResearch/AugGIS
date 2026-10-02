@@ -3,3 +3,5 @@ _capture.wav
 __pycache__/
 # Layer list saved by layer_catalogue.py, refetched on every run
 _catalogue.json
+# BUas AI Assistants keys for the helper, read by docker compose. Never commit.
+.env

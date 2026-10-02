@@ -36,6 +36,7 @@ import httpx
 from fastapi import FastAPI, File, Form, UploadFile
 from fastapi.responses import JSONResponse
 
+import chat
 import search
 
 WHISPER_URL = os.getenv("WHISPER_URL", "http://whisper:9000")
@@ -441,6 +442,7 @@ async def search_layers(
     audio: UploadFile | None = File(None),
     text: str = Form(""),
     trim: str = Form("true"),
+    model: str = Form("true"),
 ):
     """Find the layers on each map server that a spoken or typed request is about.
 
@@ -450,6 +452,7 @@ async def search_layers(
         audio: The WAV file, 16 kHz mono PCM. Leave out to send text instead.
         text: The request as text, used when there is no audio.
         trim: "false", "0", "off" or "no" turns Whisper's silence filter off.
+        model: "false", "0", "off" or "no" picks by scores alone, without the language model.
 
     Returns:
         The transcript, the matches per server with their scores, each server's shortlist,
@@ -481,7 +484,8 @@ async def search_layers(
 
     stage = time.perf_counter()
     try:
-        result = await search.search(transcript, catalogue)
+        use_model = str(model).strip().lower() not in FALSE_WORDS
+        result = await search.search(transcript, catalogue, use_model)
     except Exception as exc:
         log.exception("search failed")
         return JSONResponse({"error": f"search unavailable: {exc}", "transcript": transcript},
@@ -498,3 +502,80 @@ async def search_layers(
              len(result["matches"]["emodnet"]), result["timings_ms"]["total"])
     return result
 
+
+@app.post("/chat")
+async def chat_layers(
+    layers: str = Form(...),
+    conversation: str = Form("{}"),
+    audio: UploadFile | None = File(None),
+    text: str = Form(""),
+    trim: str = Form("true"),
+):
+    """Find layers by talking: one sentence per call, the conversation carried by the caller.
+
+    Args:
+        layers: JSON array of every layer, each {"id", "source", "group", "spoken"}.
+        conversation: The "conversation" object from the previous reply, or {} to start.
+        audio: The WAV file, 16 kHz mono PCM. Leave out to send text instead.
+        text: The sentence as text, used when there is no audio.
+        trim: "false", "0", "off" or "no" turns Whisper's silence filter off.
+
+    Returns:
+        The transcript, the searches the model ran this turn, its picks per server, the
+        conversation to send back next time, any replies that were not a step, and timings.
+        400 if the layers, the conversation or the sentence are missing, 503 if a model
+        service did not answer.
+    """
+    started = time.perf_counter()
+
+    try:
+        catalogue = json.loads(layers)
+    except ValueError:
+        catalogue = None
+    if not is_catalogue(catalogue):
+        return JSONResponse({"error": "layers must be a JSON array of {id, source, group, spoken}"},
+                            status_code=400)
+
+    try:
+        previous = json.loads(conversation)
+    except ValueError:
+        previous = None
+    if not isinstance(previous, dict):
+        return JSONResponse({"error": "conversation must be a JSON object"}, status_code=400)
+
+    transcript, stt_ms, error = await heard(audio, text, trim)
+    if error is not None:
+        return error
+
+    if not transcript:
+        return {
+            "transcript": "",
+            "searches": [],
+            "picks": {"geoserver": [], "emodnet": []},
+            "conversation": previous,
+            "problems": [],
+            "timings_ms": {"stt": stt_ms, "chat": 0, "total": round((time.perf_counter() - started) * 1000)},
+        }
+
+    stage = time.perf_counter()
+    try:
+        result = await chat.chat(transcript, previous, catalogue)
+    except Exception as exc:
+        log.exception("chat failed")
+        return JSONResponse({"error": f"chat unavailable: {exc}", "transcript": transcript},
+                            status_code=503)
+    chat_ms = round((time.perf_counter() - stage) * 1000)
+
+    result["transcript"] = transcript
+    result["timings_ms"] = {
+        "stt": stt_ms,
+        "chat": chat_ms,
+        "total": round((time.perf_counter() - started) * 1000),
+    }
+    queries = []
+    for done in result["searches"]:
+        queries.append(done["query"])
+    log.info("chat %r -> searched %s, picked %d + %d (%dms)", transcript, queries,
+             len(result["picks"]["geoserver"]), len(result["picks"]["emodnet"]),
+             result["timings_ms"]["total"])
+    return result

@@ -4,15 +4,19 @@
 
 1. Lists every layer on the team's GeoServer and on EMODnet (about 1300).
 2. Press Enter, speak ("load the wind farms"), press Enter.
-3. Prints the matching layers from each server, with how many words each one shares.
+3. Prints the matching layers from each server, with how close each one is.
 
 Nothing is downloaded and nothing goes on a map. This shows what the matching finds.
 
     python layer_search.py --type          type requests instead of speaking
     python layer_search.py --cached        use the list saved last time, skip the servers
     python layer_search.py --shortlist     also print what the model chose from
+    python layer_search.py --no-model      pick by scores alone, to compare with the model
+    python layer_search.py --chat          talk it down: "no, search for bathymetry instead"
 
-Uses the same containers as voice.py, through the helper's POST /search.
+Uses the same containers as voice.py, through the helper's POST /search, or POST /chat with
+--chat. In --chat the conversation is kept between sentences, so a follow-up continues from
+what was found; type "new" to start over.
 """
 
 import argparse
@@ -31,6 +35,10 @@ HERE = Path(__file__).parent
 CAPTURE = HERE / "_capture.wav"
 
 SOURCE_TITLES = {"geoserver": "Team GeoServer", "emodnet": "EMODnet"}
+
+# A pick whose meaning score is this far below the best pick on either server is shown dimmed.
+# The model tends to fill all 6 places, and this is how the padding shows itself.
+WEAK_GAP = 0.12
 
 
 def print_catalogue(layers: list[dict], counts: dict) -> None:
@@ -84,7 +92,7 @@ def print_catalogue(layers: list[dict], counts: dict) -> None:
     print(paint("  " + ", ".join(summary), "dim"))
 
 
-def search(helper: str, layers: list[dict], wav: Path | None, text: str) -> dict:
+def search(helper: str, layers: list[dict], wav: Path | None, text: str, use_model: bool = True) -> dict:
     """Send a recording, or typed text, with the whole catalogue to the helper.
 
     Args:
@@ -92,6 +100,7 @@ def search(helper: str, layers: list[dict], wav: Path | None, text: str) -> dict
         layers: The catalogue. Only the four fields the helper needs are sent.
         wav: A recording, or None to send text.
         text: The request as text, used when wav is None.
+        use_model: False asks the helper to pick by scores alone.
 
     Returns:
         The helper's answer.
@@ -102,7 +111,8 @@ def search(helper: str, layers: list[dict], wav: Path | None, text: str) -> dict
     slim = []
     for layer in layers:
         slim.append({key: layer[key] for key in ("id", "source", "group", "spoken")})
-    data = {"layers": json.dumps(slim), "text": text}
+    model_field = "true" if use_model else "false"
+    data = {"layers": json.dumps(slim), "text": text, "model": model_field}
 
     if wav is None:
         response = requests.post(f"{helper.rstrip('/')}/search", data=data, timeout=300)
@@ -133,6 +143,12 @@ def show(result: dict, by_id: dict, show_shortlist: bool) -> None:
     if result.get("nothing_close"):
         print(paint("  no layer on either server is about that", "yellow"))
 
+    # The best pick on either server is the yardstick for "weak".
+    best = 0.0
+    for source in ("geoserver", "emodnet"):
+        for match in result["matches"].get(source) or []:
+            best = max(best, match["meaning"])
+
     for source in ("geoserver", "emodnet"):
         matches = result["matches"].get(source) or []
         print()
@@ -142,7 +158,11 @@ def show(result: dict, by_id: dict, show_shortlist: bool) -> None:
 
         for match in matches:
             layer = by_id[match["id"]]
-            print(f"    {match['words']:.2f}  {layer['id']:<5} {layer['spoken']}  |  {layer['group']}")
+            line = f"    {match['meaning']:.2f}  {layer['id']:<5} {layer['spoken']}  |  {layer['group']}"
+            if match["meaning"] < best - WEAK_GAP:
+                print(paint(line + "  (weak)", "dim"))
+            else:
+                print(line)
 
         if show_shortlist:
             picked = set()
@@ -159,6 +179,151 @@ def show(result: dict, by_id: dict, show_shortlist: bool) -> None:
                 f"= {timings.get('total', '?')}ms", "dim"))
 
 
+def send_chat(helper: str, layers: list[dict], wav: Path | None, text: str, conversation: dict) -> dict:
+    """Send one sentence of the conversation, spoken or typed, to the helper.
+
+    Args:
+        helper: Base URL of the helper service.
+        layers: The catalogue. Only the four fields the helper needs are sent.
+        wav: A recording, or None to send text.
+        text: The sentence as text, used when wav is None.
+        conversation: The "conversation" from the previous reply, or {} to start.
+
+    Returns:
+        The helper's answer, whose "conversation" goes back in with the next sentence.
+
+    Raises:
+        RuntimeError: If the helper answers with anything but 200.
+    """
+    slim = []
+    for layer in layers:
+        slim.append({key: layer[key] for key in ("id", "source", "group", "spoken")})
+    data = {"layers": json.dumps(slim), "text": text, "conversation": json.dumps(conversation)}
+
+    if wav is None:
+        response = requests.post(f"{helper.rstrip('/')}/chat", data=data, timeout=300)
+    else:
+        with open(wav, "rb") as fh:
+            response = requests.post(f"{helper.rstrip('/')}/chat", data=data,
+                                     files={"audio": (wav.name, fh, "audio/wav")}, timeout=300)
+
+    if response.status_code != 200:
+        raise RuntimeError(f"HTTP {response.status_code}: {response.text[:300]}")
+    return response.json()
+
+
+def show_chat(result: dict, by_id: dict) -> None:
+    """Print one turn: what was heard, each search's raw top 10 with scores, then the reply and picks.
+
+    Args:
+        result: The helper's answer to /chat.
+        by_id: The catalogue by id.
+    """
+    transcript = result.get("transcript") or ""
+    if not transcript:
+        print(paint("  heard  ", "dim") + paint("nothing", "yellow"))
+        return
+    print(paint("  heard  ", "dim") + paint(transcript, "bold"))
+
+    searches = result.get("searches") or []
+    if not searches:
+        print(paint("  no new search, answered from what was already found", "dim"))
+    for done in searches:
+        print()
+        if done["nothing_close"]:
+            print(paint(f"  searched \"{done['query']}\": nothing in the catalogue is close", "yellow"))
+            continue
+        print(paint(f"  searched \"{done['query']}\"   meaning  words", "cyan"))
+        for source in ("geoserver", "emodnet"):
+            print(paint(f"    {SOURCE_TITLES[source]}, top {len(done['found'][source])}", "dim"))
+            for layer_id in done["found"][source]:
+                layer = by_id[layer_id]
+                score = done["scores"][layer_id]
+                print(paint(f"      {score['meaning']:.2f}   {score['words']:.2f}   {layer['id']:<5} "
+                            f"{layer['spoken']}  |  {layer['group']}", "dim"))
+
+    for problem in result.get("problems") or []:
+        print(paint(f"  the model's reply was not a step: {problem[:120]}", "yellow"))
+
+    print()
+    reply = result.get("reply") or ""
+    if reply:
+        print(paint("  model  ", "dim") + paint(reply, "bold"))
+
+    for source in ("geoserver", "emodnet"):
+        picks = result["picks"].get(source) or []
+        print()
+        print(paint(f"  {SOURCE_TITLES[source]}, picked  ({len(picks)})", "cyan", "bold"))
+        for layer_id in picks:
+            layer = by_id[layer_id]
+            print(f"    {layer['id']:<5} {layer['spoken']}  |  {layer['group']}")
+
+    timings = result.get("timings_ms") or {}
+    print()
+    print(paint(f"  {timings.get('stt', '?')}ms speech + {timings.get('chat', '?')}ms "
+                f"{result.get('backend', 'model')} = {timings.get('total', '?')}ms", "dim"))
+
+
+def run_chat(args: argparse.Namespace, layers: list[dict], by_id: dict) -> None:
+    """The conversation loop: each sentence continues from the last until "new" is typed.
+
+    Args:
+        args: The command line.
+        layers: The catalogue.
+        by_id: The catalogue by id.
+    """
+    conversation = {}
+
+    # --say runs a scripted conversation, one sentence per --say, then exits.
+    if args.say:
+        for sentence in args.say:
+            print()
+            result = send_chat(args.helper, layers, None, sentence, conversation)
+            conversation = result["conversation"]
+            show_chat(result, by_id)
+        return
+
+    mic = None
+    if not args.type:
+        mic = voice.pick_mic(args.mic)
+    print(paint('  type "new" at the prompt to start a new conversation', "dim"))
+
+    while True:
+        print()
+        try:
+            if args.type:
+                typed = input(paint("  you: ", "dim")).strip()
+            else:
+                typed = input(paint("  press Enter and speak, Ctrl+C to quit ", "dim")).strip()
+
+            if typed.lower() == "new":
+                conversation = {}
+                print(paint("  new conversation", "green"))
+                continue
+
+            if args.type:
+                if not typed:
+                    continue
+                result = send_chat(args.helper, layers, None, typed, conversation)
+            else:
+                voice.record(mic, CAPTURE, args.seconds, args.seconds is None)
+                peak = voice.peak_amplitude(CAPTURE)
+                if peak < voice.SILENT_PEAK:
+                    print(paint(f"  that recording is silent (peak {peak:.4f}). "
+                                f"{mic} is not picking anything up.", "yellow"))
+                    continue
+                print(paint("  working...", "dim"))
+                result = send_chat(args.helper, layers, CAPTURE, "", conversation)
+
+            conversation = result["conversation"]
+            show_chat(result, by_id)
+        except (EOFError, KeyboardInterrupt):
+            print("\n  bye")
+            return
+        except Exception as exc:
+            print(paint(f"  {exc}", "red"))
+
+
 def parse_args() -> argparse.Namespace:
     """Read the command line."""
     parser = argparse.ArgumentParser(
@@ -170,6 +335,12 @@ def parse_args() -> argparse.Namespace:
                         help="use the list saved last time instead of asking the servers")
     parser.add_argument("--shortlist", action="store_true",
                         help="also print the shortlist the model chose from")
+    parser.add_argument("--chat", action="store_true",
+                        help="keep the conversation, so a follow-up can change the search")
+    parser.add_argument("--say", action="append",
+                        help="with --chat: one sentence of a scripted conversation, repeatable")
+    parser.add_argument("--no-model", action="store_true",
+                        help="pick by scores alone, without the language model")
     parser.add_argument("--no-list", action="store_true", help="do not print every layer")
     parser.add_argument("--mic", help="microphone name, see python voice.py --list-mics")
     parser.add_argument("--seconds", type=int,
@@ -201,13 +372,22 @@ def main() -> None:
 
     voice.ensure_ready(args.helper, start=not args.no_start)
 
+    # The first search works out a meaning vector for every layer, about 11 seconds for 1300.
+    # Doing it now keeps that wait off the first spoken request.
+    print(paint("  preparing the layers for matching...", "dim"))
+    search(args.helper, layers, None, "wind farms")
+
+    if args.chat:
+        run_chat(args, layers, by_id)
+        return
+
     if args.text:
         print()
-        show(search(args.helper, layers, None, args.text), by_id, args.shortlist)
+        show(search(args.helper, layers, None, args.text, not args.no_model), by_id, args.shortlist)
         return
     if args.wav:
         print()
-        show(search(args.helper, layers, args.wav, ""), by_id, args.shortlist)
+        show(search(args.helper, layers, args.wav, "", not args.no_model), by_id, args.shortlist)
         return
 
     mic = None
@@ -221,7 +401,7 @@ def main() -> None:
                 request = input(paint("  type a request, Ctrl+C to quit: ", "dim")).strip()
                 if not request:
                     continue
-                show(search(args.helper, layers, None, request), by_id, args.shortlist)
+                show(search(args.helper, layers, None, request, not args.no_model), by_id, args.shortlist)
                 continue
 
             input(paint("  press Enter and speak, Ctrl+C to quit ", "dim"))
@@ -234,7 +414,7 @@ def main() -> None:
                 continue
 
             print(paint("  working...", "dim"))
-            show(search(args.helper, layers, CAPTURE, ""), by_id, args.shortlist)
+            show(search(args.helper, layers, CAPTURE, "", not args.no_model), by_id, args.shortlist)
         except (EOFError, KeyboardInterrupt):
             print("\n  bye")
             return

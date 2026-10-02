@@ -45,12 +45,20 @@ services:
       LLM_URL: http://llm:11434
       LLM_MODEL: llama3.2:3b
       PROMPT_PATH: /app/prompt.json
+      EMBED_MODEL: nomic-embed-text
       SEARCH_PROMPT_PATH: /app/search-prompt.json
+      CHAT_PROMPT_PATH: /app/chat-prompt.json
+      # /chat's language model: "buas" (the BUas AI Assistants API) or "ollama" (llm above).
+      # The keys come from .env beside this file, which is git-ignored.
+      CHAT_BACKEND: buas
+      BUAS_USER_KEY: ${BUAS_USER_KEY}
+      BUAS_ASSISTANT_KEY: ${BUAS_ASSISTANT_KEY}
     volumes:
       # Bind-mounted read-only, so editing prompt.json and running
       # `docker restart auggis-voice-helper` applies in about 3 seconds with no rebuild.
       - ./helper/prompt.json:/app/prompt.json:ro
       - ./helper/search-prompt.json:/app/search-prompt.json:ro
+      - ./helper/chat-prompt.json:/app/chat-prompt.json:ro
     depends_on: [whisper, llm]
     restart: unless-stopped
 
