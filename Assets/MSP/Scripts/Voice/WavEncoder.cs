@@ -3,7 +3,7 @@ using UnityEngine;
 
 /// <summary>
 /// Turns recorded samples into a 16-bit PCM WAV file in memory (44-byte header plus samples),
-/// which is what the voice helper's speech-to-text expects.
+/// which is what the interface's speech-to-text expects.
 /// </summary>
 public static class WavEncoder
 {

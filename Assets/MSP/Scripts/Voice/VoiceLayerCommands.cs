@@ -4,20 +4,20 @@ using POV_Unity;
 using UnityEngine;
 
 /// <summary>
-/// Applies the operations the voice helper returned to the session's layers, through the same
+/// Applies the operations the interface returned to the session's layers, through the same
 /// server RPC the layer menu uses, and describes what it did for the voice panel.
-/// The actions are the ones the helper allows: show, hide and toggle.
+/// The actions are the ones the interface allows: show, hide and toggle.
 /// </summary>
 public static class VoiceLayerCommands
 {
 	/// <summary>
 	/// Applies every operation in order and returns one line per operation, or a reason when
 	/// nothing was applied. <paramref name="a_layers"/> is the set a command may act on, which
-	/// is also the set whose names were sent to the helper.
+	/// is also the set whose names were sent to the interface.
 	/// </summary>
 	public static string Apply(VoiceResponse a_response, List<ALayer> a_layers)
 	{
-		if (!a_response.HasLayerOperations)
+		if (a_response.operations.Count == 0)
 		{
 			return "nothing to apply";
 		}
@@ -32,11 +32,6 @@ public static class VoiceLayerCommands
 		List<string> lines = new List<string>();
 		foreach (VoiceOperation op in a_response.operations)
 		{
-			if (op.IsNone)
-			{
-				continue;
-			}
-
 			string line = ApplyOperation(op, a_layers);
 			if (!string.IsNullOrEmpty(line))
 			{
@@ -107,7 +102,7 @@ public static class VoiceLayerCommands
 		return string.Join("\n", parts);
 	}
 
-	// The helper only returns names it was sent, but a name is matched without case so a model
+	// The interface only returns names it was sent, but a name is matched without case so a model
 	// that recapitalises one does not silently drop the command. Two layers sharing a short name
 	// both match, which is what a speaker naming that short name means.
 	private static List<ALayer> Resolve(List<string> a_names, List<ALayer> a_layers)

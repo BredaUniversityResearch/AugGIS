@@ -1,38 +1,83 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
-using UnityEngine;
+using Newtonsoft.Json;
 
-/// <summary>One step returned by the voice helper: an action and the layers it applies to.</summary>
+/// <summary>One change to layers on the map: show, hide or toggle, and the layers it applies to.</summary>
 [Serializable]
 public class VoiceOperation
 {
 	public string action;
 	public List<string> layers = new List<string>();
 
-	public bool IsNone
-	{
-		get
-		{
-			bool hasAction = !string.IsNullOrEmpty(action) && action != "none";
-			bool hasLayers = layers != null && layers.Count > 0;
-			return !hasAction || !hasLayers;
-		}
-	}
-
 	public override string ToString()
 	{
-		if (IsNone)
-		{
-			return "none";
-		}
 		string layerList = string.Join(", ", layers);
 		return $"{action}: {layerList}";
 	}
 }
 
+/// <summary>A layer from the online catalogue that a search found, as the voice panel lists it.</summary>
+[Serializable]
+public class VoiceFoundLayer
+{
+	public string id;
+	public string spoken;
+	public string group;
+	public string name;
+	public float meaning;
+}
+
+/// <summary>The catalogue layers picked for the speaker, by the map server they are on.</summary>
+[Serializable]
+public class VoicePicks
+{
+	public List<VoiceFoundLayer> geoserver = new List<VoiceFoundLayer>();
+	public List<VoiceFoundLayer> emodnet = new List<VoiceFoundLayer>();
+}
+
+/// <summary>A catalogue layer a search returned, and how close its meaning was to the search words (0 to 1).</summary>
+[Serializable]
+public class VoiceFoundId
+{
+	public string id;
+	public float meaning;
+}
+
 /// <summary>
-/// What <c>POST /command</c> on the voice helper returns: the transcript and a list of operations.
+/// What the interface needs back with the next sentence to continue the same conversation.
+/// Each headset holds its own, so each person has their own conversation.
+/// </summary>
+[Serializable]
+public class VoiceConversation
+{
+	public string chat_key = "";
+	public List<VoiceFoundId> found = new List<VoiceFoundId>();
+	public string version = "";
+}
+
+[Serializable]
+public class VoiceSearch
+{
+	public string query;
+	public bool nothing_close;
+}
+
+/// <summary>What <c>GET /health</c> on the interface returns: one word per service, and whether all are up.</summary>
+[Serializable]
+public class VoiceHealth
+{
+	// "interface" is a C# keyword, so this one field cannot carry the JSON's name.
+	[JsonProperty("interface")]
+	public string interfaceState;
+	public string whisper;
+	public string llm;
+	public string search;
+	public bool ready;
+}
+
+/// <summary>
+/// What <c>POST /voice</c> on the interface returns for one spoken sentence: what was heard, the
+/// changes to apply to the map, the catalogue layers found, and what to say back.
 /// <see cref="VoiceLayerCommands"/> applies the operations to the session's layers.
 /// </summary>
 [Serializable]
@@ -48,31 +93,23 @@ public class VoiceResponse
 
 	public string transcript;
 	public List<VoiceOperation> operations = new List<VoiceOperation>();
+	public VoicePicks picks = new VoicePicks();
+	public string reply;
+	public List<VoiceSearch> searches = new List<VoiceSearch>();
+	public VoiceConversation conversation = new VoiceConversation();
 	public Timings timings_ms;
 	public string error;
 
-	public bool HasLayerOperations
-	{
-		get
-		{
-			foreach (VoiceOperation op in operations)
-			{
-				if (!op.IsNone)
-				{
-					return true;
-				}
-			}
-			return false;
-		}
-	}
-
 	public static VoiceResponse FromJson(string a_json)
 	{
-		VoiceResponse response = JsonUtility.FromJson<VoiceResponse>(a_json);
+		VoiceResponse response = JsonConvert.DeserializeObject<VoiceResponse>(a_json);
 		if (response == null)
 		{
 			throw new ArgumentException("Not a VoiceResponse JSON object");
 		}
+
+		// A member the JSON leaves out keeps its empty default. A member the JSON gives as null does
+		// not, so each list the panel walks through is put back.
 		if (response.operations == null)
 		{
 			response.operations = new List<VoiceOperation>();
@@ -84,30 +121,26 @@ public class VoiceResponse
 				op.layers = new List<string>();
 			}
 		}
+		if (response.picks == null)
+		{
+			response.picks = new VoicePicks();
+		}
+		if (response.picks.geoserver == null)
+		{
+			response.picks.geoserver = new List<VoiceFoundLayer>();
+		}
+		if (response.picks.emodnet == null)
+		{
+			response.picks.emodnet = new List<VoiceFoundLayer>();
+		}
+		if (response.searches == null)
+		{
+			response.searches = new List<VoiceSearch>();
+		}
+		if (response.conversation == null)
+		{
+			response.conversation = new VoiceConversation();
+		}
 		return response;
-	}
-
-	/// <summary>One line per operation, for display. "no layer command" when there is none.</summary>
-	public string DescribeOperations()
-	{
-		if (!HasLayerOperations)
-		{
-			return "no layer command";
-		}
-
-		StringBuilder sb = new StringBuilder();
-		foreach (VoiceOperation op in operations)
-		{
-			if (op.IsNone)
-			{
-				continue;
-			}
-			if (sb.Length > 0)
-			{
-				sb.Append('\n');
-			}
-			sb.Append(op);
-		}
-		return sb.ToString();
 	}
 }

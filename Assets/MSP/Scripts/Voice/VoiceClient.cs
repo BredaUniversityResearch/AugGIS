@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using POV_Unity;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
@@ -8,28 +9,32 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 /// <summary>
-/// Sends each finished recording to the voice helper (<c>http://host:8080/command</c>) together with
-/// the session's layer names, and raises the transcript and operations it gets back.
+/// Sends each finished recording to the interface (<c>http://host:8080/voice</c>) together with the
+/// session's layer names and this headset's conversation, and raises the answer it gets back.
 /// The host is the machine the session was joined from; the inspector value is the fallback.
 /// </summary>
 [RequireComponent(typeof(VoiceRecorder))]
 public class VoiceClient : MonoBehaviour
 {
 	[SerializeField]
-	private string m_defaultHelperHost = "127.0.0.1";
+	private string m_defaultInterfaceHost = "127.0.0.1";
 
 	[SerializeField]
-	private int m_helperPort = 8080;
+	private int m_interfacePort = 8080;
 
+	private const int HEALTH_TIMEOUT_SECONDS = 5;
+
+	// A search takes about 6 seconds alone and about 12 with 8 people asking at once.
 	[SerializeField]
-	private int m_timeoutSeconds = 30;
+	private int m_timeoutSeconds = 60;
 
-	public event Action<string> SendStarted;
 	public event Action<string> TranscriptReceived;
 	public event Action<VoiceResponse> ResponseReceived;
 	public event Action<string> Failed;
+	public event Action<string> HealthChecked;
 
 	private VoiceRecorder m_recorder;
+	private VoiceConversation m_conversation = new VoiceConversation();
 
 	private void Awake()
 	{
@@ -44,14 +49,18 @@ public class VoiceClient : MonoBehaviour
 	private void OnDisable()
 	{
 		m_recorder.ClipReady -= OnClipReady;
+
+		// Unity stops this object's coroutines when it is switched off, so a request under way never
+		// reaches its end. Without this the recorder would wait for that answer forever.
+		m_recorder.NotifySendComplete();
 	}
 
 	private void OnClipReady(byte[] a_wav)
 	{
-		StartCoroutine(SendCommand(a_wav));
+		StartCoroutine(SendSentence(a_wav));
 	}
 
-	public string HelperHost
+	private string InterfaceHost
 	{
 		get
 		{
@@ -60,8 +69,53 @@ public class VoiceClient : MonoBehaviour
 			{
 				return sessionAddress;
 			}
-			return m_defaultHelperHost;
+			return m_defaultInterfaceHost;
 		}
+	}
+
+	/// <summary>
+	/// Asks the interface which of its services are up and raises <see cref="HealthChecked"/> with one
+	/// line for the panel.
+	/// </summary>
+	public void CheckHealth()
+	{
+		StartCoroutine(RequestHealth());
+	}
+
+	private IEnumerator RequestHealth()
+	{
+		string url = $"http://{InterfaceHost}:{m_interfacePort}/health";
+
+		using (UnityWebRequest request = UnityWebRequest.Get(url))
+		{
+			request.timeout = HEALTH_TIMEOUT_SECONDS;
+			yield return request.SendWebRequest();
+
+			if (request.result != UnityWebRequest.Result.Success)
+			{
+				HealthChecked?.Invoke($"No answer from {InterfaceHost}:{m_interfacePort}");
+				yield break;
+			}
+
+			VoiceHealth health;
+			try
+			{
+				health = JsonConvert.DeserializeObject<VoiceHealth>(request.downloadHandler.text);
+			}
+			catch (Exception)
+			{
+				HealthChecked?.Invoke($"Unreadable answer from {InterfaceHost}:{m_interfacePort}");
+				yield break;
+			}
+
+			HealthChecked?.Invoke($"interface {health.interfaceState}, speech {health.whisper}, search {health.search}");
+		}
+	}
+
+	/// <summary>Forgets the conversation, so the next sentence starts a new one.</summary>
+	public void StartNewConversation()
+	{
+		m_conversation = new VoiceConversation();
 	}
 
 	// The IP the session was created or joined with, or null when no session is running.
@@ -89,14 +143,6 @@ public class VoiceClient : MonoBehaviour
 		bool isAny = a_address == "0.0.0.0";
 		bool isLoopback = a_address.StartsWith("127.");
 		return !isAny && !isLoopback;
-	}
-
-	public bool HasLayers
-	{
-		get
-		{
-			return CommandableLayers().Count > 0;
-		}
 	}
 
 	/// <summary>
@@ -145,8 +191,7 @@ public class VoiceClient : MonoBehaviour
 		return a_layer.@short;
 	}
 
-	/// <summary>The layer names sent to the helper, which constrains the model to exactly these.</summary>
-	public List<string> CurrentLayerNames()
+	private List<string> CurrentLayerNames()
 	{
 		List<string> names = new List<string>();
 		foreach (ALayer layer in CommandableLayers())
@@ -156,46 +201,39 @@ public class VoiceClient : MonoBehaviour
 		return names;
 	}
 
-	private IEnumerator SendCommand(byte[] a_wav)
+	private IEnumerator SendSentence(byte[] a_wav)
 	{
-		// The layer list travels with the audio: the helper constrains the model to these names.
-		List<string> layerNames = CurrentLayerNames();
-
+		// The layer names travel with the audio: the interface only lets a command name one of these.
 		WWWForm form = new WWWForm();
-		form.AddBinaryData("audio", a_wav, "command.wav", "audio/wav");
-		form.AddField("layers", ToJsonArray(layerNames));
-		form.AddField("trim", "true");
+		form.AddBinaryData("audio", a_wav, "sentence.wav", "audio/wav");
+		form.AddField("layers", JsonConvert.SerializeObject(CurrentLayerNames()));
+		form.AddField("conversation", JsonConvert.SerializeObject(m_conversation));
 
-		string url = $"http://{HelperHost}:{m_helperPort}/command";
-		SendStarted?.Invoke(url);
+		string url = $"http://{InterfaceHost}:{m_interfacePort}/voice";
+		float startTime = Time.realtimeSinceStartup;
 
 		using (UnityWebRequest request = UnityWebRequest.Post(url, form))
 		{
 			request.timeout = m_timeoutSeconds;
 			yield return request.SendWebRequest();
 
-			string body = null;
-			if (request.downloadHandler != null)
+			float seconds = Time.realtimeSinceStartup - startTime;
+			bool neverAnswered = request.result == UnityWebRequest.Result.ConnectionError;
+			bool brokenAnswer = request.result == UnityWebRequest.Result.DataProcessingError;
+			if (neverAnswered || brokenAnswer)
 			{
-				body = request.downloadHandler.text;
-			}
-
-			bool connectionFailed = request.result == UnityWebRequest.Result.ConnectionError;
-			bool badData = request.result == UnityWebRequest.Result.DataProcessingError;
-			if (connectionFailed || badData)
-			{
-				Fail($"Voice helper unreachable at {url} ({request.error})");
+				Fail(DescribeNoAnswer(request, url, seconds));
 				yield break;
 			}
 
 			VoiceResponse response;
 			try
 			{
-				response = VoiceResponse.FromJson(body);
+				response = VoiceResponse.FromJson(request.downloadHandler.text);
 			}
 			catch (Exception e)
 			{
-				Fail($"Bad response from voice helper: {e.Message}");
+				Fail($"The interface answered with something unreadable (HTTP {request.responseCode}): {e.Message}");
 				yield break;
 			}
 
@@ -206,19 +244,45 @@ public class VoiceClient : MonoBehaviour
 
 			if (request.result != UnityWebRequest.Result.Success)
 			{
-				// 400 and 503 still carry a JSON body with an error, and 503 may carry the transcript.
-				string message = response.error;
-				if (string.IsNullOrEmpty(message))
+				// 400 and 503 carry a JSON body with the reason, and a 503 after speech-to-text carries the transcript.
+				string reason = response.error;
+				if (string.IsNullOrEmpty(reason))
 				{
-					message = $"HTTP {request.responseCode}";
+					reason = "no reason given";
 				}
-				Fail(message);
+				Fail($"The interface refused (HTTP {request.responseCode}): {reason}");
 				yield break;
 			}
 
+			m_conversation = response.conversation;
 			m_recorder.NotifySendComplete();
 			ResponseReceived?.Invoke(response);
 		}
+	}
+
+	// UnityWebRequest reports a timeout, a refused connection and an unknown host all as ConnectionError,
+	// and they need different fixes, so the panel says which one it was.
+	private string DescribeNoAnswer(UnityWebRequest a_request, string a_url, float a_seconds)
+	{
+		string error = a_request.error;
+		if (string.IsNullOrEmpty(error))
+		{
+			error = "unknown error";
+		}
+
+		if (error.Contains("timeout"))
+		{
+			return $"No answer after {a_seconds:F0}s from {a_url}. It may be slow or blocked, try again.";
+		}
+		if (error.Contains("Cannot connect"))
+		{
+			return $"Nothing is listening at {a_url}. Are the voice containers running, and is port {m_interfacePort} open in the firewall?";
+		}
+		if (error.Contains("Cannot resolve"))
+		{
+			return $"The address in {a_url} does not exist.";
+		}
+		return $"No answer from {a_url}: {error}";
 	}
 
 	private void Fail(string a_message)
@@ -226,18 +290,5 @@ public class VoiceClient : MonoBehaviour
 		Debug.LogWarning($"[Voice] {a_message}");
 		m_recorder.NotifySendComplete();
 		Failed?.Invoke(a_message);
-	}
-
-	// JsonUtility cannot serialise a bare list of strings, so build the array by hand.
-	private static string ToJsonArray(List<string> a_values)
-	{
-		string[] quoted = new string[a_values.Count];
-		for (int i = 0; i < a_values.Count; i++)
-		{
-			string escaped = a_values[i].Replace("\\", "\\\\");
-			escaped = escaped.Replace("\"", "\\\"");
-			quoted[i] = "\"" + escaped + "\"";
-		}
-		return "[" + string.Join(",", quoted) + "]";
 	}
 }
