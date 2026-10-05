@@ -2,14 +2,15 @@
 #
 #   docker compose -f voice-stack.yml up -d --build
 #
-# The caller only ever talks to `helper` on 8080. Whisper and the LLM are not published
-# to the network at all, they are reachable only from inside this compose network.
+# The caller only ever talks to `interface` on 8080. Whisper, the embedding model (`llm`,
+# Ollama) and the search service are not published to the network at all; they are
+# reachable only from inside this compose network.
 
 services:
   whisper:
     image: onerahmet/openai-whisper-asr-webservice:latest-gpu
     environment:
-      ASR_MODEL: small
+      ASR_MODEL: large-v3-turbo
       ASR_ENGINE: faster_whisper
     volumes:
       # Named volume, or `compose down -v` re-downloads the model every time.
@@ -20,6 +21,7 @@ services:
           devices: [{ driver: nvidia, count: 1, capabilities: [gpu] }]
     restart: unless-stopped
 
+  # Ollama, used only for the embedding model nomic-embed-text that the search needs.
   llm:
     image: ollama/ollama
     environment:
@@ -35,35 +37,43 @@ services:
           devices: [{ driver: nvidia, count: 1, capabilities: [gpu] }]
     restart: unless-stopped
 
-  helper:
-    build: ./helper
-    container_name: auggis-voice-helper
+  search:
+    build: ./search
+    container_name: auggis-search
+    environment:
+      EMBED_URL: http://llm:11434
+      EMBED_MODEL: nomic-embed-text
+      CATALOGUE_CACHE: /data/catalogue.json
+    volumes:
+      # The layer list saved at the last start, used for a map server that is down.
+      - search-data:/data
+    depends_on: [llm]
+    restart: unless-stopped
+
+  interface:
+    build: ./interface
+    container_name: auggis-interface
     ports:
       - "8080:8080"
     environment:
       WHISPER_URL: http://whisper:9000
       LLM_URL: http://llm:11434
-      LLM_MODEL: llama3.2:3b
-      PROMPT_PATH: /app/prompt.json
-      EMBED_MODEL: nomic-embed-text
-      SEARCH_PROMPT_PATH: /app/search-prompt.json
-      CHAT_PROMPT_PATH: /app/chat-prompt.json
-      # /chat's language model: "buas" (the BUas AI Assistants API) or "ollama" (llm above).
-      # The keys come from .env beside this file, which is git-ignored.
-      CHAT_BACKEND: buas
+      VOICE_PROMPT_PATH: /app/voice-prompt.json
+      SEARCH_URL: http://search:8090
+      # The language model is the BUas AI Assistants API. The 2 keys come from .env beside
+      # this file, which is git-ignored; .env.example shows the names.
       BUAS_USER_KEY: ${BUAS_USER_KEY}
       BUAS_ASSISTANT_KEY: ${BUAS_ASSISTANT_KEY}
     volumes:
-      # Bind-mounted read-only, so editing prompt.json and running
-      # `docker restart auggis-voice-helper` applies in about 3 seconds with no rebuild.
-      - ./helper/prompt.json:/app/prompt.json:ro
-      - ./helper/search-prompt.json:/app/search-prompt.json:ro
-      - ./helper/chat-prompt.json:/app/chat-prompt.json:ro
-    depends_on: [whisper, llm]
+      # Bind-mounted read-only, so editing voice-prompt.json and running
+      # `docker restart auggis-interface` applies in about 3 seconds with no rebuild.
+      - ./interface/voice-prompt.json:/app/voice-prompt.json:ro
+    depends_on: [whisper, llm, search]
     restart: unless-stopped
 
 volumes:
   whisper-cache: {}
+  search-data: {}
   ollama:
     name: auggis-ollama
     external: true
