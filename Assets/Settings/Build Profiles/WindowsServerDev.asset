@@ -31,9 +31,8 @@ MonoBehaviour:
   - m_enabled: 1
     m_path: Assets/MSP/Scenes/SessionScene.unity
     m_guid: 78b1794ad2513494c91c6577562eb4e9
-  m_HasScriptingDefines: 1
-  m_ScriptingDefines:
-  - DEDICATED_SERVER
+  m_HasScriptingDefines: 0
+  m_ScriptingDefines: []
   m_PlayerSettingsYaml:
     m_Settings:
     - line: '| PlayerSettings:'
