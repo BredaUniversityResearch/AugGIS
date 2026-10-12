@@ -251,8 +251,28 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8157101203052545708, guid: b22828962f5d26f48a611b6a5404eca7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 910085979}
   m_SourcePrefab: {fileID: 100100000, guid: b22828962f5d26f48a611b6a5404eca7, type: 3}
+--- !u!1 &910085971 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8157101203052545708, guid: b22828962f5d26f48a611b6a5404eca7, type: 3}
+  m_PrefabInstance: {fileID: 910085970}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &910085979
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 910085971}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd4f5c77ff91ab1c497729247cfcf29a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LogSqliteCompilationOptions
 --- !u!1001 &1258893370
 PrefabInstance:
   m_ObjectHideFlags: 0

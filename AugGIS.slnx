@@ -14,8 +14,8 @@
   <Project Path="EnoxSoftware.OpenCVForUnity.Editor.csproj" />
   <Project Path="Unity.XR.Interaction.Toolkit.Samples.ARStarterAssets.csproj" />
   <Project Path="Unity.XR.Management.Samples.csproj" />
-  <Project Path="Unity.XR.Hands.Samples.Gestures.csproj" />
   <Project Path="Unity.XR.Hands.Samples.VisualizerSample.csproj" />
+  <Project Path="Unity.XR.Hands.Samples.Gestures.csproj" />
   <Project Path="Unity.XR.Interaction.Toolkit.Samples.ARStarterAssets.Editor.csproj" />
   <Project Path="Unity.XR.Interaction.Toolkit.Samples.StarterAssets.Editor.csproj" />
   <Project Path="Sirenix.OdinInspector.Modules.UnityMathematics.csproj" />
