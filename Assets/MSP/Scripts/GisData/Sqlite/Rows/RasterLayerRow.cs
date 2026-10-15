@@ -20,6 +20,11 @@ namespace MSP.Scripts.GisData
 		public float Coordinate1X { get; set; }
 		public float Coordinate1Y { get; set; }
 
+		//Verbatim POV_Unity.RasterLayer.data (e.g. "Rastermaps/NS_Bathymetry_Raster_Cut.png"),
+		//needed to reconstruct a working RasterLayer: RasterLayer.LoadData() parses this
+		//path itself to resolve the texture it should use.
+		public string DataPath { get; set; }
+
 		public byte[] RasterPng { get; set; }
 
 		//From POV_Unity.ScaleConfig (null when the layer has no scale, e.g. TypeMaps)
