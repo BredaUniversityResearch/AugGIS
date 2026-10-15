@@ -18,6 +18,19 @@ namespace MSP.Scripts.GisData
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 		private static void InitialiseSqliteProvider()
 		{
+			EnsureInitialised();
+		}
+
+		/// <summary>
+		/// Registers the SQLitePCL provider if it has not been registered yet. The
+		/// RuntimeInitializeOnLoadMethod above only fires once Play mode (or a build)
+		/// actually starts - it never runs for Editor-only tooling used outside Play
+		/// mode (e.g. GisSqliteImportProofWindow). Call this explicitly from such
+		/// tooling instead of broadening when/how the automatic initialisation fires,
+		/// so the live app's start-up behaviour is left untouched.
+		/// </summary>
+		public static void EnsureInitialised()
+		{
 			if (s_initialised)
 				return;
 
