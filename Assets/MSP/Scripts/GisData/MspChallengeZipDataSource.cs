@@ -27,6 +27,8 @@ namespace MSP.Scripts.GisData
 	/// </summary>
 	public class MspChallengeZipDataSource : IGisDataSource
 	{
+		public const string SourceIdentifier = "msp_challenge_zip";
+
 		private enum ELoadMode
 		{
 			Web,
@@ -95,7 +97,8 @@ namespace MSP.Scripts.GisData
 			a_onComplete?.Invoke(new GisDataset
 			{
 				Config = config,
-				RasterImages = rasterImages
+				RasterImages = rasterImages,
+				Source = SourceIdentifier
 			});
 		}
 

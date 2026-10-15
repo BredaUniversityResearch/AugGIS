@@ -40,5 +40,9 @@ namespace MSP.Scripts.GisData
 	{
 		public DataConfig Config;
 		public IReadOnlyDictionary<string, byte[]> RasterImages;
+
+		//Identifies which IGisDataSource implementation produced this dataset (e.g.
+		//"msp_challenge_zip"), so it can be persisted and later inspected/debugged.
+		public string Source;
 	}
 }
