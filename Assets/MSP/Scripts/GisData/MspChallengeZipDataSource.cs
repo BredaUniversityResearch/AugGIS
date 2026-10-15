@@ -109,12 +109,23 @@ namespace MSP.Scripts.GisData
 				case ELoadMode.Web:
 					return BuildWebRequest();
 				case ELoadMode.FilePath:
-					return UnityWebRequest.Get(m_filePath);
+					return UnityWebRequest.Get(ToRequestUri(m_filePath));
 				case ELoadMode.ApplicationFolder:
-					return UnityWebRequest.Get(ResolveApplicationFolderPath());
+					return UnityWebRequest.Get(ToRequestUri(ResolveApplicationFolderPath()));
 				default:
 					throw new InvalidOperationException($"Unhandled load mode: {m_mode}");
 			}
+		}
+
+		//UnityWebRequest requires a proper URI. A raw absolute OS path (most notably a
+		//Windows path like "C:\Users\...") gets misparsed - the drive letter is read as
+		//a URI scheme - which is why loading a local zip would otherwise fail with
+		//"Cannot connect to destination host" instead of reading the file. Routing any
+		//path/URL through System.Uri produces a correct, platform-agnostic absolute URI
+		//(file://, http://, etc.) in every case.
+		private static string ToRequestUri(string a_path)
+		{
+			return new Uri(a_path).AbsoluteUri;
 		}
 
 		private UnityWebRequest BuildWebRequest()
