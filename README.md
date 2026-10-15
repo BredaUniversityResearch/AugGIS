@@ -1,3 +1,4 @@
+
 ## About
 Welcome to the public repository for the AugGIS tool. For more information about AugGIS, see the [website](https://cradle.buas.nl/project/auggis/).
 
@@ -24,3 +25,5 @@ The AugGIS client and host components are part of this repository. For the data 
 The project uses the following plugins, which are not included in the repository due to their license and will have to be seperate acquired:
 - [Odin Inspector](https://odininspector.com/) V3.3.1.10, required to use this repository.
 - [OpenCV for Unity](https://assetstore.unity.com/packages/tools/integration/opencv-for-unity-21088) V2.6.5. Optional, but required for marker based area setup. Without this the table anchors have to be configured manually.
+
+<img width="1783" height="721" alt="Interreg North Sea logo 2023 CMYK_Norsaic_1783x721px" src="https://github.com/user-attachments/assets/89d7e845-fc40-4f1d-8554-de07dbe027ab" />
