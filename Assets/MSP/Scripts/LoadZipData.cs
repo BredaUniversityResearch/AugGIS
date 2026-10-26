@@ -23,8 +23,8 @@ namespace POV_Unity
 #if UNITY_EDITOR || DEDICATED_SERVER
 			string filePath = Path.Combine(Application.dataPath, "Plugins", "POV_Unity", "Resources", (m_fileName + ".zip"));
 #elif UNITY_ANDROID
-			//string filePath = Path.Combine("File://",Application.persistentDataPath, (m_fileName + ".zip"));
-			string filePath = $"File:///storage/emulated/0/Android/data/com.Cradle.POV_Unity/files/{m_fileName}.zip";
+			string filePath = Path.Combine("File://",Application.persistentDataPath, (m_fileName + ".zip"));
+			//string filePath = $"File:///storage/emulated/0/Android/data/com.CradleBUas.AugGIS/files/{m_fileName}.zip";
 #endif
 			LoadZipFromFilePath(filePath);
 		}
