@@ -1,0 +1,19 @@
+{
+ "type": "FeatureCollection",
+ "numberMatched": 2,
+ "numberReturned": 2,
+ "features": [
+  {"type": "Feature", "id": "windfarmspoly.1",
+   "geometry": {"type": "MultiPolygon", "coordinates": [
+     [[[3800000, 3140000], [3810000, 3140000], [3810000, 3150000], [3800000, 3150000], [3800000, 3140000]],
+      [[3802000, 3142000], [3804000, 3142000], [3804000, 3144000], [3802000, 3142000]]],
+     [[[3820000, 3160000, 0], [3830000, 3160000, 0], [3830000, 3170000, 0], [3820000, 3160000, 0]]]
+   ]},
+   "properties": {"name": "Borssele Kavel V", "status": "Production", "n_turbines": 2, "notes": null}},
+  {"type": "Feature", "id": "windfarmspoly.2",
+   "geometry": {"type": "Polygon", "coordinates": [
+     [[3900000, 3200000], [3910000, 3200000], [3910000, 3210000], [3900000, 3200000]]
+   ]},
+   "properties": {"name": "Somewhere", "status": "Dreamed up"}}
+ ]
+}
