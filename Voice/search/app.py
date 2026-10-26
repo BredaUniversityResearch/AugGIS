@@ -12,7 +12,7 @@ few search words are about.
       "results": {
         "geoserver": [{"id": "G129", "source": "geoserver", "group": "Baltic Sea",
                        "name": "balticline:BS_Wind_Farms", "spoken": "Wind Farms",
-                       "meaning": 0.81, "words": 0.92}, ...],
+                       "kind": "unknown", "meaning": 0.81, "words": 0.92}, ...],
         "emodnet": [...]
       }
     }
@@ -55,6 +55,14 @@ class State:
 
 
 state = State()
+
+
+def kind_counts(layers) -> dict[str, int]:
+    """How many layers there are of each kind: {"shapes": 380, "picture": 70, ...}."""
+    counts: dict[str, int] = {}
+    for layer in layers:
+        counts[layer["kind"]] = counts.get(layer["kind"], 0) + 1
+    return counts
 
 
 async def prepare() -> None:
@@ -122,6 +130,7 @@ async def health():
         "ready": state.index is not None,
         "layers": len(state.by_id),
         "servers": state.counts,
+        "kinds": kind_counts(state.by_id.values()),
         "version": state.version,
         "problem": state.problem,
     }

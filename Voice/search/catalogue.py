@@ -11,6 +11,13 @@ Each layer is a dict:
 person would say, and is the text that gets matched: most GeoServer titles are just the
 machine name, which nobody says out loud.
 
+Every layer also has a `kind`, which says whether it can be downloaded as shapes:
+
+    "shapes"   EMODnet serves its shapes too (WFS), as "wfs_name" at "wfs_url"
+    "group"    a bundle of other layers, such as "Power Cables", which is 4 cable layers
+    "picture"  EMODnet serves it only as a picture (WMS), with no shapes behind it
+    "unknown"  not checked: the team GeoServer, or an EMODnet server whose shape list failed
+
 No login is needed. The GeoServer list is its tile-cache list (WMTS), which is public and is
 the only list that names all of its layers; its WMS, WFS and WCS lists show 6 of them.
 """
@@ -37,7 +44,10 @@ EMODNET_SERVERS = {
     "Seabed habitats": "https://ows.emodnet-seabedhabitats.eu/geoserver/emodnet_view/wms",
     "Geology": "https://drive.emodnet-geology.eu/geoserver/wms",
     "Biology": "https://geo.vliz.be/geoserver/Emodnetbio/wms",
-    "Physics": "https://geoserver.emodnet-physics.eu/geoserver/emodnet/wms",
+    # The direct address: the old one, geoserver.emodnet-physics.eu/geoserver/emodnet/wms,
+    # redirects here but encodes the question a second time on the way, which breaks every
+    # shape and legend request (400 "Requested bounding box contains wrong number of coordinates").
+    "Physics": "https://prod-geoserver.emodnet-physics.eu/geoserver/EMODnet/wms",
     "Chemistry": "https://ows.emodnet-chemistry.eu/wms",
 }
 
@@ -71,11 +81,19 @@ def child_text(element: ElementTree.Element, name: str) -> str | None:
     return None
 
 
-async def fetch(client: httpx.AsyncClient, url: str, attempts: int = 3) -> ElementTree.Element | None:
+async def fetch(client: httpx.AsyncClient, url: str, marker: str = "<Layer",
+                attempts: int = 3) -> ElementTree.Element | None:
     """Download a capabilities document and parse it, asking again if it has no layers.
 
     Two of the EMODnet servers sometimes answer with an empty list and are fine on the next
     try, so an answer without layers is treated like a failed one.
+
+    Args:
+        client: An open HTTP client.
+        url: The GetCapabilities address.
+        marker: Text that a list with layers in it contains. A picture (WMS) list has
+            "<Layer", a shape (WFS) list has "FeatureType>".
+        attempts: How many times to ask.
 
     Returns:
         The document's root element, or None if every attempt failed.
@@ -83,7 +101,7 @@ async def fetch(client: httpx.AsyncClient, url: str, attempts: int = 3) -> Eleme
     for _ in range(attempts):
         try:
             response = await client.get(url, headers={"User-Agent": "auggis-voice"})
-            if response.status_code == 200 and "<Layer" in response.text:
+            if response.status_code == 200 and marker in response.text:
                 return ElementTree.fromstring(response.content)
             log.warning("%s: answered %d without a layer list", url, response.status_code)
         except (httpx.HTTPError, ElementTree.ParseError) as exc:
@@ -147,8 +165,85 @@ async def geoserver_layers(client: httpx.AsyncClient) -> list[dict]:
             "name": name,
             "title": title,
             "spoken": speakable(name, title),
+            "kind": "unknown",
         })
     return layers
+
+
+def wfs_address(wms_url: str) -> str:
+    """An EMODnet server's shape (WFS) address: its picture address with /wms swapped for /wfs.
+
+    Checked on the 6 EMODnet servers that answer: each serves WFS at that path. For Physics
+    that needs the direct address in EMODNET_SERVERS, not the one that redirects.
+    """
+    return wms_url[:-len("/wms")] + "/wfs"
+
+
+async def shape_layer_names(client: httpx.AsyncClient, wms_url: str) -> list[str] | None:
+    """The names of the layers an EMODnet server also serves as shapes, or None if it did not say.
+
+    A shape name can carry a workspace that the picture name leaves out: the picture layer
+    "windfarmspoly" is the shape layer "emodnet:windfarmspoly".
+    """
+    url = wfs_address(wms_url) + "?service=WFS&version=2.0.0&request=GetCapabilities"
+    root = await fetch(client, url, marker="FeatureType>")
+    if root is None:
+        return None
+
+    names = []
+    for element in root.iter():
+        if local_name(element) != "FeatureType":
+            continue
+        name = child_text(element, "Name")
+        if name:
+            names.append(name)
+    if not names:
+        return None
+    return names
+
+
+def names_without_workspace(names: list[str]) -> dict[str, list[str]]:
+    """Group names by the part after the workspace: {"windfarmspoly": ["emodnet:windfarmspoly"]}."""
+    grouped: dict[str, list[str]] = {}
+    for name in names:
+        bare_name = name.split(":")[-1]
+        if bare_name not in grouped:
+            grouped[bare_name] = []
+        grouped[bare_name].append(name)
+    return grouped
+
+
+def shape_twin(name: str, shape_names: list[str], by_bare_name: dict[str, list[str]]) -> str | None:
+    """The shape layer holding the same data as a picture layer, or None if there is none.
+
+    Names are compared without their workspace only when that leaves exactly one candidate,
+    so two workspaces that use the same layer name are not mixed up.
+    """
+    if name in shape_names:
+        return name
+    candidates = by_bare_name.get(name.split(":")[-1], [])
+    if len(candidates) == 1:
+        return candidates[0]
+    return None
+
+
+def is_layer_group(element: ElementTree.Element, name: str) -> bool:
+    """Whether a picture layer is a bundle of other layers rather than data of its own.
+
+    GeoServer gives a layer group the style "default-style-<name>", where a real layer has a
+    style of its own: "powercables" has "default-style-powercables" and is 4 cable layers.
+    A few groups also list their members as named layers inside them.
+    """
+    bare_name = name.split(":")[-1]
+    for child in element:
+        if local_name(child) == "Layer" and child_text(child, "Name"):
+            return True
+        if local_name(child) != "Style":
+            continue
+        style = child_text(child, "Name")
+        if style == "default-style-" + name or style == "default-style-" + bare_name:
+            return True
+    return False
 
 
 async def emodnet_server_layers(client: httpx.AsyncClient, theme: str, url: str) -> list[dict]:
@@ -156,10 +251,20 @@ async def emodnet_server_layers(client: httpx.AsyncClient, theme: str, url: str)
 
     A WMS list nests layers inside folder layers. Only a layer with a name can be requested,
     so the folders, which have a title and no name, are left out.
+
+    The server's shape (WFS) list is asked at the same time and gives each layer its kind.
+    If that list does not answer, every layer of the server is "unknown".
     """
-    root = await fetch(client, url + "?service=WMS&version=1.3.0&request=GetCapabilities")
+    root, shape_names = await asyncio.gather(
+        fetch(client, url + "?service=WMS&version=1.3.0&request=GetCapabilities"),
+        shape_layer_names(client, url),
+    )
     if root is None:
         return []
+
+    by_bare_name = {}
+    if shape_names is not None:
+        by_bare_name = names_without_workspace(shape_names)
 
     layers = []
     for element in root.iter():
@@ -169,14 +274,27 @@ async def emodnet_server_layers(client: httpx.AsyncClient, theme: str, url: str)
         if not name:
             continue
         title = re.sub(r"\s+", " ", child_text(element, "Title") or "")
-        layers.append({
+        layer = {
             "source": "emodnet",
             "group": theme,
             "name": name,
             "url": url,
             "title": title,
             "spoken": speakable(name, title),
-        })
+            "kind": "unknown",
+        }
+
+        if shape_names is not None:
+            twin = shape_twin(name, shape_names, by_bare_name)
+            if twin is not None:
+                layer["kind"] = "shapes"
+                layer["wfs_url"] = wfs_address(url)
+                layer["wfs_name"] = twin
+            elif is_layer_group(element, name):
+                layer["kind"] = "group"
+            else:
+                layer["kind"] = "picture"
+        layers.append(layer)
     return layers
 
 
@@ -205,6 +323,14 @@ def saved_layers(source: str, group: str | None) -> list[dict]:
             continue
         if group is not None and layer["group"] != group:
             continue
+        # A list saved before layers had a kind.
+        if "kind" not in layer:
+            layer["kind"] = "unknown"
+        # A list saved before a server's address changed still holds the old address.
+        if source == "emodnet" and layer["group"] in EMODNET_SERVERS:
+            layer["url"] = EMODNET_SERVERS[layer["group"]]
+            if "wfs_url" in layer:
+                layer["wfs_url"] = wfs_address(layer["url"])
         layers.append(layer)
     return layers
 
