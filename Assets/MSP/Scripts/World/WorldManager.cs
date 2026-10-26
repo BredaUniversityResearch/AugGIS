@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using MSP.Scripts.GisData;
 using MSP.Scripts.Session;
 using Newtonsoft.Json;
 using POV_Unity;
@@ -75,6 +77,8 @@ public class WorldManager : NetworkBehaviour
 
 	private ARAnchor m_worldArAnchor = null;
 
+	private readonly GisDatabaseService m_gisDatabaseService = new GisDatabaseService();
+
 	void Awake()
 	{
 		SessionManager.Instance.SetWorldManager(this);
@@ -92,6 +96,8 @@ public class WorldManager : NetworkBehaviour
 		m_worldPoseData.SetRootTransform(m_worldRootTransform);
 		SessionManager.Instance.SessionFSM.OnStateEnter += OnSessionStateEntered;
 		m_gameMasterWorldScale.OnValueChanged += OnWorldScaleValueChanged;
+
+		m_gisDatabaseService.Open();
 
 		if (IsServer)
 		{
@@ -133,18 +139,18 @@ public class WorldManager : NetworkBehaviour
 
 			if(configUrlLaunchArgument != string.Empty)
 			{
-				m_zipDataLoader.LoadZipFromFilePath(configUrlLaunchArgument);
+				LoadHostDataset(MspChallengeZipDataSource.FromFilePath(configUrlLaunchArgument));
 			}
 			else
 			{
 				string serverBaseURL = Utils.GetEnvironmentVariable("MSP_CHALLENGE_API_BASE_URL_FOR_SERVER") ?? string.Format(DEFAULT_BASE_URL_FORMAT, DEFAULT_SESSION_ID);
 				if(m_loadConfigFromLocalFile)
 				{
-					m_zipDataLoader.LoadZipFromApplicationFolder();
+					LoadHostDataset(MspChallengeZipDataSource.FromApplicationFolder(m_zipDataLoader.FileName));
 				}
 				else
 				{
-					m_zipDataLoader.LoadZipFromWeb(serverBaseURL, regionCoords);
+					LoadHostDataset(MspChallengeZipDataSource.FromWeb(serverBaseURL, regionCoords));
 				}
 			}
 		}
@@ -155,14 +161,58 @@ public class WorldManager : NetworkBehaviour
 	
 	}
 
+	private void LoadHostDataset(IGisDataSource a_dataSource)
+	{
+		ImportedConfigRoot.Instance.NotifyLoadStarted();
+		StartCoroutine(a_dataSource.LoadDataset(OnHostDatasetLoaded, OnDatasetLoadFailed));
+	}
+
+	private void OnHostDatasetLoaded(GisDataset a_dataset)
+	{
+		//Persisted for client distribution (SendConfigDataToClientRoutine reads the
+		//written file's bytes), but the host's own render uses the in-memory dataset
+		//directly rather than reading it back out of SQLite - nothing mutates it
+		//between here and Initialise().
+		new SqliteGisDatasetWriter(m_gisDatabaseService).Write(a_dataset);
+		GisRasterTextureLoader.Load(a_dataset);
+		ImportedConfigRoot.Instance.Initialise(a_dataset.Config, ParseDisplayMethodConfig());
+	}
+
+	//Mirrors the parse step inside LoadZipData.ImportConfig (duplicated rather than
+	//reusing that method directly, since it also re-parses the data config from raw
+	//json text, which this path no longer has - GisDataset.Config is already a
+	//parsed DataConfig).
+	private DisplayMethodConfig ParseDisplayMethodConfig()
+	{
+		ConfigLoadHelper helper = new ConfigLoadHelper();
+		DisplayMethodConfig displayMethodConfig = helper.ParseDisplayMethodConfig(m_zipDataLoader.DisplayMethodConfigFile.text);
+		helper.Clear();
+		return displayMethodConfig;
+	}
+
+	private void OnDatasetLoadFailed()
+	{
+		SessionManager.Instance.DisconnectFromSession(SessionManager.EDisconnectReason.FailedConnection);
+	}
+
     private void OnConfigDataReceivedFromServer()
 	{
 		byte[] configData = m_networkDataMessenger.Consume();
 		ImportedConfigRoot.Instance.NotifyLoadStarted();
-		StartCoroutine(ZipUtil.ParseRawZipConfigFile(configData, (string config, byte[] data) =>
-		{
-			m_zipDataLoader.OnZipLoaded(config, data);
-		}));
+
+		//The database file must not have an open connection while it's being
+		//overwritten with the freshly received bytes.
+		m_gisDatabaseService.Close();
+		File.WriteAllBytes(m_gisDatabaseService.DatabasePath, configData);
+		m_gisDatabaseService.Open();
+
+		StartCoroutine(new SqliteGisDataSource(m_gisDatabaseService).LoadDataset(OnClientDatasetLoaded, OnDatasetLoadFailed));
+	}
+
+	private void OnClientDatasetLoaded(GisDataset a_dataset)
+	{
+		GisRasterTextureLoader.Load(a_dataset);
+		ImportedConfigRoot.Instance.Initialise(a_dataset.Config, ParseDisplayMethodConfig());
 	}
 
 	private void OnClientConnected(ulong a_clientId)
@@ -173,7 +223,7 @@ public class WorldManager : NetworkBehaviour
 	private IEnumerator SendConfigDataToClientRoutine(ulong a_clientId)
     {
         yield return new WaitUntil(()=> ImportedConfigRoot.Instance.ImportComplete);
-		m_networkDataMessenger.SendMessage(a_clientId, m_zipDataLoader.LoadedRawData);
+		m_networkDataMessenger.SendMessage(a_clientId, File.ReadAllBytes(m_gisDatabaseService.DatabasePath));
 		yield return null;
     }
 
@@ -183,6 +233,7 @@ public class WorldManager : NetworkBehaviour
 		SessionManager.Instance.SetWorldManager(null);
 		m_gameMasterWorldScale.OnValueChanged -= OnWorldScaleValueChanged;
 		SessionManager.Instance.SessionFSM.OnStateEnter -= OnSessionStateEntered;
+		m_gisDatabaseService.Close();
 #if !UNITY_SERVER
 		MSPARAnchorManager.Instance.ARAnchorManager.trackablesChanged.RemoveListener(OnARAnchorTrackableChanged);
 #endif

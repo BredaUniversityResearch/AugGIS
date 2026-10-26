@@ -12,6 +12,9 @@ namespace POV_Unity
 		[SerializeField] TextAsset m_displayMethodConfigFile;
 		[SerializeField] string m_fileName;
 
+		public TextAsset DisplayMethodConfigFile => m_displayMethodConfigFile;
+		public string FileName => m_fileName;
+
 		byte[] m_loadedRawData = null;
 		public byte[] LoadedRawData => m_loadedRawData;
 
