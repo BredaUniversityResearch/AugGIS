@@ -77,11 +77,12 @@ public class WorldManager : NetworkBehaviour
 
 	private ARAnchor m_worldArAnchor = null;
 
-	private readonly GisDatabaseService m_gisDatabaseService = new GisDatabaseService();
+	private GisDatabaseService m_gisDatabaseService;
 
 	void Awake()
 	{
 		SessionManager.Instance.SetWorldManager(this);
+		m_gisDatabaseService = new GisDatabaseService();
 	}
 
 	public override void OnNetworkSpawn()
