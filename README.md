@@ -22,7 +22,7 @@ The AugGIS client and host components are part of this repository. For the data 
 
 ## Plugins & Requirements
 AugGIS has been developed using the Unity3D Game Engine, and focuses on plugins provided by Unity:
-- [Unity Engine](unity.com) V6000.3.6f1, required to open the project.
+- [Unity Engine](unity.com) V6000.6.0f1, required to open the project.
 
 The project uses several proprietary plugins which are not included in the repository due to their license and will have to be seperate acquired:
 - [Odin Inspector](https://odininspector.com/) V3.3.1.10, required to use this repository.
