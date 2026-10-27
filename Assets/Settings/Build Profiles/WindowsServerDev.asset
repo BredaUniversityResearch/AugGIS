@@ -20,7 +20,7 @@ MonoBehaviour:
     rid: 3567830764457033730
   m_ActivePlatformGuid: 
   m_AdditionalPlatformBuildSettings: []
-  m_OverrideGlobalSceneList: 1
+  m_OverrideGlobalSceneList: 0
   m_Scenes:
   - m_enabled: 1
     m_path: Assets/MSP/Scenes/BootScene.unity
