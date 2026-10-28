@@ -135,6 +135,13 @@ def refuse_geoserver(layer: dict, title: str) -> None:
         raise Refused(422, title + " is on the team GeoServer, which geoserver.download_layer downloads.")
 
 
+async def timed(job) -> tuple:
+    """Wait for a job and say how long it took, in milliseconds."""
+    started = time.perf_counter()
+    result = await job
+    return result, round((time.perf_counter() - started) * 1000)
+
+
 async def download(layer: dict, region: list[float]) -> dict:
     """Download one catalogue layer's shapes for a region, as the GeoJSON its server sends.
 

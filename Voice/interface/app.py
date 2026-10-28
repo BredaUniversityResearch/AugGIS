@@ -24,6 +24,9 @@ and what was found in the online layer catalogue.
 
     GET /health   whether speech-to-text, the embedding model and the search answer
 
+    POST /search, POST /download   passed on unchanged to the search service, so a caller
+                                   that is not the headset can use them on this address
+
 Whisper, the embedding model and the search service are only reachable from inside the
 compose network. The language model is the BUas AI Assistants API, over the internet.
 """
@@ -34,8 +37,8 @@ import os
 import time
 
 import httpx
-from fastapi import FastAPI, File, Form, UploadFile
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, File, Form, Request, UploadFile
+from fastapi.responses import JSONResponse, Response
 
 import checks
 import conversation
@@ -47,6 +50,9 @@ LLM_URL = os.getenv("LLM_URL", "http://llm:11434")
 # a form field is always text, so a service that accepts only one spelling treats the
 # rest as "on" without saying so.
 FALSE_WORDS = ("0", "false", "off", "no")
+
+# A download can take minutes for a big layer; the search service allows 5 for EMODnet.
+PASS_ON_TIMEOUT = 330
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger("interface")
@@ -213,3 +219,32 @@ async def voice(
     log.info("voice %r -> %s, searched %s, picked %d + %d (%dms)", transcript, result["operations"], queries,
              len(result["picks"]["geoserver"]), len(result["picks"]["emodnet"]), result["timings_ms"]["total"])
     return result
+
+
+async def pass_on(path: str, request: Request) -> Response:
+    """Send a request's JSON body to the search service and hand back its answer as it came.
+
+    Returns:
+        The search service's status and body, or 503 if it could not be reached.
+    """
+    body = await request.body()
+    try:
+        async with httpx.AsyncClient(timeout=PASS_ON_TIMEOUT) as client:
+            answer = await client.post(f"{conversation.SEARCH_URL}{path}", content=body,
+                                       headers={"Content-Type": "application/json"})
+    except httpx.HTTPError as exc:
+        log.warning("search service unreachable for %s: %s", path, exc)
+        return JSONResponse({"error": f"search service unreachable ({type(exc).__name__})"}, status_code=503)
+    return Response(content=answer.content, status_code=answer.status_code, media_type="application/json")
+
+
+@app.post("/search")
+async def search(request: Request):
+    """The search service's POST /search, on this address."""
+    return await pass_on("/search", request)
+
+
+@app.post("/download")
+async def download(request: Request):
+    """The search service's POST /download, on this address."""
+    return await pass_on("/download", request)

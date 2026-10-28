@@ -5,7 +5,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY app.py catalogue.py download.py matching.py picture.py ./
+COPY app.py area.py catalogue.py download.py geoserver.py matching.py picture.py ./
 
 EXPOSE 8090
 

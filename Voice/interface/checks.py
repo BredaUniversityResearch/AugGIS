@@ -26,6 +26,25 @@ MIN_NAMES_IN_ECHO = 3
 JSON_OBJECT = re.compile(r"\{.*\}", re.DOTALL)
 
 
+def read_json(text: str):
+    """The JSON in text, or None.
+
+    The BUas model sometimes doubles every brace, {{"action": ..., [{{...}}]}}, as if it were
+    filling in a template, so a reply that starts with {{ is read again with each pair made one.
+    """
+    try:
+        return json.loads(text)
+    except ValueError:
+        pass
+    if not text.startswith("{{"):
+        return None
+    single = text.replace("{{", "{").replace("}}", "}")
+    try:
+        return json.loads(single)
+    except ValueError:
+        return None
+
+
 def parse_step(reply: str) -> dict | None:
     """Read a step out of the model's reply, or None if it is not one.
 
@@ -37,10 +56,7 @@ def parse_step(reply: str) -> dict | None:
     match = JSON_OBJECT.search(reply)
     if match is None:
         return None
-    try:
-        step = json.loads(match.group(0))
-    except ValueError:
-        return None
+    step = read_json(match.group(0))
     if not isinstance(step, dict):
         return None
 

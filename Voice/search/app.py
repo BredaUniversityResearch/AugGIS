@@ -31,14 +31,19 @@ few search words are about.
     PNG is in the JSON as base64 so that one answer holds the whole layer and this service
     keeps nothing.
 
+    A team GeoServer layer ("source": "geoserver", "name": "northsee:NS_Pipelines") is asked
+    what it is first (one DescribeLayer) and then downloaded the same way, with the login
+    from GEOSERVER_USER / GEOSERVER_PASSWORD; its answer also has "served_as" ("WFS", "WCS",
+    "WMS" or "group of 4").
+
     422 -> {"error": "Nothing from Route Density (EMSA) ... lies in this region: its picture is empty. ..."}
 
     GET  /health   whether the list is loaded and prepared, and what each server gave
 
 The list is fetched and prepared once, when the service starts, which takes about 18
-seconds. Until then /search answers 503. Only the voice interface calls this service; it is
-not published outside the compose network. A download is fetched fresh each time and nothing
-is kept.
+seconds. Until then /search answers 503. The voice interface calls this service and passes
+/search and /download on from its own published address; this service is not published
+outside the compose network. A download is fetched fresh each time and nothing is kept.
 """
 
 import asyncio
@@ -52,8 +57,10 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
+import area
 import catalogue
 import download
+import geoserver
 import matching
 import picture
 
@@ -147,6 +154,8 @@ app = FastAPI(title="AugGIS layer search", lifespan=lifespan)
 class SearchRequest(BaseModel):
     query: str
     per_server: int = 10
+    # The map's [minx, miny, maxx, maxy] in EPSG:3035. With it, each result gets "on_map".
+    region: list[float] | None = None
 
 
 class LayersRequest(BaseModel):
@@ -180,6 +189,7 @@ async def health():
         "kinds": kind_counts(state.by_id.values()),
         "version": state.version,
         "problem": state.problem,
+        "geoserver_login": geoserver.login() is not None,
     }
 
 
@@ -202,6 +212,15 @@ async def search(request: SearchRequest):
         # KeyError: the embedding model answered, but without the vectors.
         log.exception("embedding model failed")
         return JSONResponse({"error": f"embedding model unavailable: {exc}"}, status_code=503)
+
+    if request.region is not None:
+        problem = region_problem(request.region)
+        if problem:
+            return JSONResponse({"error": problem}, status_code=400)
+        region_box = area.region_in_degrees(request.region)
+        for source in ("geoserver", "emodnet"):
+            for layer in found["results"][source]:
+                layer["on_map"] = area.on_map(layer["box"], region_box)
 
     log.info("%r -> %d + %d layers (%d ms)", query, len(found["results"]["geoserver"]),
              len(found["results"]["emodnet"]), round((time.perf_counter() - started) * 1000))
@@ -257,11 +276,21 @@ async def download_layer(request: DownloadRequest):
         return JSONResponse({"error": message}, status_code=404)
     layer = state.by_name[key]
 
+    # Only the server's own box is trusted for a refusal; a sea's box is drawn by hand.
+    if layer["box_from"] == "layer":
+        if area.on_map(layer["box"], area.region_in_degrees(region)) == "no":
+            message = (layer["spoken"] + " covers another area (" + area.box_words(layer["box"])
+                       + "), so nothing of it lies on this map.")
+            log.info("download %s:%s refused before fetching (422): %s", request.source, request.name, message)
+            return JSONResponse({"error": message}, status_code=422)
+
     is_picture = request.as_picture or layer["kind"] == "picture"
     # A group comes as the picture its server draws of all its members.
     is_group = layer["kind"] == "group"
     try:
-        if is_picture or is_group:
+        if layer["source"] == "geoserver":
+            result = await geoserver.download_layer(layer, region, request.as_picture)
+        elif is_picture or is_group:
             result = await picture.download_picture(layer, region)
         else:
             result = await download.download(layer, region)

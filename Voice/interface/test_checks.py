@@ -43,6 +43,26 @@ def test_parse_step_replaces_fields_of_the_wrong_type():
     assert step == {"action": "answer", "operations": [], "layers": [], "reply": ""}
 
 
+def test_parse_step_reads_doubled_braces():
+    # As the BUas model wrote it on 2026-10-28, every brace doubled.
+    reply = ('{{"action": "answer", "operations": [{{"action": "hide", "layers": ["Bathymetry"]}}], "layers": [], '
+             + '"reply": "Bathymetry is now hidden."}}')
+    step = checks.parse_step(reply)
+    assert step == {"action": "answer", "operations": [{"action": "hide", "layers": ["Bathymetry"]}], "layers": [],
+                    "reply": "Bathymetry is now hidden."}
+
+
+def test_parse_step_reads_doubled_outer_braces_only():
+    step = checks.parse_step('{{"action": "search", "query": "wind farms"}}')
+    assert step == {"action": "search", "query": "wind farms"}
+
+
+def test_parse_step_still_reads_nested_objects_that_end_in_two_braces():
+    step = checks.parse_step('{"action": "answer", "operations": [{"action": "hide", "layers": ["Bathymetry"]}], '
+                             + '"layers": [], "reply": "Done.", "extra": {"a": {"b": 1}}}')
+    assert step["operations"] == [{"action": "hide", "layers": ["Bathymetry"]}]
+
+
 def test_operations_keep_the_maps_own_spelling():
     raw = [{"action": "hide", "layers": ["bathymetry", "SHIPPING LANES"]}]
     assert checks.valid_operations(raw, MAP_LAYERS) == [{"action": "hide", "layers": ["Bathymetry", "Shipping lanes"]}]

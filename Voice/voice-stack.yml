@@ -44,6 +44,10 @@ services:
       EMBED_URL: http://llm:11434
       EMBED_MODEL: nomic-embed-text
       CATALOGUE_CACHE: /data/catalogue.json
+      # The team GeoServer's read-only login, for downloading its layers. Comes from .env
+      # beside this file (git-ignored); left empty, its layers are refused with a sentence.
+      GEOSERVER_USER: ${GEOSERVER_USER:-}
+      GEOSERVER_PASSWORD: ${GEOSERVER_PASSWORD:-}
     volumes:
       # The layer list saved at the last start, used for a map server that is down.
       - search-data:/data

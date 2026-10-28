@@ -18,6 +18,10 @@ Every layer also has a `kind`, which says whether it can be downloaded as shapes
     "picture"  EMODnet serves it only as a picture (WMS), with no shapes behind it
     "unknown"  not checked: the team GeoServer, or an EMODnet server whose shape list failed
 
+Every layer also has a `box`, the area its server says it covers, as [west, south, east, north]
+in degrees (WGS84), or None. `box_from` says where it came from: "layer" (the server's list),
+"sea" (SEA_BOXES, for a GeoServer layer whose own box is a placeholder) or "".
+
 No login is needed. The GeoServer list is its tile-cache list (WMTS), which is public and is
 the only list that names all of its layers; its WMS, WFS and WCS lists show 6 of them.
 """
@@ -60,6 +64,16 @@ REGIONS = {
     "simcelt": "Celtic Sea",
     "mozambicanchannel": "Mozambique Channel",
     "caribbean": "Caribbean",
+}
+
+# The rough area of each MSP sea, in degrees: [west, south, east, north]. Used for a GeoServer
+# layer whose own box is the placeholder 0 0 / -1 -1 (194 of the 494 on 2026-10-28). Drawn by
+# hand around each sea, so they are approximate; the demo workspaces have none.
+SEA_BOXES = {
+    "northsee": [-4.5, 50.5, 12.0, 62.0],
+    "balticline": [9.0, 53.0, 30.5, 66.0],
+    "adriatic": [12.0, 39.5, 20.0, 46.0],
+    "simcelt": [-12.0, 48.0, -2.5, 56.0],
 }
 
 # Short region codes the MSP data puts in front of a layer name: NS_Pipelines, BS_Cables.
@@ -144,8 +158,49 @@ def speakable(name: str, title: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
+def real_box(west: float, south: float, east: float, north: float) -> list[float] | None:
+    """The box as [west, south, east, north], or None for a placeholder whose corners are the wrong way round."""
+    if west >= east or south >= north:
+        return None
+    return [west, south, east, north]
+
+
+def wmts_box(element: ElementTree.Element) -> list[float] | None:
+    """A tile-cache layer's area: its WGS84BoundingBox, whose corners are "longitude latitude"."""
+    for child in element:
+        if local_name(child) != "WGS84BoundingBox":
+            continue
+        lower = child_text(child, "LowerCorner")
+        upper = child_text(child, "UpperCorner")
+        if not lower or not upper:
+            return None
+        west, south = lower.split()
+        east, north = upper.split()
+        return real_box(float(west), float(south), float(east), float(north))
+    return None
+
+
+def wms_box(element: ElementTree.Element) -> list[float] | None:
+    """A WMS 1.3.0 layer's area: its EX_GeographicBoundingBox, four separate numbers in degrees."""
+    for child in element:
+        if local_name(child) != "EX_GeographicBoundingBox":
+            continue
+        west = child_text(child, "westBoundLongitude")
+        east = child_text(child, "eastBoundLongitude")
+        south = child_text(child, "southBoundLatitude")
+        north = child_text(child, "northBoundLatitude")
+        if west is None or east is None or south is None or north is None:
+            return None
+        return real_box(float(west), float(south), float(east), float(north))
+    return None
+
+
 async def geoserver_layers(client: httpx.AsyncClient) -> list[dict]:
-    """List every layer the team's GeoServer names in its tile-cache list, without ids."""
+    """List every layer the team's GeoServer names in its tile-cache list, without ids.
+
+    A layer whose own box is a placeholder gets its sea's rough box from SEA_BOXES, and
+    "box_from" says which it is: "layer", "sea", or "" when there is no box at all.
+    """
     root = await fetch(client, GEOSERVER_LIST)
     if root is None:
         return []
@@ -159,6 +214,13 @@ async def geoserver_layers(client: httpx.AsyncClient) -> list[dict]:
             continue
         title = child_text(element, "Title") or ""
         workspace = name.split(":")[0]
+        box = wmts_box(element)
+        box_from = "layer"
+        if box is None:
+            box = SEA_BOXES.get(workspace)
+            box_from = "sea"
+        if box is None:
+            box_from = ""
         layers.append({
             "source": "geoserver",
             "group": REGIONS.get(workspace, "GeoServer demo (" + workspace + ")"),
@@ -166,6 +228,8 @@ async def geoserver_layers(client: httpx.AsyncClient) -> list[dict]:
             "title": title,
             "spoken": speakable(name, title),
             "kind": "unknown",
+            "box": box,
+            "box_from": box_from,
         })
     return layers
 
@@ -274,6 +338,10 @@ async def emodnet_server_layers(client: httpx.AsyncClient, theme: str, url: str)
         if not name:
             continue
         title = re.sub(r"\s+", " ", child_text(element, "Title") or "")
+        box = wms_box(element)
+        box_from = "layer"
+        if box is None:
+            box_from = ""
         layer = {
             "source": "emodnet",
             "group": theme,
@@ -282,6 +350,8 @@ async def emodnet_server_layers(client: httpx.AsyncClient, theme: str, url: str)
             "title": title,
             "spoken": speakable(name, title),
             "kind": "unknown",
+            "box": box,
+            "box_from": box_from,
         }
 
         if shape_names is not None:
@@ -323,9 +393,12 @@ def saved_layers(source: str, group: str | None) -> list[dict]:
             continue
         if group is not None and layer["group"] != group:
             continue
-        # A list saved before layers had a kind.
+        # A list saved before layers had a kind, or an area.
         if "kind" not in layer:
             layer["kind"] = "unknown"
+        if "box" not in layer:
+            layer["box"] = None
+            layer["box_from"] = ""
         # A list saved before a server's address changed still holds the old address.
         if source == "emodnet" and layer["group"] in EMODNET_SERVERS:
             layer["url"] = EMODNET_SERVERS[layer["group"]]
