@@ -7,8 +7,9 @@ using UnityEngine.UI;
 /// <summary>
 /// The two columns of the voice panel. On the left, every sentence of the conversation as a
 /// scrolling list of bubbles: what you said, and under it the reply with what changed on the map.
-/// On the right, the results of one turn: the searched words, the layers found per map server,
-/// and the timings. A new answer is selected and scrolled to; pressing an older reply selects it.
+/// On the right, the results of one turn: the searched words, the line of a download done on the
+/// helper, the layers found per map server, and the timings. A new answer is selected and
+/// scrolled to; pressing an older reply selects it.
 /// </summary>
 public class VoiceConversationView : MonoBehaviour
 {
@@ -39,6 +40,10 @@ public class VoiceConversationView : MonoBehaviour
 
 	[SerializeField]
 	private TMP_Text m_resultsHeadingText;
+
+	// Switched off for a turn that asked for no download.
+	[SerializeField]
+	private TMP_Text m_downloadText;
 
 	[SerializeField]
 	private TMP_Text m_geoServerText;
@@ -134,7 +139,7 @@ public class VoiceConversationView : MonoBehaviour
 		}
 
 		VoiceReplyBubble replyPrefab = m_replyBubblePrefab;
-		if (a_turn.HasFailed)
+		if (a_turn.HasFailed || a_turn.HasRefusedDownload)
 		{
 			replyPrefab = m_failedReplyBubblePrefab;
 		}
@@ -203,6 +208,15 @@ public class VoiceConversationView : MonoBehaviour
 
 		VoiceResponse response = turn.response;
 		m_resultsHeadingText.text = $"{heading}{DescribeSearches(response.searches)}";
+		bool hasDownloads = response.downloads.Count > 0;
+		m_downloadText.gameObject.SetActive(hasDownloads);
+		m_downloadText.text = DescribeDownloads(response.downloads);
+
+		// A download lists no found layers, so two empty boxes under "Searched:" would read as a search that found nothing.
+		bool hasPicks = response.picks.geoserver.Count > 0 || response.picks.emodnet.Count > 0;
+		bool showFound = hasPicks || !hasDownloads;
+		m_geoServerText.gameObject.SetActive(showFound);
+		m_emodnetText.gameObject.SetActive(showFound);
 		m_geoServerText.text = DescribeFound("Team GeoServer", response.picks.geoserver);
 		m_emodnetText.text = DescribeFound("EMODnet", response.picks.emodnet);
 		m_timingText.text = DescribeTimings(response);
@@ -211,6 +225,10 @@ public class VoiceConversationView : MonoBehaviour
 	private void ShowNoResults(string a_heading)
 	{
 		m_resultsHeadingText.text = a_heading;
+		m_downloadText.gameObject.SetActive(false);
+		m_downloadText.text = "";
+		m_geoServerText.gameObject.SetActive(true);
+		m_emodnetText.gameObject.SetActive(true);
 		m_geoServerText.text = DescribeFound("Team GeoServer", new List<VoiceFoundLayer>());
 		m_emodnetText.text = DescribeFound("EMODnet", new List<VoiceFoundLayer>());
 		m_timingText.text = "";
@@ -298,6 +316,14 @@ public class VoiceConversationView : MonoBehaviour
 		{
 			sb.Append($"<noparse>{a_turn.response.reply}</noparse>\n");
 		}
+		else
+		{
+			// The interface sends a download's line as the reply, so this is only for a reply that went missing.
+			foreach (VoiceDownload download in a_turn.response.downloads)
+			{
+				sb.Append($"<noparse>{download.line}</noparse>\n");
+			}
+		}
 		sb.Append($"<size=85%>On the map: {a_turn.applied}</size>");
 		return sb.ToString();
 	}
@@ -317,6 +343,29 @@ public class VoiceConversationView : MonoBehaviour
 		}
 		string joined = string.Join(", ", queries);
 		return $"\nSearched: <noparse>{joined}</noparse>";
+	}
+
+	// The download was done on the helper and thrown away there; all that came back is its line,
+	// the layer's catalogue name, and how long it took.
+	private static string DescribeDownloads(List<VoiceDownload> a_downloads)
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.Append("<b>Download</b>");
+		foreach (VoiceDownload download in a_downloads)
+		{
+			sb.Append($"\n<noparse>{download.line}</noparse>");
+			// A download stopped before it began has no time worth showing.
+			if (download.took_ms > 0)
+			{
+				float seconds = download.took_ms / 1000f;
+				sb.Append($" <size=80%>{seconds:F1}s</size>");
+			}
+			if (!string.IsNullOrEmpty(download.name))
+			{
+				sb.Append($"\n<size=80%><noparse>{download.name}</noparse></size>");
+			}
+		}
+		return sb.ToString();
 	}
 
 	// A heading with the count, then one layer per line: its score, its name, and the sea or theme it belongs to.
@@ -341,6 +390,11 @@ public class VoiceConversationView : MonoBehaviour
 		float speech = a_response.timings_ms.stt / 1000f;
 		float model = a_response.timings_ms.llm / 1000f;
 		float total = a_response.timings_ms.total / 1000f;
+		if (a_response.timings_ms.download > 0)
+		{
+			float download = a_response.timings_ms.download / 1000f;
+			return $"speech {speech:F1}s, model {model:F1}s, download {download:F1}s, total {total:F1}s";
+		}
 		return $"speech {speech:F1}s, model {model:F1}s, total {total:F1}s";
 	}
 }

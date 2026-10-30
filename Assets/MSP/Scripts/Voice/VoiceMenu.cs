@@ -3,9 +3,10 @@ using UnityEngine;
 
 /// <summary>
 /// The voice panel inside a session. One Record toggle sends a spoken sentence to the interface,
-/// which decides whether it asks to show or hide layers on the map or to search the online
-/// catalogue. The panel applies the changes and adds the sentence and its answer to the
-/// conversation list, which shows what was found per map server beside it.
+/// which decides whether it asks to show or hide layers on the map, to search the online
+/// catalogue, or to download a layer found earlier, which is done on the helper and never sent
+/// here. The panel applies the changes and adds the sentence and its answer to the conversation
+/// list, which shows what was found per map server and the download's line beside it.
 /// </summary>
 [RequireComponent(typeof(VoiceRecorder))]
 [RequireComponent(typeof(VoiceClient))]

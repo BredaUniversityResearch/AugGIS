@@ -42,6 +42,25 @@ public class VoiceTurn
 		get { return error != null; }
 	}
 
+	public bool HasRefusedDownload
+	{
+		get
+		{
+			if (response == null)
+			{
+				return false;
+			}
+			foreach (VoiceDownload download in response.downloads)
+			{
+				if (!download.ok)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+	}
+
 	public bool NothingHeard
 	{
 		get

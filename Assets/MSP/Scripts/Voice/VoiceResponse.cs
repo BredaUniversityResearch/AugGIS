@@ -53,6 +53,8 @@ public class VoiceConversation
 	public string chat_key = "";
 	public List<VoiceFoundId> found = new List<VoiceFoundId>();
 	public string version = "";
+	// The line of this conversation's last download, so the model is told how it went.
+	public string last_download = "";
 }
 
 [Serializable]
@@ -60,6 +62,24 @@ public class VoiceSearch
 {
 	public string query;
 	public bool nothing_close;
+}
+
+/// <summary>
+/// The outcome of one spoken download. The layer is downloaded on the helper and thrown away there,
+/// so only the counts and the line to show come back, never the layer itself.
+/// </summary>
+[Serializable]
+public class VoiceDownload
+{
+	public bool ok;
+	public string source;
+	public string name;
+	public string title;
+	// "shapes" or "picture", and "" when the download was refused.
+	public string kind;
+	public int features;
+	public string line;
+	public int took_ms;
 }
 
 /// <summary>What <c>GET /health</c> on the interface returns: one word per service, and whether all are up.</summary>
@@ -77,7 +97,7 @@ public class VoiceHealth
 
 /// <summary>
 /// What <c>POST /voice</c> on the interface returns for one spoken sentence: what was heard, the
-/// changes to apply to the map, the catalogue layers found, and what to say back.
+/// changes to apply to the map, the catalogue layers found, the downloads tried, and what to say back.
 /// <see cref="VoiceLayerCommands"/> applies the operations to the session's layers.
 /// </summary>
 [Serializable]
@@ -88,6 +108,7 @@ public class VoiceResponse
 	{
 		public int stt;
 		public int llm;
+		public int download;
 		public int total;
 	}
 
@@ -96,6 +117,7 @@ public class VoiceResponse
 	public VoicePicks picks = new VoicePicks();
 	public string reply;
 	public List<VoiceSearch> searches = new List<VoiceSearch>();
+	public List<VoiceDownload> downloads = new List<VoiceDownload>();
 	public VoiceConversation conversation = new VoiceConversation();
 	public Timings timings_ms;
 	public string error;
@@ -136,6 +158,10 @@ public class VoiceResponse
 		if (response.searches == null)
 		{
 			response.searches = new List<VoiceSearch>();
+		}
+		if (response.downloads == null)
+		{
+			response.downloads = new List<VoiceDownload>();
 		}
 		if (response.conversation == null)
 		{

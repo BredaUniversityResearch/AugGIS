@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using Newtonsoft.Json;
 using POV_Unity;
 using Unity.Netcode;
@@ -24,9 +25,10 @@ public class VoiceClient : MonoBehaviour
 
 	private const int HEALTH_TIMEOUT_SECONDS = 5;
 
-	// A search takes about 6 seconds alone and about 12 with 8 people asking at once.
+	// A search takes about 6 seconds alone and about 12 with 8 people asking at once, and a download
+	// of a big layer group adds about 20 more.
 	[SerializeField]
-	private int m_timeoutSeconds = 60;
+	private int m_timeoutSeconds = 120;
 
 	public event Action<string> TranscriptReceived;
 	public event Action<VoiceResponse> ResponseReceived;
@@ -191,6 +193,30 @@ public class VoiceClient : MonoBehaviour
 		return a_layer.@short;
 	}
 
+	/// <summary>
+	/// The loaded map's region as "minx,miny,maxx,maxy" in EPSG:3035, from the config this headset
+	/// imported, or null before a config is loaded.
+	/// </summary>
+	private static string SessionRegion()
+	{
+		ImportedConfigRoot config = ImportedConfigRoot.Instance;
+		if (config == null || !config.ImportComplete)
+		{
+			return null;
+		}
+
+		Vector2 bottomLeft = config.AreaCornerBL;
+		Vector2 topRight = config.AreaCornerTR;
+		float[] corners = { bottomLeft.x, bottomLeft.y, topRight.x, topRight.y };
+		List<string> numbers = new List<string>();
+		foreach (float corner in corners)
+		{
+			// Whole metres, and a "." never a "," whatever language the headset is set to.
+			numbers.Add(corner.ToString("F0", CultureInfo.InvariantCulture));
+		}
+		return string.Join(",", numbers);
+	}
+
 	private List<string> CurrentLayerNames()
 	{
 		List<string> names = new List<string>();
@@ -208,6 +234,12 @@ public class VoiceClient : MonoBehaviour
 		form.AddBinaryData("audio", a_wav, "sentence.wav", "audio/wav");
 		form.AddField("layers", JsonConvert.SerializeObject(CurrentLayerNames()));
 		form.AddField("conversation", JsonConvert.SerializeObject(m_conversation));
+		// A spoken download is cut to this region. Without it the interface uses its default region.
+		string region = SessionRegion();
+		if (region != null)
+		{
+			form.AddField("region", region);
+		}
 
 		string url = $"http://{InterfaceHost}:{m_interfacePort}/voice";
 		float startTime = Time.realtimeSinceStartup;
