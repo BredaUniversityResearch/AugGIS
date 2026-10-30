@@ -3,18 +3,26 @@
 The model is asked for one line of JSON in words. Nothing forces it to keep to that, or to
 name only layers that exist, so every answer goes through here first:
 
-    parse_step        is the reply one of the two steps at all?
+    parse_step        is the reply one of the three steps at all?
     valid_operations  show, hide and toggle only, and only on layers that are on the map
     valid_picks       only layers that a search in this conversation really returned
+    valid_download    the same for the one layer a download names
+
+parse_region checks the region the headset sends with its sentence.
 
 These functions take and return plain values and call nothing, so they can be tested alone.
 """
 
 import json
+import math
 import re
 
 LAYER_ACTIONS = ("show", "hide", "toggle")
 MAX_PICKS = 10
+
+# The Belgian and southern Dutch coast, EPSG:3035, easting first: the region used when the
+# headset sends none. The same box as download.DEFAULT_REGION in the search service.
+DEFAULT_REGION = [3797132.0, 3137432.0, 3965925.0, 3291676.0]
 
 # Words Whisper adds when it reads a list aloud.
 FILLER_WORDS = ("and", "the", "a", "or")
@@ -49,9 +57,10 @@ def parse_step(reply: str) -> dict | None:
     """Read a step out of the model's reply, or None if it is not one.
 
     Returns:
-        {"action": "search", "query": str} or
-        {"action": "answer", "operations": list, "layers": list, "reply": str}.
-        The lists are what the model wrote, not yet checked.
+        {"action": "search", "query": str},
+        {"action": "answer", "operations": list, "layers": list, "reply": str} or
+        {"action": "download", "id": str, "operations": list, "reply": str}.
+        The lists and the id are what the model wrote, not yet checked.
     """
     match = JSON_OBJECT.search(reply)
     if match is None:
@@ -77,6 +86,19 @@ def parse_step(reply: str) -> dict | None:
         if not isinstance(said, str):
             said = ""
         return {"action": "answer", "operations": operations, "layers": layers, "reply": said}
+
+    if step.get("action") == "download":
+        layer_id = step.get("id")
+        if not isinstance(layer_id, str) or not layer_id.strip():
+            return None
+        # A sentence such as "hide bathymetry and download the wind farms" also changes the map.
+        operations = step.get("operations")
+        if not isinstance(operations, list):
+            operations = []
+        said = step.get("reply")
+        if not isinstance(said, str):
+            said = ""
+        return {"action": "download", "id": layer_id.strip(), "operations": operations, "reply": said}
 
     return None
 
@@ -138,6 +160,51 @@ def valid_picks(raw_ids: list, found_ids: list[str]) -> list[str]:
         if layer_id in found_ids and layer_id not in picks:
             picks.append(layer_id)
     return picks[:MAX_PICKS]
+
+
+def valid_download(raw_id: str, found_ids: list[str]) -> str | None:
+    """The id a download step names, if a search in this conversation returned it.
+
+    Matched without regard to capitals, because the model may write "e4" for "E4".
+
+    Returns:
+        The id as the search wrote it, or None.
+    """
+    for layer_id in found_ids:
+        if layer_id.lower() == raw_id.strip().lower():
+            return layer_id
+    return None
+
+
+def parse_region(text: str) -> tuple[list[float] | None, str]:
+    """Read the "minx,miny,maxx,maxy" region the headset sends, in EPSG:3035.
+
+    Args:
+        text: The form field as sent. Empty means DEFAULT_REGION.
+
+    Returns:
+        (the 4 numbers, "") or (None, a sentence saying what is wrong with it).
+    """
+    if not text.strip():
+        return list(DEFAULT_REGION), ""
+
+    parts = text.split(",")
+    if len(parts) != 4:
+        return None, "region must be 4 numbers, minx,miny,maxx,maxy in EPSG:3035, not " + repr(text)
+
+    region = []
+    for part in parts:
+        try:
+            number = float(part)
+        except ValueError:
+            return None, "region must be 4 numbers, minx,miny,maxx,maxy in EPSG:3035, not " + repr(text)
+        if not math.isfinite(number):
+            return None, "region must be 4 finite numbers, not NaN or infinity: " + repr(text)
+        region.append(number)
+
+    if region[0] >= region[2] or region[1] >= region[3]:
+        return None, "region must be minx,miny,maxx,maxy, with each min smaller than its max: " + repr(text)
+    return region, ""
 
 
 def is_list_echo(transcript: str, expected: list[str]) -> bool:

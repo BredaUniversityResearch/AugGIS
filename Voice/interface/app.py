@@ -8,6 +8,8 @@ and what was found in the online layer catalogue.
         layers        JSON array of the names of the layers on the map
         conversation  the "conversation" object from the previous answer, or {} to start
         trim          optional, "false" turns the silence filter off
+        region        optional, "minx,miny,maxx,maxy" in EPSG:3035, the session's region, for a
+                      download. Left out, the Belgian coast box 3797132,3137432,3965925,3291676
 
     200 -> {
       "transcript": "hide bathymetry and find wind farms",
@@ -16,11 +18,21 @@ and what was found in the online layer catalogue.
                                "name": "balticline:BS_Wind_Farms", "meaning": 0.835}, ...],
                 "emodnet": [...]},
       "reply": "I hid Bathymetry and found wind farm layers for the Baltic Sea ...",
+      "downloads": [],
       "searches": [{"query": "wind farms", "nothing_close": false}],
       "conversation": {"chat_key": "...", "found": [{"id": "G129", "meaning": 0.835}], "version": "..."},
       "problems": [],
-      "timings_ms": {"stt": 650, "llm": 5400, "total": 6100}
+      "timings_ms": {"stt": 650, "llm": 5400, "download": 0, "total": 6100}
     }
+
+    A sentence such as "download the first one" downloads one layer a search found, here on
+    the helper, and throws it away. "downloads" then holds its result, counts and one line:
+        [{"ok": true, "source": "emodnet", "name": "windfarmspoly", "title": "Wind Farms (Polygons)",
+          "kind": "shapes", "features": 48,
+          "line": "Downloaded Wind Farms (Polygons) (Human Activities, EMODnet) on the helper: 48 shapes.",
+          "took_ms": 900}]
+    and "reply" is that line. A refusal is "ok": false with its sentence as the line. The
+    download's time is in timings_ms "download", not in "llm".
 
     GET /health   whether speech-to-text, the embedding model and the search answer
 
@@ -131,6 +143,7 @@ async def voice(
     audio: UploadFile | None = File(None),
     text: str = Form(""),
     trim: str = Form("true"),
+    region: str = Form(""),
 ):
     """Take one spoken sentence and answer with what to do on the map and what was found.
 
@@ -143,12 +156,17 @@ async def voice(
         audio: The WAV file, 16 kHz mono PCM. Leave out to send text instead.
         text: The sentence as text, used when there is no audio.
         trim: "false", "0", "off" or "no" turns Whisper's silence filter off.
+        region: "minx,miny,maxx,maxy" in EPSG:3035, the region a download is for. Empty
+            means the Belgian coast box. An unreadable one refuses only a download, as a
+            result with "ok" false; the rest of the sentence still works.
 
     Returns:
         The transcript, the operations to apply to the map, the catalogue layers found per
-        server, the reply to show, the conversation to send back next time, and timings.
-        400 if a field is wrong, 503 if speech-to-text, the language model or the search did
-        not answer. A 503 after speech-to-text still carries the transcript.
+        server, the reply to show, the result of a download, the conversation to send back
+        next time, and timings.
+        400 if layers, conversation or both audio and text are wrong, 503 if speech-to-text,
+        the language model or the search did not answer. A 503 after speech-to-text still
+        carries the transcript. A download that fails is never an error of /voice.
     """
     started = time.perf_counter()
 
@@ -165,6 +183,11 @@ async def voice(
         ticket = None
     if not isinstance(ticket, dict):
         return JSONResponse({"error": "conversation must be a JSON object"}, status_code=400)
+
+    # Only a download uses the region, so an unreadable one refuses only a download, as its result.
+    download_region, region_problem = checks.parse_region(region)
+    if region_problem:
+        log.warning("unreadable region: %s", region_problem)
 
     transcript = text.strip()
     stt_ms = 0
@@ -192,25 +215,33 @@ async def voice(
             "operations": [],
             "picks": {"geoserver": [], "emodnet": []},
             "reply": "",
+            "downloads": [],
             "searches": [],
             "conversation": ticket,
             "problems": [],
-            "timings_ms": {"stt": stt_ms, "llm": 0, "total": round((time.perf_counter() - started) * 1000)},
+            "timings_ms": {"stt": stt_ms, "llm": 0, "download": 0,
+                           "total": round((time.perf_counter() - started) * 1000)},
         }
 
     stage = time.perf_counter()
     try:
-        result = await conversation.turn(transcript, map_layers, ticket)
+        result = await conversation.turn(transcript, map_layers, ticket, download_region, region_problem)
     except Exception as exc:
         log.exception("conversation failed")
         return JSONResponse({"error": f"language model or search unavailable: {exc}", "transcript": transcript},
                             status_code=503)
-    llm_ms = round((time.perf_counter() - stage) * 1000)
+    turn_ms = round((time.perf_counter() - stage) * 1000)
+
+    # The turn's time holds the download's too, which is not the model's.
+    download_ms = 0
+    for done in result["downloads"]:
+        download_ms += done["took_ms"]
 
     result["transcript"] = transcript
     result["timings_ms"] = {
         "stt": stt_ms,
-        "llm": llm_ms,
+        "llm": turn_ms - download_ms,
+        "download": download_ms,
         "total": round((time.perf_counter() - started) * 1000),
     }
     queries = []
@@ -218,6 +249,9 @@ async def voice(
         queries.append(done["query"])
     log.info("voice %r -> %s, searched %s, picked %d + %d (%dms)", transcript, result["operations"], queries,
              len(result["picks"]["geoserver"]), len(result["picks"]["emodnet"]), result["timings_ms"]["total"])
+    for done in result["downloads"]:
+        log.info("voice download %s:%s -> %s", done["source"], done["name"], done["line"])
+    log.info("voice reply %r", result["reply"])
     return result
 
 
