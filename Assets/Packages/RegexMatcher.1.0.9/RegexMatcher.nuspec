@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>RegexMatcher</id>
+    <version>1.0.9</version>
+    <title>RegexMatcher</title>
+    <authors>Joel Christner</authors>
+    <license type="file">LICENSE.md</license>
+    <licenseUrl>https://aka.ms/deprecateLicenseUrl</licenseUrl>
+    <icon>icon.png</icon>
+    <readme>README.md</readme>
+    <projectUrl>https://github.com/jchristn/regexmatcher</projectUrl>
+    <description>Regular expression matching library.</description>
+    <releaseNotes>Retarget, all matches API, thank you @sapurtcomputer30</releaseNotes>
+    <copyright>(c)2025 Joel Christner</copyright>
+    <tags>regex match regular expression</tags>
+    <repository type="Github" url="https://github.com/jchristn/regexmatcher" commit="20c4091fdd1f84ca0308fa2cc00b7b94287f1c8b" />
+    <dependencies>
+      <group targetFramework=".NETFramework4.6.2" />
+      <group targetFramework=".NETFramework4.8" />
+      <group targetFramework="net6.0" />
+      <group targetFramework="net8.0" />
+      <group targetFramework=".NETStandard2.0" />
+      <group targetFramework=".NETStandard2.1" />
+    </dependencies>
+    <contentFiles>
+      <files include="any/net462/icon.ico" buildAction="Content" />
+      <files include="any/net48/icon.ico" buildAction="Content" />
+      <files include="any/net6.0/icon.ico" buildAction="Content" />
+      <files include="any/net8.0/icon.ico" buildAction="Content" />
+      <files include="any/netstandard2.0/icon.ico" buildAction="Content" />
+      <files include="any/netstandard2.1/icon.ico" buildAction="Content" />
+      <files include="any/net462/LICENSE.md" buildAction="Content" />
+      <files include="any/net48/LICENSE.md" buildAction="Content" />
+      <files include="any/net6.0/LICENSE.md" buildAction="Content" />
+      <files include="any/net8.0/LICENSE.md" buildAction="Content" />
+      <files include="any/netstandard2.0/LICENSE.md" buildAction="Content" />
+      <files include="any/netstandard2.1/LICENSE.md" buildAction="Content" />
+    </contentFiles>
+  </metadata>
+</package>

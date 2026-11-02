@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>CavemanTcp</id>
+    <version>2.0.13</version>
+    <title>CavemanTcp</title>
+    <authors>Joel Christner</authors>
+    <license type="file">LICENSE.md</license>
+    <licenseUrl>https://aka.ms/deprecateLicenseUrl</licenseUrl>
+    <icon>icon.png</icon>
+    <readme>README.md</readme>
+    <projectUrl>https://github.com/jchristn/cavemantcp</projectUrl>
+    <description>CavemanTcp is a simple TCP client and server providing easy integration and full control over network reads and writes, allowing you to build your own state machines with ease.</description>
+    <releaseNotes>Fix status issue related to cancellation</releaseNotes>
+    <copyright>(c)2026 Joel Christner</copyright>
+    <tags>tcp messaging socket message sockets api rpc state machine</tags>
+    <repository type="Github" url="https://github.com/jchristn/cavemantcp" commit="1b908a2b37f5103b31b0e77bf64f45cc331d435c" />
+    <dependencies>
+      <group targetFramework=".NETFramework4.6.2" />
+      <group targetFramework=".NETFramework4.7.2" />
+      <group targetFramework=".NETFramework4.8" />
+      <group targetFramework="net8.0" />
+      <group targetFramework="net10.0" />
+      <group targetFramework=".NETStandard2.0" />
+      <group targetFramework=".NETStandard2.1" />
+    </dependencies>
+    <contentFiles>
+      <files include="any/net10.0/icon.ico" buildAction="Content" />
+      <files include="any/net462/icon.ico" buildAction="Content" />
+      <files include="any/net472/icon.ico" buildAction="Content" />
+      <files include="any/net48/icon.ico" buildAction="Content" />
+      <files include="any/net8.0/icon.ico" buildAction="Content" />
+      <files include="any/netstandard2.0/icon.ico" buildAction="Content" />
+      <files include="any/netstandard2.1/icon.ico" buildAction="Content" />
+    </contentFiles>
+  </metadata>
+</package>

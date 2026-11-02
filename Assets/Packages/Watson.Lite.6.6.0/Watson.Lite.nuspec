@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Watson.Lite</id>
+    <version>6.6.0</version>
+    <title>Watson Webserver Lite</title>
+    <authors>Joel Christner</authors>
+    <license type="file">LICENSE.md</license>
+    <licenseUrl>https://aka.ms/deprecateLicenseUrl</licenseUrl>
+    <icon>watson.png</icon>
+    <readme>README.md</readme>
+    <projectUrl>https://github.com/dotnet/WatsonWebserver</projectUrl>
+    <description>Simple, fast, async C# web server for handling REST requests with SSL support, targeted to .NET Core, .NET Standard, and .NET Framework.  Watson.Lite has no dependency on http.sys.</description>
+    <releaseNotes>Stability, security, and performance improvements; IDisposable on context/request/response; directory traversal protection; request body size limits; route manager concurrency improvements; routing pipeline deduplication</releaseNotes>
+    <copyright>(c)2026 Joel Christner</copyright>
+    <tags>web server rest restful http https api async ssl</tags>
+    <repository type="Github" url="https://github.com/dotnet/WatsonWebserver" commit="3ba26db4195aa30bcd55303890495923c20ad7a5" />
+    <dependencies>
+      <group targetFramework=".NETFramework4.6.2">
+        <dependency id="Watson.Core" version="6.6.0" exclude="Build,Analyzers" />
+        <dependency id="CavemanTcp" version="2.0.13" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETFramework4.8">
+        <dependency id="Watson.Core" version="6.6.0" exclude="Build,Analyzers" />
+        <dependency id="CavemanTcp" version="2.0.13" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework="net8.0">
+        <dependency id="Watson.Core" version="6.6.0" exclude="Build,Analyzers" />
+        <dependency id="CavemanTcp" version="2.0.13" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework="net10.0">
+        <dependency id="Watson.Core" version="6.6.0" exclude="Build,Analyzers" />
+        <dependency id="CavemanTcp" version="2.0.13" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="Watson.Core" version="6.6.0" exclude="Build,Analyzers" />
+        <dependency id="CavemanTcp" version="2.0.13" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETStandard2.1">
+        <dependency id="Watson.Core" version="6.6.0" exclude="Build,Analyzers" />
+        <dependency id="CavemanTcp" version="2.0.13" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>

@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Watson.Core</id>
+    <version>6.6.0</version>
+    <title>Watson Webserver Core</title>
+    <authors>WatsonWebserver.Core</authors>
+    <license type="file">LICENSE.md</license>
+    <licenseUrl>https://aka.ms/deprecateLicenseUrl</licenseUrl>
+    <icon>watson.png</icon>
+    <readme>README.md</readme>
+    <projectUrl>https://github.com/dotnet/WatsonWebserver</projectUrl>
+    <description>Core library for Watson and Watson.Lite; simple, fast, async C# web servers for handling REST requests with SSL support, targeted to .NET Core, .NET Standard, and .NET Framework.</description>
+    <releaseNotes>Stability, security, and performance improvements; IDisposable on context/request/response; directory traversal protection; request body size limits; route manager concurrency improvements; routing pipeline deduplication</releaseNotes>
+    <copyright>(c)2026 Joel Christner</copyright>
+    <tags>web server rest restful http https api async ssl</tags>
+    <repository type="github" url="https://github.com/dotnet/WatsonWebserver" commit="3ba26db4195aa30bcd55303890495923c20ad7a5" />
+    <dependencies>
+      <group targetFramework=".NETFramework4.6.2">
+        <dependency id="IpMatcher" version="1.0.5" exclude="Build,Analyzers" />
+        <dependency id="RegexMatcher" version="1.0.9" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="8.0.5" exclude="Build,Analyzers" />
+        <dependency id="Timestamps" version="1.0.11" exclude="Build,Analyzers" />
+        <dependency id="UrlMatcher" version="3.0.1" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETFramework4.8">
+        <dependency id="IpMatcher" version="1.0.5" exclude="Build,Analyzers" />
+        <dependency id="RegexMatcher" version="1.0.9" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="8.0.5" exclude="Build,Analyzers" />
+        <dependency id="Timestamps" version="1.0.11" exclude="Build,Analyzers" />
+        <dependency id="UrlMatcher" version="3.0.1" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework="net8.0">
+        <dependency id="IpMatcher" version="1.0.5" exclude="Build,Analyzers" />
+        <dependency id="RegexMatcher" version="1.0.9" exclude="Build,Analyzers" />
+        <dependency id="Timestamps" version="1.0.11" exclude="Build,Analyzers" />
+        <dependency id="UrlMatcher" version="3.0.1" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework="net10.0">
+        <dependency id="IpMatcher" version="1.0.5" exclude="Build,Analyzers" />
+        <dependency id="RegexMatcher" version="1.0.9" exclude="Build,Analyzers" />
+        <dependency id="Timestamps" version="1.0.11" exclude="Build,Analyzers" />
+        <dependency id="UrlMatcher" version="3.0.1" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="IpMatcher" version="1.0.5" exclude="Build,Analyzers" />
+        <dependency id="RegexMatcher" version="1.0.9" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="8.0.5" exclude="Build,Analyzers" />
+        <dependency id="Timestamps" version="1.0.11" exclude="Build,Analyzers" />
+        <dependency id="UrlMatcher" version="3.0.1" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETStandard2.1">
+        <dependency id="IpMatcher" version="1.0.5" exclude="Build,Analyzers" />
+        <dependency id="RegexMatcher" version="1.0.9" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="8.0.5" exclude="Build,Analyzers" />
+        <dependency id="Timestamps" version="1.0.11" exclude="Build,Analyzers" />
+        <dependency id="UrlMatcher" version="3.0.1" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+    <contentFiles>
+      <files include="any/net10.0/Assets/watson.ico" buildAction="Content" />
+      <files include="any/net462/Assets/watson.ico" buildAction="Content" />
+      <files include="any/net48/Assets/watson.ico" buildAction="Content" />
+      <files include="any/net8.0/Assets/watson.ico" buildAction="Content" />
+      <files include="any/netstandard2.0/Assets/watson.ico" buildAction="Content" />
+      <files include="any/netstandard2.1/Assets/watson.ico" buildAction="Content" />
+    </contentFiles>
+  </metadata>
+</package>

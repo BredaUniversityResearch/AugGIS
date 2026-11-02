@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Timestamps</id>
+    <version>1.0.11</version>
+    <title>Simple class containing start time, end time, and total time.</title>
+    <authors>Joel Christner</authors>
+    <license type="file">LICENSE.md</license>
+    <licenseUrl>https://aka.ms/deprecateLicenseUrl</licenseUrl>
+    <icon>logo.png</icon>
+    <readme>README.md</readme>
+    <projectUrl>https://github.com/jchristn/timestamps</projectUrl>
+    <description>Simple class containing start time, end time, and total time.</description>
+    <releaseNotes>Initial release</releaseNotes>
+    <copyright>(c)2025 Joel Christner</copyright>
+    <tags>time timestamp stopwatch</tags>
+    <repository type="github" url="https://github.com/jchristn/timestamps" commit="c9788c30721a6c1adec72a34c3ac3d3a1f4651ce" />
+    <dependencies>
+      <group targetFramework=".NETFramework4.6.2" />
+      <group targetFramework=".NETFramework4.8" />
+      <group targetFramework="net6.0" />
+      <group targetFramework="net8.0" />
+      <group targetFramework=".NETStandard2.0" />
+      <group targetFramework=".NETStandard2.1" />
+    </dependencies>
+    <contentFiles>
+      <files include="any/net462/Assets/logo.ico" buildAction="Content" />
+      <files include="any/net48/Assets/logo.ico" buildAction="Content" />
+      <files include="any/net6.0/Assets/logo.ico" buildAction="Content" />
+      <files include="any/net8.0/Assets/logo.ico" buildAction="Content" />
+      <files include="any/netstandard2.0/Assets/logo.ico" buildAction="Content" />
+      <files include="any/netstandard2.1/Assets/logo.ico" buildAction="Content" />
+    </contentFiles>
+  </metadata>
+</package>
