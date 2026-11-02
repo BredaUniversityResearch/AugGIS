@@ -7,11 +7,11 @@ namespace POV_Unity
 	{
 		public float m_newLocalZValue;
 		public float m_deletionProgress;
-		public int m_layerIndex;
+		public int m_layerId;
 
 		public bool Equals(LayerTagData other)
 		{
-			return m_layerIndex.Equals(other.m_layerIndex) &&
+			return m_layerId.Equals(other.m_layerId) &&
 					m_deletionProgress.Equals(other.m_deletionProgress) &&
 					m_newLocalZValue.Equals(other.m_newLocalZValue);
 		}
@@ -21,14 +21,14 @@ namespace POV_Unity
 			if (serializer.IsReader)
 			{
 				var reader = serializer.GetFastBufferReader();
-				reader.ReadValueSafe(out m_layerIndex);
+				reader.ReadValueSafe(out m_layerId);
 				reader.ReadValueSafe(out m_deletionProgress);
 				reader.ReadValueSafe(out m_newLocalZValue);
 			}
 			else
 			{
 				var writer = serializer.GetFastBufferWriter();
-				writer.WriteValueSafe(m_layerIndex);
+				writer.WriteValueSafe(m_layerId);
 				writer.WriteValueSafe(m_deletionProgress);
 				writer.WriteValueSafe(m_newLocalZValue);
 			}

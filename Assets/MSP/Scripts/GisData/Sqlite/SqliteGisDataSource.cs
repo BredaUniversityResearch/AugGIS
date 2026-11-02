@@ -107,6 +107,7 @@ namespace MSP.Scripts.GisData
 
 			return new RasterLayer
 			{
+				LayerId = a_layerRow.Id,
 				name = a_layerRow.Name,
 				@short = a_layerRow.Short,
 				tags = DeserializeOrNull<string[]>(a_layerRow.TagsJson),
@@ -141,6 +142,7 @@ namespace MSP.Scripts.GisData
 
 			return new VectorLayer
 			{
+				LayerId = a_layerRow.Id,
 				name = a_layerRow.Name,
 				@short = a_layerRow.Short,
 				tags = DeserializeOrNull<string[]>(a_layerRow.TagsJson),

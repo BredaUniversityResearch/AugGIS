@@ -21,6 +21,14 @@ namespace POV_Unity
 		public string[] tags;
 		public JObject[] types;
 
+		//Stable, data-sourced layer identity (assigned once by SqliteGisDatasetWriter,
+		//equal to the persisted LayerRow.Id). Used anywhere layer identity crosses a
+		//network/lookup boundary (e.g. LayerManager's NetworkLists/dictionaries) -
+		//unlike LayerIndex below, which is a purely render-time positional value
+		//(vertical offset/material render-queue ordering) assigned locally by
+		//ImportedConfigRoot.LoadNextLayer and otherwise unrelated to this id.
+		public int LayerId;
+
 		//Other fields
 		protected GameObject m_layerRoot;
 		protected List<ADisplayMethod> m_displayMethods;

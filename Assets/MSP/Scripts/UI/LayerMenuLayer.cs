@@ -44,7 +44,7 @@ namespace POV_Unity
 				return;
 			}
 
-			m_layerManager.SetLayerVisualizationServerRPC(m_currentLayer.LayerIndex, m_layerManager.LayerVisualisationSetting);
+			m_layerManager.SetLayerVisualizationServerRPC(m_currentLayer.LayerId, m_layerManager.LayerVisualisationSetting);
 
 			DetermineLineMargin();
 		}
@@ -56,11 +56,11 @@ namespace POV_Unity
 
 			if (m_toggle.IsSelected)
 			{
-				m_layerManager.SetLayerVisualizationServerRPC(m_currentLayer.LayerIndex, m_layerManager.LayerVisualisationSetting);
+				m_layerManager.SetLayerVisualizationServerRPC(m_currentLayer.LayerId, m_layerManager.LayerVisualisationSetting);
 			}
 			else
 			{
-				m_layerManager.SetLayerVisualizationServerRPC(m_currentLayer.LayerIndex, LayerVisualizationMode.Off);
+				m_layerManager.SetLayerVisualizationServerRPC(m_currentLayer.LayerId, LayerVisualizationMode.Off);
 			}
 			DetermineLineMargin();
 		}
@@ -90,7 +90,7 @@ namespace POV_Unity
 		{
 			m_ignoreCallback = true;
 			//TODO (Igli): Atm this does not handle basic vs fancy visualization mode. Adjust this once the global settings is added.
-			m_toggle.IsSelected = m_layerManager.GetLayerData(m_currentLayer.LayerIndex).m_visualizationMode != LayerVisualizationMode.Off;
+			m_toggle.IsSelected = m_layerManager.GetLayerData(m_currentLayer.LayerId).m_visualizationMode != LayerVisualizationMode.Off;
 
 			m_ignoreCallback = false;
 			DetermineLineMargin();

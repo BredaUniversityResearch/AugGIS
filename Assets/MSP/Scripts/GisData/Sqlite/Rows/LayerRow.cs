@@ -17,11 +17,20 @@ namespace MSP.Scripts.GisData
 	/// SortOrder must be preserved explicitly (not inferred from row id) since
 	/// ImportedConfigRoot relies on a continuous raster-then-vector index for vertical
 	/// offsets and render order.
+	///
+	/// Id is NOT auto-increment: SqliteGisDatasetWriter assigns it explicitly (equal
+	/// to SortOrder at write time) so the exact same value is known immediately by
+	/// the host's in-memory ALayer.LayerId, without requiring a DB read-back. This is
+	/// the stable, data-sourced layer identity used anywhere layer identity crosses a
+	/// network/lookup boundary (e.g. LayerManager's NetworkLists) - as opposed to
+	/// ALayer.LayerIndex, which stays a purely render-time positional value (vertical
+	/// offset/material render-queue ordering), assigned locally by
+	/// ImportedConfigRoot.LoadNextLayer and unrelated to this id.
 	/// </summary>
 	[Table("layers")]
 	public class LayerRow
 	{
-		[PrimaryKey, AutoIncrement]
+		[PrimaryKey]
 		public int Id { get; set; }
 
 		public LayerKind Kind { get; set; }

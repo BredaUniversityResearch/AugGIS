@@ -55,9 +55,9 @@ public class LayerTag : NetworkBehaviour
 	Vector2 m_defaultSizeDelta = Vector2.zero;
 
 	private NetworkVariable<float> m_deletionProgress = new NetworkVariable<float>(0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
-	private NetworkVariable<int> m_networkLayerIndex = new NetworkVariable<int>(-1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+	private NetworkVariable<int> m_networkLayerId = new NetworkVariable<int>(-1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 	private NetworkVariable<LayerTagSide> m_networkLayerTagSide = new NetworkVariable<LayerTagSide>(LayerTagSide.West, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-	private int m_defaultLayerIndex = -1;
+	private int m_defaultLayerId = -1;
 	private LayerTagSide m_defaultLayerTagSide = LayerTagSide.West;
 	private bool m_grabbed = false;
 	public bool IsGrabbed => m_grabbed;
@@ -74,13 +74,13 @@ public class LayerTag : NetworkBehaviour
 		if (NetworkManager.Singleton.IsServer)
 		{
 			// Set the network variable values (on the server side only)
-			m_networkLayerIndex.Value = m_defaultLayerIndex;
+    		m_networkLayerId.Value = m_defaultLayerId;
 			m_networkLayerTagSide.Value = m_defaultLayerTagSide;
 		}
 
 		base.OnNetworkSpawn();
 
-		m_layerManager.AddLayerTagToCanvas(this, m_networkLayerIndex.Value, m_networkLayerTagSide.Value);
+    	m_layerManager.AddLayerTagToCanvas(this, m_networkLayerId.Value, m_networkLayerTagSide.Value);
 		m_grabInteractable.BlockInteraction();
 
 		m_deletionProgress.OnValueChanged += OnDeletionProgressValueChanged;
@@ -92,14 +92,14 @@ public class LayerTag : NetworkBehaviour
 		m_grabInteractable.selectExited.AddListener(OnGrabEnd);
 	}
 
-	public void OnServerInit(int a_layerIndex, LayerTagSide a_side)
+    public void OnServerInit(int a_layerId, LayerTagSide a_side)
 	{
-		m_defaultLayerIndex = a_layerIndex;
+    	m_defaultLayerId = a_layerId;
 		m_defaultLayerTagSide = a_side;
 	}
 	public void OnClientInit(ALayer a_layer, Transform a_layerTagRootTransform)
 	{
-		LayerInstanceData data = m_layerManager.GetLayerData(a_layer.LayerIndex);
+    	LayerInstanceData data = m_layerManager.GetLayerData(a_layer.LayerId);
 		transform.SetParent(a_layerTagRootTransform, false);
 
 		m_layerTagRootTransform = a_layerTagRootTransform;
@@ -107,9 +107,9 @@ public class LayerTag : NetworkBehaviour
 		m_layerNameText.text = a_layer.@short;
 
 		OnLayerInstanceDataChanged(data);
-		transform.SetSiblingIndex(data.m_layerIndex);
+    	transform.SetSiblingIndex(data.m_layerId);
 
-		gameObject.name = "LayerTag_" + m_networkLayerIndex.Value;
+    	gameObject.name = "LayerTag_" + m_networkLayerId.Value;
 
 		m_categoryBookmarkImage.color = a_layer.Category.colour;
 
@@ -148,13 +148,13 @@ public class LayerTag : NetworkBehaviour
 
 	void Update()
 	{
-		if (IsOwner && m_layerManager.GetLayerData(m_networkLayerIndex.Value).m_ownerID == (long)NetworkManager.Singleton.LocalClientId && m_grabbed)
+		if (IsOwner && m_layerManager.GetLayerData(m_networkLayerId.Value).m_ownerID == (long)NetworkManager.Singleton.LocalClientId && m_grabbed)
 		{
 			// Synchronize Z value of the tag visuals to the grab interactable
 			m_visualsRect.localPosition = new Vector3(m_visualsRect.localPosition.x, m_visualsRect.localPosition.y, m_grabInteractable.transform.localPosition.z);
 			
 			LayerTagData tagData = new LayerTagData();
-			tagData.m_layerIndex = m_networkLayerIndex.Value;
+			tagData.m_layerId = m_networkLayerId.Value;
 
 			float handleLocalXPosition = m_grabInteractable.transform.localPosition.x;
 
@@ -174,7 +174,7 @@ public class LayerTag : NetworkBehaviour
 
 			if (newVerticalStep != oldVerticalStep)
 			{
-				m_layerManager.ChangeLHStepServerRPC(m_networkLayerIndex.Value, newVerticalStep);
+				m_layerManager.ChangeLHStepServerRPC(m_networkLayerId.Value, newVerticalStep);
 			}
 
 			m_prevLocalZPosition = m_visualsRect.localPosition.z;
@@ -200,7 +200,7 @@ public class LayerTag : NetworkBehaviour
 
 	void OnGrabStart(SelectEnterEventArgs a_args)
 	{
-		m_layerManager.SetLayerOwnerIDServerRPC(m_networkLayerIndex.Value, NetworkManager.Singleton.LocalClientId);
+		m_layerManager.SetLayerOwnerIDServerRPC(m_networkLayerId.Value, NetworkManager.Singleton.LocalClientId);
 		m_prevLocalZPosition = transform.localPosition.z;
 		m_grabbed = true;
 	}
@@ -210,12 +210,12 @@ public class LayerTag : NetworkBehaviour
 		bool toDisableLayer = m_deletionProgress.Value >= 1f;
 
 		m_grabbed = false;
-		m_layerManager.RemoveLayerOwnershipServerRPC(m_networkLayerIndex.Value);
-		m_layerManager.ResetLayerTagsServerRPC(m_networkLayerIndex.Value);
+		m_layerManager.RemoveLayerOwnershipServerRPC(m_networkLayerId.Value);
+		m_layerManager.ResetLayerTagsServerRPC(m_networkLayerId.Value);
 
 		if (toDisableLayer)
 		{
-			m_layerManager.SetLayerVisualizationServerRPC(m_networkLayerIndex.Value, LayerVisualizationMode.Off);
+			m_layerManager.SetLayerVisualizationServerRPC(m_networkLayerId.Value, LayerVisualizationMode.Off);
 		}
 	}
 

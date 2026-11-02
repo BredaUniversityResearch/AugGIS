@@ -61,7 +61,7 @@ public class UIInGameMenuMapSettings : MonoBehaviour
 				continue;
 			}
 
-			LayerManager.Instance.SetLayerVisualizationServerRPC(layer.LayerIndex, LayerVisualizationMode.Off);
+			LayerManager.Instance.SetLayerVisualizationServerRPC(layer.LayerId, LayerVisualizationMode.Off);
 		}
 	}
 

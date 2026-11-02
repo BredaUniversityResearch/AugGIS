@@ -5,7 +5,7 @@ namespace POV_Unity
 {
 	public struct LayerInstanceData : INetworkSerializable, IEquatable<LayerInstanceData>
 	{
-		public int m_layerIndex;
+		public int m_layerId;
 		public int m_verticalStep;
 		public int m_indexInStep;
 		public int m_elementsInStep;
@@ -14,7 +14,7 @@ namespace POV_Unity
 
 		public bool Equals(LayerInstanceData other)
 		{
-			return m_layerIndex.Equals(other.m_layerIndex) &&
+			return m_layerId.Equals(other.m_layerId) &&
 					m_verticalStep.Equals(other.m_verticalStep) &&
 					m_indexInStep.Equals(other.m_indexInStep) &&
 					m_elementsInStep.Equals(other.m_elementsInStep) &&
@@ -27,7 +27,7 @@ namespace POV_Unity
 			if (serializer.IsReader)
 			{
 				var reader = serializer.GetFastBufferReader();
-				reader.ReadValueSafe(out m_layerIndex);
+				reader.ReadValueSafe(out m_layerId);
 				reader.ReadValueSafe(out m_visualizationMode);
 				reader.ReadValueSafe(out m_verticalStep);
 				reader.ReadValueSafe(out m_indexInStep);
@@ -37,7 +37,7 @@ namespace POV_Unity
 			else
 			{
 				var writer = serializer.GetFastBufferWriter();
-				writer.WriteValueSafe(m_layerIndex);
+				writer.WriteValueSafe(m_layerId);
 				writer.WriteValueSafe(m_visualizationMode);
 				writer.WriteValueSafe(m_verticalStep);
 				writer.WriteValueSafe(m_indexInStep);

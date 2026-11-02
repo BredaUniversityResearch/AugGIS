@@ -36,22 +36,22 @@ public class LayerTagsCanvas : MonoBehaviour
 		m_layerHandleFiller.SetSiblingIndex(transform.childCount - 1);
 	}
 
-	public void AddLayerTag(LayerTag a_layerTag, int a_layerIndex)
+	public void AddLayerTag(LayerTag a_layerTag, int a_layerId)
 	{
-		m_layerTags.Add(a_layerIndex, a_layerTag);
+		m_layerTags.Add(a_layerId, a_layerTag);
 	}
 
 	public void OnClientInitLayerTag(ALayer a_layer)
 	{
-		LayerTag layerTag = m_layerTags[a_layer.LayerIndex];
+		LayerTag layerTag = m_layerTags[a_layer.LayerId];
 		layerTag.OnClientInit(a_layer, transform);
 	}
 
 	private void ReorderLayerTags()
     {
-		foreach (int layerIndex in layerManager.LayerOrderNetworkData)
+		foreach (int layerId in layerManager.LayerOrderNetworkData)
         {
-			m_layerTags[layerIndex].transform.SetAsLastSibling();
+			m_layerTags[layerId].transform.SetAsLastSibling();
         }
 	}
 
@@ -59,7 +59,7 @@ public class LayerTagsCanvas : MonoBehaviour
 	{
 		if (!ImportedConfigRoot.Instance.m_displayMethodConfig.IsStaticLayer(a_layer))
 		{
-			m_layerTags[a_layer.LayerIndex].OnLayerInstanceDataChanged(a_newData);
+			m_layerTags[a_layer.LayerId].OnLayerInstanceDataChanged(a_newData);
 			m_layerHandleFiller.SetSiblingIndex(transform.childCount - 1);
 		}
 	}
@@ -68,7 +68,7 @@ public class LayerTagsCanvas : MonoBehaviour
 	{
 		if(!NetworkManager.Singleton.IsServer) return;
 
-		LayerTag layerTag = m_layerTags[a_newData.m_layerIndex];
+		LayerTag layerTag = m_layerTags[a_newData.m_layerId];
 		if (layerTag.IsOwnedByServer)
 		{
 			layerTag.SetDeletionProgress(a_newData.m_deletionProgress);

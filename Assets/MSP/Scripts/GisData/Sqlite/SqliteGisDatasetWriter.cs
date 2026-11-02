@@ -87,6 +87,7 @@ namespace MSP.Scripts.GisData
 		{
 			LayerRow layerRow = BuildLayerRow(a_layer.name, a_layer.@short, a_layer.tags, a_layer.types, LayerKind.Raster, a_sortOrder);
 			a_connection.Insert(layerRow);
+			a_layer.LayerId = layerRow.Id;
 
 			string imageKey = RasterImageKey.Resolve(a_layer.data);
 			if (a_rasterImages == null || !a_rasterImages.TryGetValue(imageKey, out byte[] rasterPng))
@@ -118,6 +119,7 @@ namespace MSP.Scripts.GisData
 		{
 			LayerRow layerRow = BuildLayerRow(a_layer.name, a_layer.@short, a_layer.tags, a_layer.types, LayerKind.Vector, a_sortOrder);
 			a_connection.Insert(layerRow);
+			a_layer.LayerId = layerRow.Id;
 
 			if (a_layer.data == null)
 				return;
@@ -154,6 +156,10 @@ namespace MSP.Scripts.GisData
 		{
 			return new LayerRow
 			{
+				//Id is explicitly assigned (not DB auto-increment) so it's known to the
+				//in-memory layer object immediately - see the LayerId assignment at each
+				//call site above.
+				Id = a_sortOrder,
 				Kind = a_kind,
 				SortOrder = a_sortOrder,
 				Name = a_name,
