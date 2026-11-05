@@ -175,8 +175,26 @@ public class WorldManager : NetworkBehaviour
 		//directly rather than reading it back out of SQLite - nothing mutates it
 		//between here and Initialise().
 		new SqliteGisDatasetWriter(m_gisDatabaseService).Write(a_dataset);
+		PublishLayerCatalogue(a_dataset);
 		GisRasterTextureLoader.Load(a_dataset);
 		ImportedConfigRoot.Instance.Initialise(a_dataset.Config, ParseDisplayMethodConfig());
+	}
+
+	//Layer ids/sort order were assigned by SqliteGisDatasetWriter.Write (raster
+	//layers first, then vector layers), so this must run after it.
+	private void PublishLayerCatalogue(GisDataset a_dataset)
+	{
+		int sortOrder = 0;
+
+		foreach (RasterLayer rasterLayer in a_dataset.Config.datamodel.raster_layers)
+		{
+			LayerCatalogue.Instance.AddLayer(rasterLayer, LayerKind.Raster, sortOrder++);
+		}
+
+		foreach (VectorLayer vectorLayer in a_dataset.Config.datamodel.vector_layers)
+		{
+			LayerCatalogue.Instance.AddLayer(vectorLayer, LayerKind.Vector, sortOrder++);
+		}
 	}
 
 	//Mirrors the parse step inside LoadZipData.ImportConfig (duplicated rather than

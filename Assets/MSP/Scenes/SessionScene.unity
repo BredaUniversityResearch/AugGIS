@@ -13463,7 +13463,22 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes:
     - Name: m_displayMethodsByType
-      Entry: 6
+      Entry: 7
+      Data: 0|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[System.Collections.Generic.List`1[[POV_Unity.ADisplayMethod, Assembly-CSharp-firstpass]], mscorlib]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 1|System.Collections.Generic.GenericEqualityComparer`1[[System.String, mscorlib]], mscorlib
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
       Data: 
     - Name: m_bathymetry
       Entry: 6
@@ -14488,6 +14503,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 7012689539346603895}
     m_Modifications:
     - target: {fileID: 723151867341372881, guid: b5cb05d44a48a1a40838c02419128946, type: 3}
+      propertyPath: m_InScenePlaced
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 723151867341372881, guid: b5cb05d44a48a1a40838c02419128946, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 1434085446
       objectReference: {fileID: 0}
@@ -14911,7 +14930,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  m_loadConfigFromLocalFile: 1
+  m_loadConfigFromLocalFile: 0
   m_worldPoseData: {fileID: 11400000, guid: 9c0dc120a59cb804cb1002fba622bb18, type: 2}
   m_firstAnchorData: {fileID: 11400000, guid: dfaf1d5867778834db223da4884153a9, type: 2}
   m_secondAnchorData: {fileID: 11400000, guid: a810736fe2283c24e88861d5e223ca15, type: 2}

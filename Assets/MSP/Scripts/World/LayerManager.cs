@@ -155,6 +155,28 @@ namespace POV_Unity
 			}
 		}
 
+		//The NetworkLists below are positional; look entries up by layer id instead of
+		//assuming list position equals LayerId.
+		private int IndexOfLayerData(int a_layerId)
+		{
+			for (int i = 0; i < m_layerNetworkData.Count; i++)
+			{
+				if (m_layerNetworkData[i].m_layerId == a_layerId) return i;
+			}
+			Debug.LogError($"No LayerInstanceData for layer id {a_layerId}");
+			return -1;
+		}
+
+		private int IndexOfTagData(int a_layerId)
+		{
+			for (int i = 0; i < m_layerTagNetworkData.Count; i++)
+			{
+				if (m_layerTagNetworkData[i].m_layerId == a_layerId) return i;
+			}
+			Debug.LogError($"No LayerTagData for layer id {a_layerId}");
+			return -1;
+		}
+
 		public void RegisterDisplayMethod(int a_layerId, int a_DMIndexInLayer)
 		{
 			m_DMNetworkData.Add(new DMInstanceData()
@@ -235,10 +257,10 @@ namespace POV_Unity
 			//Update #elements in step for starting layers
 			for (int i = 0; i < m_handlesPerStep[0].Count; i++)
 			{
-				LayerInstanceData current = m_layerNetworkData[m_handlesPerStep[0][i]];
+				LayerInstanceData current = m_layerNetworkData[IndexOfLayerData(m_handlesPerStep[0][i])];
 				current.m_indexInStep = i;
 				current.m_elementsInStep = m_handlesPerStep[0].Count;
-				m_layerNetworkData[m_handlesPerStep[0][i]] = current;
+				m_layerNetworkData[IndexOfLayerData(m_handlesPerStep[0][i])] = current;
 			}
 
 			foreach (ALayer layer in m_layers.Values)
@@ -298,7 +320,7 @@ namespace POV_Unity
 		[ServerRpc(RequireOwnership = false)]
 		public void SynchronizeLayerTagsServerRPC(LayerTagData a_newData)
 		{
-			m_layerTagNetworkData[a_newData.m_layerId] = a_newData;
+			m_layerTagNetworkData[IndexOfTagData(a_newData.m_layerId)] = a_newData;
 		}
 
 		[ServerRpc(RequireOwnership = false)]
@@ -309,18 +331,18 @@ namespace POV_Unity
 
 		private void ResetLayerTags(int a_layerId)
 		{
-			LayerTagData currentData = m_layerTagNetworkData[a_layerId];
+			LayerTagData currentData = m_layerTagNetworkData[IndexOfTagData(a_layerId)];
 
 			currentData.m_deletionProgress = 0f;
 			// Negating the value for canvas UI & converting to local Z using (any) canvas scale
-			currentData.m_newLocalZValue = -1f * VerticalStepToMapPositionZ(m_layerNetworkData[a_layerId].m_verticalStep) / m_layerTagCanvasEast.transform.localScale.z;
+			currentData.m_newLocalZValue = -1f * VerticalStepToMapPositionZ(m_layerNetworkData[IndexOfLayerData(a_layerId)].m_verticalStep) / m_layerTagCanvasEast.transform.localScale.z;
 
-			m_layerTagNetworkData[a_layerId] = currentData;
+			m_layerTagNetworkData[IndexOfTagData(a_layerId)] = currentData;
 		}
 
 		public LayerInstanceData GetLayerData(int a_layerId)
 		{
-			return m_layerNetworkData[a_layerId];
+			return m_layerNetworkData[IndexOfLayerData(a_layerId)];
 		}
 
 		private void SpawnLayerTagsServer(int a_layerId)
@@ -337,7 +359,7 @@ namespace POV_Unity
 		[ServerRpc(RequireOwnership = false)]
 		public void ChangeLHStepServerRPC(int a_layerId, int a_newVerticalStep)
 		{
-			LayerInstanceData current = m_layerNetworkData[a_layerId];
+			LayerInstanceData current = m_layerNetworkData[IndexOfLayerData(a_layerId)];
 
 			//Remove from old step
 			m_handlesPerStep[current.m_verticalStep].RemoveAt(current.m_indexInStep);
@@ -350,7 +372,7 @@ namespace POV_Unity
 
 		private void UpdateLayerVerticalStep(int a_layerId)
 		{
-			int verticalStep = m_layerNetworkData[a_layerId].m_verticalStep;
+			int verticalStep = m_layerNetworkData[IndexOfLayerData(a_layerId)].m_verticalStep;
 
 			float verticalDisplacement = VerticalStepToMapPositionZ(verticalStep) + m_layers[a_layerId].VerticalOffset;
 			m_layers[a_layerId].UpdateLayerMaterialHeight(verticalStep);
@@ -365,7 +387,7 @@ namespace POV_Unity
 		[ServerRpc(RequireOwnership = false)]
 		public void SetLayerVisualizationServerRPC(int a_layerId, LayerVisualizationMode a_newMode)
 		{
-			LayerInstanceData current = m_layerNetworkData[a_layerId];
+			LayerInstanceData current = m_layerNetworkData[IndexOfLayerData(a_layerId)];
 
 			bool isStaticLayer = ImportedConfigRoot.Instance.m_displayMethodConfig.IsStaticLayer(m_layers[current.m_layerId]);
 
@@ -388,25 +410,25 @@ namespace POV_Unity
 				}
 			}
 			//Set actual mode after index update, so the change test works
-			current = m_layerNetworkData[a_layerId]; //Reset current as indices have changed
+			current = m_layerNetworkData[IndexOfLayerData(a_layerId)]; //Reset current as indices have changed
 			current.m_visualizationMode = a_newMode;
-			m_layerNetworkData[a_layerId] = current;
+			m_layerNetworkData[IndexOfLayerData(a_layerId)] = current;
 		}
 
 		[ServerRpc(RequireOwnership = false)]
 		public void SetLayerOwnerIDServerRPC(int a_layerId, ulong a_ownerID)
 		{
-			LayerInstanceData current = m_layerNetworkData[a_layerId];
+			LayerInstanceData current = m_layerNetworkData[IndexOfLayerData(a_layerId)];
 			current.m_ownerID = (long)a_ownerID;
-			m_layerNetworkData[a_layerId] = current;
+			m_layerNetworkData[IndexOfLayerData(a_layerId)] = current;
 		}
 
 		[ServerRpc(RequireOwnership = false)]
 		public void RemoveLayerOwnershipServerRPC(int a_layerId)
 		{
-			LayerInstanceData current = m_layerNetworkData[a_layerId];
+			LayerInstanceData current = m_layerNetworkData[IndexOfLayerData(a_layerId)];
 			current.m_ownerID = -1;
-			m_layerNetworkData[a_layerId] = current;
+			m_layerNetworkData[IndexOfLayerData(a_layerId)] = current;
 		}	
 
 		void UpdateIndicesAtStep(int a_step)
@@ -414,11 +436,11 @@ namespace POV_Unity
 			LayerInstanceData current;
 			for (int i = 0; i < m_handlesPerStep[a_step].Count; i++)
 			{
-				current = m_layerNetworkData[m_handlesPerStep[a_step][i]];
+				current = m_layerNetworkData[IndexOfLayerData(m_handlesPerStep[a_step][i])];
 				current.m_indexInStep = i;
 				current.m_verticalStep = a_step;
 				current.m_elementsInStep = m_handlesPerStep[a_step].Count;
-				m_layerNetworkData[m_handlesPerStep[a_step][i]] = current;
+				m_layerNetworkData[IndexOfLayerData(m_handlesPerStep[a_step][i])] = current;
 			}
 		}
 
