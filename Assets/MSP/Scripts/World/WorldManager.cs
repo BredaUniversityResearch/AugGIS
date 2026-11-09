@@ -78,6 +78,7 @@ public class WorldManager : NetworkBehaviour
 	private ARAnchor m_worldArAnchor = null;
 
 	private GisDatabaseService m_gisDatabaseService;
+	private GisHttpServer m_gisHttpServer;
 
 	void Awake()
 	{
@@ -103,6 +104,9 @@ public class WorldManager : NetworkBehaviour
 		if (IsServer)
 		{
 			NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+
+			m_gisHttpServer = new GisHttpServer(new SqliteLayerPayloadProvider(m_gisDatabaseService.DatabasePath), GisHttpServer.ResolvePort());
+			m_gisHttpServer.Start();
 			//default region coords if none is set in enviorment variables
 			//Small sample
 			//RegionCoords regionCoords = new(3474027, 3470232, 4063746, 3488599);
@@ -252,6 +256,8 @@ public class WorldManager : NetworkBehaviour
 		SessionManager.Instance.SetWorldManager(null);
 		m_gameMasterWorldScale.OnValueChanged -= OnWorldScaleValueChanged;
 		SessionManager.Instance.SessionFSM.OnStateEnter -= OnSessionStateEntered;
+		m_gisHttpServer?.Stop();
+		m_gisHttpServer = null;
 		m_gisDatabaseService.Close();
 #if !UNITY_SERVER
 		MSPARAnchorManager.Instance.ARAnchorManager.trackablesChanged.RemoveListener(OnARAnchorTrackableChanged);
