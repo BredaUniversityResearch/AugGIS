@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MSP.Scripts.GisData;
 using Unity.Collections;
@@ -32,6 +33,14 @@ namespace POV_Unity
 		public event OnCatalogueEntryAdded OnEntryAdded;
 
 		private NetworkList<LayerCatalogueEntry> m_entries;
+
+		//-1 until the server has published the initial set of layers, then the number
+		//of entries published. Clients are "ready" once they have received that many
+		//entries, regardless of the order the two syncs arrive in.
+		private NetworkVariable<int> m_publishedCount = new NetworkVariable<int>(-1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+		private bool m_isReady;
+		private event Action m_onReady;
+		public bool IsReady => m_isReady;
 		public IReadOnlyList<LayerCatalogueEntry> Entries
 		{
 			get
@@ -63,6 +72,8 @@ namespace POV_Unity
 		{
 			base.OnNetworkSpawn();
 			m_entries.OnListChanged += OnEntriesChanged;
+			m_publishedCount.OnValueChanged += OnPublishedCountChanged;
+			TryRaiseReady();
 
 			//Entries synced before spawn (late join) arrive without Add events
 			Debug.Log($"[LayerCatalogue] Spawned with {m_entries.Count} entries (IsServer: {IsServer})");
@@ -75,11 +86,67 @@ namespace POV_Unity
 		public override void OnNetworkDespawn()
 		{
 			m_entries.OnListChanged -= OnEntriesChanged;
+			m_publishedCount.OnValueChanged -= OnPublishedCountChanged;
+			m_isReady = false;
+			m_onReady = null;
 			base.OnNetworkDespawn();
+		}
+
+		/// <summary>
+		/// Runs the callback once the initial set of layers is fully available on this
+		/// process: immediately if it already is, otherwise as soon as it becomes so.
+		/// </summary>
+		public void WhenReady(Action a_callback)
+		{
+			if (m_isReady)
+			{
+				a_callback();
+			}
+			else
+			{
+				m_onReady += a_callback;
+			}
+		}
+
+		/// <summary>
+		/// Server only. Signals that the initial set of layers has been fully added and
+		/// the server's own import of them is complete, so clients may start loading.
+		/// </summary>
+		public void MarkInitialLayersPublished()
+		{
+			if (!IsServer)
+			{
+				Debug.LogError("LayerCatalogue.MarkInitialLayersPublished can only be called on the server");
+				return;
+			}
+
+			m_publishedCount.Value = m_entries.Count;
+			TryRaiseReady();
+		}
+
+		private void OnPublishedCountChanged(int a_previous, int a_current)
+		{
+			TryRaiseReady();
+		}
+
+		private void TryRaiseReady()
+		{
+			if (m_isReady || m_publishedCount.Value < 0 || m_entries.Count < m_publishedCount.Value)
+			{
+				return;
+			}
+
+			m_isReady = true;
+			Debug.Log($"[LayerCatalogue] Ready with {m_entries.Count} entries");
+			Action callbacks = m_onReady;
+			m_onReady = null;
+			callbacks?.Invoke();
 		}
 
 		private void OnEntriesChanged(NetworkListEvent<LayerCatalogueEntry> a_change)
 		{
+			TryRaiseReady();
+
 			if (a_change.Type == NetworkListEvent<LayerCatalogueEntry>.EventType.Add)
 			{
 				LogEntry(a_change.Value);

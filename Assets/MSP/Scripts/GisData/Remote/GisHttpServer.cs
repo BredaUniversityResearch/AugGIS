@@ -10,6 +10,7 @@ namespace MSP.Scripts.GisData
 {
 	/// <summary>
 	/// Host-side, read-only HTTP API for fetching individual layers:
+	///   GET /dataset                     -> JSON dataset info (projection, coordinates, metadata)
 	///   GET /layers/{id}                 -> JSON manifest (see ILayerPayloadProvider)
 	///   GET /layers/{id}/assets/{key}    -> raw asset bytes with its Content-Type
 	/// The API is identical for every layer kind; what a layer contains is the
@@ -49,6 +50,7 @@ namespace MSP.Scripts.GisData
 				//Watson.Lite uses a TCP listener, 0.0.0.0 = listen on all interfaces
 				WebserverSettings settings = new WebserverSettings("0.0.0.0", m_port);
 				m_server = new WebserverLite(settings, HandleNotFound);
+				m_server.Routes.PreAuthentication.Static.Add(HttpMethod.GET, "/dataset", HandleDatasetInfo);
 				m_server.Routes.PreAuthentication.Parameter.Add(HttpMethod.GET, "/layers/{id}", HandleManifest);
 				m_server.Routes.PreAuthentication.Parameter.Add(HttpMethod.GET, "/layers/{id}/assets/{key}", HandleAsset);
 				m_server.Start();
@@ -83,6 +85,26 @@ namespace MSP.Scripts.GisData
 		public void Dispose()
 		{
 			Stop();
+		}
+
+		private async Task HandleDatasetInfo(HttpContextBase a_context)
+		{
+			try
+			{
+				if (!m_provider.TryGetDatasetInfo(out JObject datasetInfo))
+				{
+					await SendText(a_context, 404, "Dataset not found");
+					return;
+				}
+
+				a_context.Response.StatusCode = 200;
+				a_context.Response.ContentType = "application/json";
+				await a_context.Response.Send(datasetInfo.ToString(Formatting.None));
+			}
+			catch (Exception exception)
+			{
+				await SendError(a_context, exception);
+			}
 		}
 
 		private async Task HandleManifest(HttpContextBase a_context)

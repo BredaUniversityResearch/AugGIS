@@ -18,11 +18,14 @@ namespace MSP.Scripts.GisData
 	///    types, sortOrder), a kind-specific "data" object the protocol treats as
 	///    opaque, and an "assets" array of { key, contentType, length, meta? }
 	///  - assets: raw bytes addressed by key
+	/// Dataset-level info (projection, coordinates, metadata) is served separately
+	/// since it belongs to no single layer.
 	/// Implementations are called from thread-pool threads, so they must not touch
 	/// Unity API or share unsynchronised state.
 	/// </summary>
 	public interface ILayerPayloadProvider
 	{
+		bool TryGetDatasetInfo(out JObject a_datasetInfo);
 		bool TryGetManifest(int a_layerId, out JObject a_manifest);
 		bool TryGetAsset(int a_layerId, string a_assetKey, out LayerAsset a_asset);
 	}

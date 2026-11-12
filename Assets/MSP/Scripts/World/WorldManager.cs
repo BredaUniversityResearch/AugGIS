@@ -9,6 +9,7 @@ using POV_Unity;
 using Sirenix.OdinInspector;
 using Unity.Collections;
 using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
@@ -103,8 +104,6 @@ public class WorldManager : NetworkBehaviour
 
 		if (IsServer)
 		{
-			NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
-
 			m_gisHttpServer = new GisHttpServer(new SqliteLayerPayloadProvider(m_gisDatabaseService.DatabasePath), GisHttpServer.ResolvePort());
 			m_gisHttpServer.Start();
 			//default region coords if none is set in enviorment variables
@@ -161,7 +160,7 @@ public class WorldManager : NetworkBehaviour
 		}
 		else
 		{
-			m_networkDataMessenger.DataReceivedCallback += OnConfigDataReceivedFromServer;
+			LayerCatalogue.Instance.WhenReady(OnLayerCatalogueReady);
 		}
 	
 	}
@@ -199,6 +198,18 @@ public class WorldManager : NetworkBehaviour
 		{
 			LayerCatalogue.Instance.AddLayer(vectorLayer, LayerKind.Vector, sortOrder++);
 		}
+
+		//Clients must not start loading before the host has finished its own import:
+		//LayerManager's per-layer NetworkLists are filled during that import, and a
+		//client importing earlier would miss the entries added after it finished.
+		//(Matches the old flow, where the data was only sent after ImportComplete.)
+		ImportedConfigRoot.Instance.m_onImportComplete += OnHostImportComplete;
+	}
+
+	private void OnHostImportComplete()
+	{
+		ImportedConfigRoot.Instance.m_onImportComplete -= OnHostImportComplete;
+		LayerCatalogue.Instance.MarkInitialLayersPublished();
 	}
 
 	//Mirrors the parse step inside LoadZipData.ImportConfig (duplicated rather than
@@ -218,6 +229,22 @@ public class WorldManager : NetworkBehaviour
 		SessionManager.Instance.DisconnectFromSession(SessionManager.EDisconnectReason.FailedConnection);
 	}
 
+	//Client side: once the host's catalogue is complete, fetch every layer from the
+	//host's GisHttpServer (same address the session connection uses) and hand the
+	//assembled dataset to the usual Initialise path.
+	private void OnLayerCatalogueReady()
+	{
+		string address = NetworkManager.Singleton.GetComponent<UnityTransport>().ConnectionData.Address;
+		string baseUrl = $"http://{address}:{GisHttpServer.ResolvePort()}/";
+
+		Debug.Log($"[WorldManager] Layer catalogue ready, loading dataset from {baseUrl}");
+		ImportedConfigRoot.Instance.NotifyLoadStarted();
+
+		GisHttpDataSource dataSource = new GisHttpDataSource(baseUrl, LayerCatalogue.Instance.Entries);
+		StartCoroutine(dataSource.LoadDataset(OnClientDatasetLoaded, OnDatasetLoadFailed));
+	}
+
+	//Obsolete since clients load over HTTP (no longer subscribed/sent); removed in M5.
     private void OnConfigDataReceivedFromServer()
 	{
 		byte[] configData = m_networkDataMessenger.Consume();

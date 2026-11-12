@@ -26,6 +26,35 @@ namespace MSP.Scripts.GisData
 			m_databasePath = a_databasePath;
 		}
 
+		public bool TryGetDatasetInfo(out JObject a_datasetInfo)
+		{
+			a_datasetInfo = null;
+
+			using (SQLiteConnection connection = OpenReadOnly())
+			{
+				DatasetInfoRow infoRow = connection.Find<DatasetInfoRow>(DatasetInfoRow.SingletonId);
+				if (infoRow == null)
+					return false;
+
+				a_datasetInfo = new JObject
+				{
+					["projection"] = infoRow.Projection,
+					["coordinate0"] = new JArray(infoRow.Coordinate0X, infoRow.Coordinate0Y),
+					["coordinate1"] = new JArray(infoRow.Coordinate1X, infoRow.Coordinate1Y),
+					["metadata"] = new JObject
+					{
+						["dataModelHash"] = infoRow.DataModelHash,
+						["dateModified"] = infoRow.DateModified,
+						["editorVersion"] = infoRow.EditorVersion,
+						["errors"] = infoRow.Errors
+					},
+					["source"] = infoRow.Source,
+					["schemaVersion"] = infoRow.SchemaVersion
+				};
+				return true;
+			}
+		}
+
 		public bool TryGetManifest(int a_layerId, out JObject a_manifest)
 		{
 			a_manifest = null;
