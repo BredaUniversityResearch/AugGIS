@@ -6,8 +6,8 @@ failure-mode/recovery task. Update as milestones land.
 
 ## Pre-existing, seen during Phase A testing
 - `NetworkDataMessenger.OnNetworkDespawn` threw a `NullReferenceException` once,
-  mid-disconnect-cascade. Not investigated. (The messenger is slated for removal
-  in M5, so check whether it still exists before looking at this.)
+  mid-disconnect-cascade. Resolved by removal: the class was deleted in M5. Worth
+  checking whether the same disconnect cascade still produces errors elsewhere.
 
 ## M3 — host REST server (`GisHttpServer`)
 - If the port (default 50124, env `MSPXRHttpPort`) cannot be bound, the error is
