@@ -46,9 +46,6 @@ public class WorldManager : NetworkBehaviour
 	[Required]
 	private LoadZipData m_zipDataLoader;
 
-	[SerializeField]
-	private NetworkDataMessenger m_networkDataMessenger;
-
 	[Header("Gameobject Sets")]
 
 	[SerializeField]
@@ -100,10 +97,12 @@ public class WorldManager : NetworkBehaviour
 		SessionManager.Instance.SessionFSM.OnStateEnter += OnSessionStateEntered;
 		m_gameMasterWorldScale.OnValueChanged += OnWorldScaleValueChanged;
 
-		m_gisDatabaseService.Open();
-
 		if (IsServer)
 		{
+			//Only the host keeps a database (it serves layers from it); clients fetch
+			//layers over HTTP and have no local copy.
+			m_gisDatabaseService.Open();
+
 			m_gisHttpServer = new GisHttpServer(new SqliteLayerPayloadProvider(m_gisDatabaseService.DatabasePath), GisHttpServer.ResolvePort());
 			m_gisHttpServer.Start();
 			//default region coords if none is set in enviorment variables
@@ -173,10 +172,9 @@ public class WorldManager : NetworkBehaviour
 
 	private void OnHostDatasetLoaded(GisDataset a_dataset)
 	{
-		//Persisted for client distribution (SendConfigDataToClientRoutine reads the
-		//written file's bytes), but the host's own render uses the in-memory dataset
-		//directly rather than reading it back out of SQLite - nothing mutates it
-		//between here and Initialise().
+		//Persisted so GisHttpServer can serve layers to clients, but the host's own
+		//render uses the in-memory dataset directly rather than reading it back out
+		//of SQLite - nothing mutates it between here and Initialise().
 		new SqliteGisDatasetWriter(m_gisDatabaseService).Write(a_dataset);
 		PublishLayerCatalogue(a_dataset);
 		GisRasterTextureLoader.Load(a_dataset);
@@ -244,38 +242,11 @@ public class WorldManager : NetworkBehaviour
 		StartCoroutine(dataSource.LoadDataset(OnClientDatasetLoaded, OnDatasetLoadFailed));
 	}
 
-	//Obsolete since clients load over HTTP (no longer subscribed/sent); removed in M5.
-    private void OnConfigDataReceivedFromServer()
-	{
-		byte[] configData = m_networkDataMessenger.Consume();
-		ImportedConfigRoot.Instance.NotifyLoadStarted();
-
-		//The database file must not have an open connection while it's being
-		//overwritten with the freshly received bytes.
-		m_gisDatabaseService.Close();
-		File.WriteAllBytes(m_gisDatabaseService.DatabasePath, configData);
-		m_gisDatabaseService.Open();
-
-		StartCoroutine(new SqliteGisDataSource(m_gisDatabaseService).LoadDataset(OnClientDatasetLoaded, OnDatasetLoadFailed));
-	}
-
 	private void OnClientDatasetLoaded(GisDataset a_dataset)
 	{
 		GisRasterTextureLoader.Load(a_dataset);
 		ImportedConfigRoot.Instance.Initialise(a_dataset.Config, ParseDisplayMethodConfig());
 	}
-
-	private void OnClientConnected(ulong a_clientId)
-	{
-		StartCoroutine(SendConfigDataToClientRoutine(a_clientId));
-	}
-
-	private IEnumerator SendConfigDataToClientRoutine(ulong a_clientId)
-    {
-        yield return new WaitUntil(()=> ImportedConfigRoot.Instance.ImportComplete);
-		m_networkDataMessenger.SendMessage(a_clientId, File.ReadAllBytes(m_gisDatabaseService.DatabasePath));
-		yield return null;
-    }
 
 	public override void OnNetworkDespawn()
 	{

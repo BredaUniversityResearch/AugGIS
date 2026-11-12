@@ -14432,7 +14432,6 @@ GameObject:
   - component: {fileID: 3792815570526751148}
   - component: {fileID: 21165393947727687}
   - component: {fileID: 7012689539346603897}
-  - component: {fileID: 7012689539346603898}
   m_Layer: 0
   m_Name: WorldRoot
   m_TagString: Untagged
@@ -14938,7 +14937,6 @@ MonoBehaviour:
   m_worldRootTransform: {fileID: 7012689539346603895}
   m_toolStationSpawner: {fileID: 206523287139407792}
   m_zipDataLoader: {fileID: 1920730891}
-  m_networkDataMessenger: {fileID: 7012689539346603898}
   m_toolStationSet: {fileID: 11400000, guid: b58883c9343f06e40a7beef49eac56c9, type: 2}
   m_mapToolSet: {fileID: 11400000, guid: c68b8e20c29117a4bb86d42a5d9323ab, type: 2}
   m_mapPawnSet: {fileID: 11400000, guid: d0003d41b1b746c47be164afc1e039da, type: 2}
@@ -14990,22 +14988,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &7012689539346603898
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5163550685244541425}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 70e8778ffad79a548ab7d2b1822f333b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NetworkDataMessenger
-  ShowTopMostFoldoutHeaderGroup: 1
-  MessageName: LoadConfigMessage
-  m_chunkSize: 1024
-  m_logProgress: 0
 --- !u!1 &7226810301546707463
 GameObject:
   m_ObjectHideFlags: 0
