@@ -73,35 +73,42 @@ public class PenNetworking : NetworkBehaviour
 
 		NetworkObject instanceNetworkObject = newLine.GetComponent<NetworkObject>();
 		
-		PenLine lineScript = instanceNetworkObject.GetComponent<PenLine>();
+		//PenLine lineScript = instanceNetworkObject.GetComponent<PenLine>(); //KH: Redundant getcomponent?
 		
 		instanceNetworkObject.SpawnWithOwnership(a_clientId);
 
 		if(a_clientId == NetworkManager.Singleton.LocalClientId)
 		{
-			InternalInitialiseSpawnedLine(lineScript, instanceNetworkObject, a_localPosition);
+			InternalInitialiseSpawnedLine(newLine, instanceNetworkObject, a_localPosition);
 		}
 		else
 		{
-			InstantiateLineRpc(instanceNetworkObject.NetworkObjectId, a_clientId, a_localPosition);
+			InstantiateLineRpc(instanceNetworkObject.NetworkObjectId, a_clientId, a_localPosition, RpcTarget.Single(a_clientId, RpcTargetUse.Temp));
 		}
 	}
 
-	[Rpc(SendTo.NotServer,RequireOwnership = false)]
-	void InstantiateLineRpc(ulong a_lineId, ulong a_clientId, Vector3 a_localPosition)
+	//[Rpc(SendTo.NotServer,RequireOwnership = false)] //KH: send to specific client to avoid the check
+	[Rpc(SendTo.SpecifiedInParams,RequireOwnership = false)]
+	void InstantiateLineRpc(ulong a_lineId, ulong a_clientId, Vector3 a_localPosition, RpcParams rpcParams = default)
 	{
-		if (NetworkManager.Singleton.LocalClientId != a_clientId)
-			return;
+		//if (NetworkManager.Singleton.LocalClientId != a_clientId)
+		//	return;
 
-		NetworkObject[] ownedObjects = NetworkManager.SpawnManager.GetClientOwnedObjects(NetworkManager.Singleton.LocalClientId);
+		//NetworkObject[] ownedObjects = NetworkManager.SpawnManager.GetClientOwnedObjects(NetworkManager.Singleton.LocalClientId);
 
-		foreach (NetworkObject networkObject in ownedObjects)
+		//foreach (NetworkObject networkObject in ownedObjects)
+		//{
+		//	if (networkObject.NetworkObjectId == a_lineId)
+		//	{
+		//		InternalInitialiseSpawnedLine(networkObject.GetComponent<PenLine>(), networkObject, a_localPosition);
+		//		break;
+		//	}
+		//}
+
+		//Get spawned line by ID to initialise it
+		if(NetworkManager.SpawnManager.SpawnedObjects.TryGetValue(a_lineId, out NetworkObject lineInstance))
 		{
-			if (networkObject.NetworkObjectId == a_lineId)
-			{
-				InternalInitialiseSpawnedLine(networkObject.GetComponent<PenLine>(), networkObject, a_localPosition);
-				break;
-			}
+			InternalInitialiseSpawnedLine(lineInstance.GetComponent<PenLine>(), lineInstance, a_localPosition);
 		}
 	}
 

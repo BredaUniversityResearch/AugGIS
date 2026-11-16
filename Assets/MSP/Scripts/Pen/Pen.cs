@@ -176,6 +176,8 @@ public class Pen : MonoBehaviour
 		{
 			float pointDistance = m_currentLine.GetLastPointDistance(m_lastHitPosition);
 
+			//TODO: replace with more sensible point algorithm
+			//Set distance threshold much lower, but update last point if it forms a straight-ish line to the target
 			if (pointDistance > m_drawingUpdateDistance)
 			{
 				m_currentLine.AddGlobalPoint(m_lastHitPosition);

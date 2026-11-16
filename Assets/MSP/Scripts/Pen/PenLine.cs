@@ -129,7 +129,6 @@ public class PenLine : MonoBehaviour
 
 	void CreateCollider()
 	{
-		if (m_lineRenderer.positionCount == 1) Debug.Log(m_lineRenderer.GetPosition(0), this);
 		Mesh mesh = new Mesh();
 		m_lineRenderer.BakeMesh(mesh, Camera.main);
 
