@@ -33,6 +33,19 @@ failure-mode/recovery task. Update as milestones land.
 - Vector layer JSON is parsed on the main thread, which may hitch on large
   layers (not measured).
 
+## S1 — runtime layer add
+- Policy for a layer that fails on a client after the initial load (fetch error,
+  unparsable manifest, rejected by `ImportedConfigRoot.AddLayer`): log an error,
+  skip it, no retry, no disconnect. The client reports it to the host, which only
+  logs a warning (`Client <id> could not load layer <layerId>`). Nothing else reacts,
+  so a client can silently lack a layer the host has.
+- Host side: if `ImportedConfigRoot.AddLayer` rejects a layer, it is not added to
+  the catalogue (error logged, nothing announced).
+- `ClientLayerLoader` marks an id as handled before fetching, so a failed layer is
+  never retried until the client reconnects.
+- Untidy, not failures: `AssetManager` is recreated by sprite lookups after the
+  import destroyed it; vertical step is not re-applied to runtime layers.
+
 ## Not in scope of the data-backend rework at all
 - Behaviour when the host leaves/crashes mid-session, reconnect handling,
   and cleanup of partially-initialised layers.

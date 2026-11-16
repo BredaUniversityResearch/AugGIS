@@ -125,20 +125,79 @@ Notes:
   `FAILURE_MODES_HANDOFF.md` (untracked) for what to pass to the failure-modes
   task.
 
-## Deferred / next
+## Phase B, sub-phase 1b (S1) — runtime layer add — done
 
-- **Phase B sub-phase 2 — real GIS support in the DB** (not yet scoped): actual
-  GIS-compliant layers (geometry types, SRID, spatial indexing), and the host
-  accepting *new* layers through an API (external tools POST layers; clients are
-  told through `LayerCatalogue.OnEntryAdded` and fetch via the existing REST
-  API). Likely also a generic asset table (layer id, key, content type, bytes)
-  behind `ILayerPayloadProvider`.
-- **Later:** incremental/streamed `Initialise`, and clients fetching only the
-  layers that are currently relevant (visibility etc.) instead of all of them.
-- **`sqlite-caching-versioning`:** persist/reuse the DB across host restarts
-  (low priority; `DatasetInfoRow.SchemaVersion`/`GisDatabaseService.SchemaVersion`
-  exist already).
-- **Out of scope by design:** failure-mode/recovery pass (separate task).
+Goal: layers can be added to a running session, on the host and on every client,
+without a reload. Live-tested (editor host + 2 Quest clients, one early, one late
+joiner). This is the last step of branch `data-backend-rework`.
+
+- **Host add.** `WorldManager.AddLayerToSession(layer, kind, textures)` (server,
+  main thread; layer data must already be in the DB) calls
+  `ImportedConfigRoot.AddLayer` (queued, one at a time, requires the initial import
+  to be complete, same Invisible/Validate filtering, applies all display methods,
+  raises `m_onLayerAdded`), and only on success appends the layer to
+  `LayerCatalogue`, which tells the clients. `LayerManager` handles
+  `m_onLayerAdded` (`OnLayerAddedAfterImport`); runtime layers start hidden
+  (static layers still follow config).
+- **Layer menu.** The host owns an append-only `NetworkList<FixedString128Bytes>`
+  of category names (`LayerMenuNetworked`); the list index is the category id, so
+  indices agree on every machine and late joiners get it for free. Every machine
+  builds category entries from that list (`LayerMenu.AddCategory`). A new layer in
+  an existing category is appended to its page in place; a layer in a new category
+  appends that category at the end. Empty categories are ignored. A shared
+  selection naming a category not built yet on this machine is remembered and
+  applied when it appears.
+- **Client add.** `ClientLayerLoader` (created by `WorldManager` on the client):
+  keeps a set of handled layer ids (seeded from the catalogue snapshot used by the
+  initial load), reconciles it against the catalogue when the client's initial
+  import completes and on every `OnEntryAdded`, and fetches unknown non-Invisible
+  layers one at a time via `GisHttpDataSource.LoadLayer` (the same per-layer fetch
+  code the initial load uses), then `ImportedConfigRoot.AddLayer`. Late joiners
+  get everything through the normal initial path.
+- **Failures.** A runtime layer that fails on a client is logged, skipped, never
+  retried and does not disconnect; the client reports it to the host
+  (`WorldManager.ReportLayerLoadFailedRpc`) which logs a warning with the client id
+  and layer id.
+- **Testing aid (editor only).** `WorldManager.m_debugHoldBackLayerCount` holds back
+  the last N layers at dataset load; the Odin button "Add next held-back layer"
+  (play mode, host) adds them one by one through `AddLayerToSession`.
+- Small additions: `AssetManager.AddRasterTextures`,
+  `GisRasterTextureLoader.Decode`, `LayerManager.TryGetLayerData`.
+
+Known, accepted: a category entry created at runtime calls `AssetManager.GetSprite`,
+which may recreate an `AssetManager` after the import destroyed it; the vertical
+step is not re-applied to runtime layers (they start at step 0, like initial
+import); a new category can briefly show an empty page on a client that has not
+loaded its layers yet.
+
+## Decisions for what comes next
+
+- **Target format: GeoPackage** (OGC GPKG, SQLite based), with GeoJSON as input
+  format. New layers follow standard GIS formats; the host only needs to receive
+  the data, not download it from sources.
+- **Write endpoint: no authentication** for now (LAN, trusted); at most a fixed
+  shared token later.
+- **Projection gap:** the MSP dataset projection is a PROJ.4 laea string, GeoJSON is
+  WGS84, and the project has no projection library, so reprojection must be added.
+- **New layers** are hidden by default and should show up in the layer list and be
+  loaded by clients as soon as possible, even if not shown.
+
+## Deferred / next (separate branches)
+
+- **S2 — POST ingestion on the host:** HTTP endpoint on `GisHttpServer`; handlers
+  run on thread-pool threads, so hand the layer to the main thread and call
+  `AddLayerToSession`. The layer must be written to the DB BEFORE
+  `AddLayerToSession`, otherwise clients get a 404 when they fetch it.
+- **S3 — GeoPackage tables, GeoJSON parsing, reprojection** (likely behind
+  `ILayerPayloadProvider`, with a generic asset table: layer id, key, content type,
+  bytes).
+- **S4 — spatial indexing** (R-tree / bbox) for large layers.
+- **Later:** incremental `Initialise` for the initial load; clients fetching only
+  relevant layers.
+- **`sqlite-caching-versioning`:** persist/reuse the DB across host restarts (low
+  priority; `SchemaVersion` exists).
+- **Out of scope by design:** failure-mode/recovery pass (separate task, see
+  `FAILURE_MODES_HANDOFF.md`).
 
 ## How to pick this back up
 
