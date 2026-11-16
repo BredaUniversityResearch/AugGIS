@@ -146,6 +146,21 @@ namespace POV_Unity
 			Instance.m_loadedRasterTextures = a_textures;
 		}
 
+		//Adds to the already registered raster textures (SetRasterTextures replaces them),
+		//e.g. for layers added after the initial import.
+		public static void AddRasterTextures(Dictionary<string, Texture2D> a_textures)
+		{
+			if (Instance.m_loadedRasterTextures == null)
+			{
+				Instance.m_loadedRasterTextures = new Dictionary<string, Texture2D>();
+			}
+
+			foreach (KeyValuePair<string, Texture2D> texture in a_textures)
+			{
+				Instance.m_loadedRasterTextures[texture.Key] = texture.Value;
+			}
+		}
+
 		public static Material GetRasterQuadMaterial()
 		{
 			return Instance.m_assetDatabase.RasterQuadMaterial;

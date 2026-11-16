@@ -56,42 +56,83 @@ namespace POV_Unity
 
 		private List<LayerCategory> availableLayerCategories = new List<LayerCategory>();
 
+		//A selection received for a category this machine has no entry for yet
+		private Vector2Int? m_pendingSelection;
+
 		private void Start()
 		{
-			if (ImportedConfigRoot.Instance != null && ImportedConfigRoot.Instance.ImportComplete)
-			{
-				OnConfigImportComplete();
-			}
-
-			ImportedConfigRoot.Instance.m_onImportComplete += OnConfigImportComplete;
+			ImportedConfigRoot.Instance.m_onLayerAdded += OnLayerAddedAfterImport;
 		}
 
-		void OnConfigImportComplete()
+		public int CategoryCount => m_categoryEntries.Count;
+
+		/// <summary>
+		/// Names of the categories that currently have layers, in config order. Only valid
+		/// once the import has completed.
+		/// </summary>
+		public List<string> GetNonEmptyCategoryNames()
 		{
-			int index = 0;
-			int selected = m_selectedCategoryIndex;
+			List<string> names = new List<string>();
 			foreach (LayerCategory category in ImportedConfigRoot.Instance.m_displayMethodConfig.categories)
 			{
-				//Don't show categories without layers
-				if (category.Layers.Count == 0)
+				if (category.Layers.Count > 0)
 				{
-					continue;
+					names.Add(category.name);
 				}
+			}
+			return names;
+		}
 
-				availableLayerCategories.Add(category);
-				if (index != 0)
-				{
-					Instantiate(m_spacerPrefab, m_categoryParent);
-				}
+		/// <summary>
+		/// Adds the entry for a category at the end of the category list. Which categories
+		/// exist, and in which order, is decided by the host (see LayerMenuNetworked); the
+		/// index of an entry is its position in that list. Only valid once the import has
+		/// completed.
+		/// </summary>
+		public void AddCategory(string a_categoryName)
+		{
+			LayerCategory category = Array.Find(ImportedConfigRoot.Instance.m_displayMethodConfig.categories, a_candidate => a_candidate.name == a_categoryName);
+			if (category == null)
+			{
+				UnityEngine.Debug.LogError($"Layer menu category '{a_categoryName}' does not exist in the display method config");
+				return;
+			}
 
-				LayerMenuCategory categoryEntry = Instantiate(m_categoryPrefab, m_categoryParent).GetComponent<LayerMenuCategory>();
-				categoryEntry.Initialise(category, OnCategorySelected, OnCategoryDeselected, m_categoryToggleGroup, index == selected, index);
-				m_categoryEntries.Add(categoryEntry);
-				if (index == m_selectedCategoryIndex)
-				{
-					SetLayersToCategory(category, 1);
-				}
-				index += 1;
+			int index = m_categoryEntries.Count;
+			availableLayerCategories.Add(category);
+			if (index != 0)
+			{
+				Instantiate(m_spacerPrefab, m_categoryParent);
+			}
+
+			LayerMenuCategory categoryEntry = Instantiate(m_categoryPrefab, m_categoryParent).GetComponent<LayerMenuCategory>();
+			categoryEntry.Initialise(category, OnCategorySelected, OnCategoryDeselected, m_categoryToggleGroup, index == m_selectedCategoryIndex, index);
+			m_categoryEntries.Add(categoryEntry);
+
+			if (index == m_selectedCategoryIndex)
+			{
+				SetLayersToCategory(category, 1);
+			}
+
+			if (m_pendingSelection.HasValue && m_pendingSelection.Value.x == index)
+			{
+				Vector2Int pending = m_pendingSelection.Value;
+				m_pendingSelection = null;
+				SelectCategory(pending.x, pending.y);
+			}
+		}
+
+		//A layer was added after the initial import. If it belongs to the category
+		//currently shown, refresh that page in place (it is appended to the end of its
+		//category, so earlier pages don't change). If its category has no entry on this
+		//machine yet there is nothing to do: the entry is created from the host's
+		//category list (see AddCategory) and takes the layer from the category then.
+		void OnLayerAddedAfterImport(ALayer a_layer)
+		{
+			int categoryIndex = a_layer.Category != null ? availableLayerCategories.IndexOf(a_layer.Category) : -1;
+			if (categoryIndex >= 0 && m_selectedCategoryIndex == categoryIndex)
+			{
+				SetLayersToCategory(availableLayerCategories[categoryIndex], m_categoryEntries[categoryIndex].GetCurrentPage());
 			}
 		}
 
@@ -110,6 +151,14 @@ namespace POV_Unity
 		//TODO (Igli): Rework this and the networking logic
 		public void SelectCategory(int a_index, int a_page)
 		{
+			//The selection is shared, so it can name a category this machine has no entry
+			//for yet; remember it and apply it when the entry is created (AddCategory)
+			if (a_index >= m_categoryEntries.Count)
+			{
+				m_pendingSelection = new Vector2Int(a_index, a_page);
+				return;
+			}
+
 			if ((m_selectedCategoryIndex == a_index && m_categoryEntries[a_index].GetCurrentPage() == a_page) || a_index == -1)
 			{
 				DisableCategories();
@@ -181,7 +230,8 @@ namespace POV_Unity
 
 			//Identify tab and layers to show
 			int currentPage = a_page;//m_categoryEntries[m_selectedCategoryIndex].GetCurrentTab();
-			int maxPages = Mathf.CeilToInt((float)validLayers.Count / (float)m_pageSize);
+			//At least one (empty) page: a category can exist before any of its layers are loaded here
+			int maxPages = Mathf.Max(1, Mathf.CeilToInt((float)validLayers.Count / (float)m_pageSize));
 			currentPage = Math.Clamp(currentPage, 1, maxPages);
 
 			int startLayer = (currentPage - 1) * m_pageSize;

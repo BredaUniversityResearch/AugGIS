@@ -105,6 +105,7 @@ namespace POV_Unity
 			m_importConfigRoot.m_onLayerImported += OnLayerImported;
 			m_importConfigRoot.m_onDMAddedToLayer += OnDMAddedToLayer;
 			m_importConfigRoot.m_onImportComplete += OnConfigImportComplete;
+			m_importConfigRoot.m_onLayerAdded += OnLayerAddedAfterImport;
 
 			m_worldPoseData.ScaleChanged += OnWorldScaleChanged;
 		}
@@ -134,7 +135,12 @@ namespace POV_Unity
 					continue;
 				}
 
-				ALayer layer = m_layers[layerInstanceData.m_layerId];
+				//Layers added after the initial import may not be loaded on this machine yet
+				if (!m_layers.TryGetValue(layerInstanceData.m_layerId, out ALayer layer))
+				{
+					continue;
+				}
+
 				for (int i = 0; i < layer.DisplayMethods.Count; i++)
 				{
 					ADisplayMethod dm = layer.DisplayMethods[i];
@@ -167,6 +173,20 @@ namespace POV_Unity
 			return -1;
 		}
 
+		private bool TryGetLayerData(int a_layerId, out LayerInstanceData a_data)
+		{
+			for (int i = 0; i < m_layerNetworkData.Count; i++)
+			{
+				if (m_layerNetworkData[i].m_layerId == a_layerId)
+				{
+					a_data = m_layerNetworkData[i];
+					return true;
+				}
+			}
+			a_data = default;
+			return false;
+		}
+
 		private int IndexOfTagData(int a_layerId)
 		{
 			for (int i = 0; i < m_layerTagNetworkData.Count; i++)
@@ -191,7 +211,8 @@ namespace POV_Unity
 		{
 			m_layers.Add(a_layer.LayerId, a_layer);
 
-			bool IsStartingLayer = ImportedConfigRoot.Instance.m_displayMethodConfig.IsStartingLayer(a_layer);
+			//Layers added after the initial import are never starting layers: they start hidden
+			bool IsStartingLayer = !ImportedConfigRoot.Instance.ImportComplete && ImportedConfigRoot.Instance.m_displayMethodConfig.IsStartingLayer(a_layer);
 			bool isStaticLayer = ImportedConfigRoot.Instance.m_displayMethodConfig.IsStaticLayer(a_layer);
 
 			if (NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost)
@@ -251,7 +272,11 @@ namespace POV_Unity
 		{
 			foreach (LayerInstanceData data in m_layerNetworkData)
 			{
-				m_layers[data.m_layerId].SetVisualizationMode(data.m_visualizationMode);
+				//The list may already contain layers added after this machine's snapshot
+				if (m_layers.TryGetValue(data.m_layerId, out ALayer layer))
+				{
+					layer.SetVisualizationMode(data.m_visualizationMode);
+				}
 			}
 
 			//Update #elements in step for starting layers
@@ -272,9 +297,37 @@ namespace POV_Unity
 			}
 		}
 
+		//What OnConfigImportComplete does for the initial layers, for one layer that was
+		//added afterwards. Runs on every machine once that machine has fully loaded it.
+		void OnLayerAddedAfterImport(ALayer a_layer)
+		{
+			if (TryGetLayerData(a_layer.LayerId, out LayerInstanceData data))
+			{
+				a_layer.SetVisualizationMode(data.m_visualizationMode);
+			}
+			else
+			{
+				Debug.LogWarning($"No LayerInstanceData for added layer {a_layer.LayerId}, hiding it");
+				a_layer.SetVisualizationMode(LayerVisualizationMode.Off);
+			}
+
+			if (a_layer is VectorLayer vectorLayer)
+			{
+				m_sortedVectorLayers.Add(vectorLayer);
+				m_sortedVectorLayers = m_sortedVectorLayers.OrderBy(x => x.CurrentRenderOrderValue).ToList();
+			}
+
+			//Display methods of the initial layers get the world scale when it changes;
+			//a layer added later has to be brought up to date once
+			a_layer.OnWorldScaleChanged(m_worldPoseData.Scale);
+		}
+
 		void OnLayerDataChanged(NetworkListEvent<LayerInstanceData> a_change)
 		{
-			if (a_change.Type == NetworkListEvent<LayerInstanceData>.EventType.Value && ImportedConfigRoot.Instance.ImportComplete)
+			//Skip layers that are not loaded on this machine yet; they apply the current
+			//state themselves once loaded (OnLayerAddedAfterImport)
+			if (a_change.Type == NetworkListEvent<LayerInstanceData>.EventType.Value && ImportedConfigRoot.Instance.ImportComplete
+				&& m_layers.ContainsKey(a_change.Value.m_layerId))
 			{
 				m_onLayerInstanceDataChanged?.Invoke(a_change.Value, m_layers[a_change.Value.m_layerId]);
 				m_layers[a_change.Value.m_layerId].SetVisualizationMode(a_change.Value.m_visualizationMode);
@@ -372,6 +425,11 @@ namespace POV_Unity
 
 		private void UpdateLayerVerticalStep(int a_layerId)
 		{
+			if (!m_layers.ContainsKey(a_layerId))
+			{
+				return;
+			}
+
 			int verticalStep = m_layerNetworkData[IndexOfLayerData(a_layerId)].m_verticalStep;
 
 			float verticalDisplacement = VerticalStepToMapPositionZ(verticalStep) + m_layers[a_layerId].VerticalOffset;

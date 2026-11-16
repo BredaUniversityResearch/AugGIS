@@ -17,9 +17,18 @@ namespace MSP.Scripts.GisData
 	{
 		public static void Load(GisDataset a_dataset)
 		{
+			AssetManager.SetRasterTextures(Decode(a_dataset.RasterImages));
+		}
+
+		/// <summary>
+		/// Decodes raw PNG bytes (keyed like GisDataset.RasterImages) into textures
+		/// without registering them, for layers added after the initial load.
+		/// </summary>
+		public static Dictionary<string, Texture2D> Decode(IReadOnlyDictionary<string, byte[]> a_rasterImages)
+		{
 			Dictionary<string, Texture2D> loadedImages = new Dictionary<string, Texture2D>();
 
-			foreach (KeyValuePair<string, byte[]> rasterImage in a_dataset.RasterImages)
+			foreach (KeyValuePair<string, byte[]> rasterImage in a_rasterImages)
 			{
 				//Same settings ZipUtil.ParseRawZipConfigFile used: Alpha8, LoadImage
 				//(which internally changes the format to ARGB32), point filtering.
@@ -30,7 +39,7 @@ namespace MSP.Scripts.GisData
 				loadedImages.Add(rasterImage.Key, tex);
 			}
 
-			AssetManager.SetRasterTextures(loadedImages);
+			return loadedImages;
 		}
 	}
 }

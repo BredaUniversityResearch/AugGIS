@@ -47,6 +47,9 @@ namespace POV_Unity
 		public event Action<ALayer> m_onLayerImported;
 		public event Action<ALayer, ADisplayMethod, int> m_onDMAddedToLayer;
 		public event Action m_onImportComplete;
+		//Raised once a layer added after the initial import is fully set up
+		//(initialised and all display methods applied)
+		public event Action<ALayer> m_onLayerAdded;
 		public event Action<float, string> m_onImportProgress;
 		float m_importProgress;
 		float m_importStepIncrement;
@@ -247,6 +250,131 @@ namespace POV_Unity
 			m_importComplete = true;
 			m_onImportComplete?.Invoke();
 			Debug.Log("Config import completed!");
+		}
+
+		private class RuntimeLayerAdd
+		{
+			public ALayer m_layer;
+			public Dictionary<string, Texture2D> m_rasterTextures;
+			public Action<bool> m_onComplete;
+		}
+
+		private readonly Queue<RuntimeLayerAdd> m_runtimeLayerAdds = new Queue<RuntimeLayerAdd>();
+		private RuntimeLayerAdd m_currentRuntimeLayerAdd;
+
+		/// <summary>
+		/// Adds a single layer after the initial import has completed. Adds are queued and
+		/// run one at a time. Applies the same invisible/validity filtering as the initial
+		/// import (a_onComplete receives false for a layer that was dropped), loads the
+		/// layer, applies all display methods to it, then raises m_onLayerAdded.
+		/// </summary>
+		/// <param name="a_rasterTextures">Textures this layer needs, keyed like AssetManager's
+		/// raster textures; null if it needs none.</param>
+		public void AddLayer(ALayer a_layer, Dictionary<string, Texture2D> a_rasterTextures, Action<bool> a_onComplete)
+		{
+			if (!m_importComplete)
+			{
+				Debug.LogError("Layers can only be added once the initial import has completed");
+				a_onComplete?.Invoke(false);
+				return;
+			}
+
+			m_runtimeLayerAdds.Enqueue(new RuntimeLayerAdd { m_layer = a_layer, m_rasterTextures = a_rasterTextures, m_onComplete = a_onComplete });
+			if (m_currentRuntimeLayerAdd == null)
+			{
+				StartNextRuntimeLayerAdd();
+			}
+		}
+
+		private void StartNextRuntimeLayerAdd()
+		{
+			while (m_runtimeLayerAdds.Count > 0)
+			{
+				m_currentRuntimeLayerAdd = m_runtimeLayerAdds.Dequeue();
+				ALayer layer = m_currentRuntimeLayerAdd.m_layer;
+
+				if (layer.HasTag("Invisible"))
+				{
+					Debug.Log("** CONFIG NOTICE ** Layer '" + layer.name + "' is marked as invisible and will not be added.");
+				}
+				else if (!layer.Validate())
+				{
+					Debug.LogWarning("** CONFIG WARNING ** Layer '" + layer.name + "' is invalid and will not be added.");
+				}
+				else
+				{
+					if (m_currentRuntimeLayerAdd.m_rasterTextures != null)
+					{
+						AssetManager.AddRasterTextures(m_currentRuntimeLayerAdd.m_rasterTextures);
+					}
+
+					if (layer is RasterLayer rasterLayer)
+					{
+						List<RasterLayer> rasterLayers = new List<RasterLayer>(m_dataConfig.datamodel.raster_layers) { rasterLayer };
+						m_dataConfig.datamodel.raster_layers = rasterLayers.ToArray();
+					}
+					else if (layer is VectorLayer vectorLayer)
+					{
+						List<VectorLayer> vectorLayers = new List<VectorLayer>(m_dataConfig.datamodel.vector_layers) { vectorLayer };
+						m_dataConfig.datamodel.vector_layers = vectorLayers.ToArray();
+					}
+
+					Debug.Log($"Config runtime layer add: Loading layer ({layer.@short})");
+					layer.Initialise(transform, OnRuntimeLayerLoaded, m_nextLayerToLoad++);
+					m_onLayerImported?.Invoke(layer);
+					return;
+				}
+
+				//Dropped, report and move on to the next one. The callback may queue
+				//another add (which then starts itself), so check for that.
+				Action<bool> onComplete = m_currentRuntimeLayerAdd.m_onComplete;
+				m_currentRuntimeLayerAdd = null;
+				onComplete?.Invoke(false);
+				if (m_currentRuntimeLayerAdd != null)
+				{
+					return;
+				}
+			}
+
+			DestroyAssetManager();
+		}
+
+		private void OnRuntimeLayerLoaded()
+		{
+			RuntimeLayerAdd current = m_currentRuntimeLayerAdd;
+			ALayer layer = current.m_layer;
+
+			foreach (ADisplayMethod displayMethod in m_displayMethodConfig.display_methods)
+			{
+				if (displayMethod.TryDisplayLayer(layer) != null)
+				{
+					m_onDMAddedToLayer?.Invoke(layer, displayMethod, layer.LastDMIndex);
+				}
+			}
+
+			m_onLayerAdded?.Invoke(layer);
+			Debug.Log($"Config runtime layer add completed: {layer.@short}");
+
+			m_currentRuntimeLayerAdd = null;
+			current.m_onComplete?.Invoke(true);
+			//The callback may have queued another add, which then started itself
+			if (m_currentRuntimeLayerAdd == null)
+			{
+				StartNextRuntimeLayerAdd();
+			}
+		}
+
+		//The AssetManager is only needed while loading; it is recreated on demand
+		private void DestroyAssetManager()
+		{
+#if UNITY_EDITOR
+			if (Application.isPlaying)
+				Destroy(AssetManager.Instance.gameObject);
+			else
+				DestroyImmediate(AssetManager.Instance.gameObject);
+#else
+			Destroy(AssetManager.Instance.gameObject);
+#endif
 		}
 
 		public ALayer GetLayerByIndex(int a_index)

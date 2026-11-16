@@ -46,6 +46,12 @@ public class WorldManager : NetworkBehaviour
 	[Required]
 	private LoadZipData m_zipDataLoader;
 
+	[Header("Debug")]
+
+	[SerializeField]
+	[Tooltip("Editor only, set before entering play mode. The last N layers of the dataset are held back from the initial load and can be added later, one per press, with the 'Add next held-back layer' button.")]
+	private int m_debugHoldBackLayerCount = 0;
+
 	[Header("Gameobject Sets")]
 
 	[SerializeField]
@@ -77,6 +83,16 @@ public class WorldManager : NetworkBehaviour
 
 	private GisDatabaseService m_gisDatabaseService;
 	private GisHttpServer m_gisHttpServer;
+
+	private class HeldBackLayer
+	{
+		public ALayer m_layer;
+		public LayerKind m_kind;
+		public Dictionary<string, byte[]> m_rasterImages = new Dictionary<string, byte[]>();
+	}
+
+	//Layers withheld from the initial load (editor debug), in the order they get added
+	private readonly Queue<HeldBackLayer> m_heldBackLayers = new Queue<HeldBackLayer>();
 
 	void Awake()
 	{
@@ -176,25 +192,26 @@ public class WorldManager : NetworkBehaviour
 		//render uses the in-memory dataset directly rather than reading it back out
 		//of SQLite - nothing mutates it between here and Initialise().
 		new SqliteGisDatasetWriter(m_gisDatabaseService).Write(a_dataset);
+#if UNITY_EDITOR
+		HoldBackLayers(a_dataset);
+#endif
 		PublishLayerCatalogue(a_dataset);
 		GisRasterTextureLoader.Load(a_dataset);
 		ImportedConfigRoot.Instance.Initialise(a_dataset.Config, ParseDisplayMethodConfig());
 	}
 
-	//Layer ids/sort order were assigned by SqliteGisDatasetWriter.Write (raster
-	//layers first, then vector layers), so this must run after it.
+	//Layer ids were assigned by SqliteGisDatasetWriter.Write (raster layers first,
+	//then vector layers; the sort order equals the id), so this must run after it.
 	private void PublishLayerCatalogue(GisDataset a_dataset)
 	{
-		int sortOrder = 0;
-
 		foreach (RasterLayer rasterLayer in a_dataset.Config.datamodel.raster_layers)
 		{
-			LayerCatalogue.Instance.AddLayer(rasterLayer, LayerKind.Raster, sortOrder++);
+			LayerCatalogue.Instance.AddLayer(rasterLayer, LayerKind.Raster, rasterLayer.LayerId);
 		}
 
 		foreach (VectorLayer vectorLayer in a_dataset.Config.datamodel.vector_layers)
 		{
-			LayerCatalogue.Instance.AddLayer(vectorLayer, LayerKind.Vector, sortOrder++);
+			LayerCatalogue.Instance.AddLayer(vectorLayer, LayerKind.Vector, vectorLayer.LayerId);
 		}
 
 		//Clients must not start loading before the host has finished its own import:
@@ -202,6 +219,107 @@ public class WorldManager : NetworkBehaviour
 		//client importing earlier would miss the entries added after it finished.
 		//(Matches the old flow, where the data was only sent after ImportComplete.)
 		ImportedConfigRoot.Instance.m_onImportComplete += OnHostImportComplete;
+	}
+
+	/// <summary>
+	/// Host only, main thread, after the initial import has completed. Adds a layer
+	/// whose data is already in the database to the running session: loads it on the
+	/// host (hidden by default) and, once that is done, announces it to the clients
+	/// through the layer catalogue so they fetch it.
+	/// </summary>
+	/// <param name="a_rasterTextures">Textures the layer needs (raster layers), keyed
+	/// like GisDataset.RasterImages; null if it needs none.</param>
+	public void AddLayerToSession(ALayer a_layer, LayerKind a_kind, Dictionary<string, Texture2D> a_rasterTextures = null)
+	{
+		if (!IsServer)
+		{
+			Debug.LogError("Layers can only be added to the session on the server");
+			return;
+		}
+
+		ImportedConfigRoot.Instance.AddLayer(a_layer, a_rasterTextures, a_success =>
+		{
+			if (!a_success)
+			{
+				Debug.LogWarning($"Layer '{a_layer.name}' was not added to the session");
+				return;
+			}
+
+			LayerCatalogue.Instance.AddLayer(a_layer, a_kind, a_layer.LayerId);
+		});
+	}
+
+#if UNITY_EDITOR
+	//Withholds the last m_debugHoldBackLayerCount layers (vector layers first) from the
+	//initial load. They stay in the database, so clients can fetch them once added.
+	private void HoldBackLayers(GisDataset a_dataset)
+	{
+		DataConfigContent datamodel = a_dataset.Config.datamodel;
+		int holdBackCount = Mathf.Clamp(m_debugHoldBackLayerCount, 0, datamodel.raster_layers.Length + datamodel.vector_layers.Length);
+		if (holdBackCount == 0)
+		{
+			return;
+		}
+
+		List<RasterLayer> rasterLayers = new List<RasterLayer>(datamodel.raster_layers);
+		List<VectorLayer> vectorLayers = new List<VectorLayer>(datamodel.vector_layers);
+		List<HeldBackLayer> heldBack = new List<HeldBackLayer>();
+
+		for (int i = 0; i < holdBackCount; i++)
+		{
+			if (vectorLayers.Count > 0)
+			{
+				heldBack.Add(new HeldBackLayer { m_layer = vectorLayers[vectorLayers.Count - 1], m_kind = LayerKind.Vector });
+				vectorLayers.RemoveAt(vectorLayers.Count - 1);
+			}
+			else
+			{
+				RasterLayer rasterLayer = rasterLayers[rasterLayers.Count - 1];
+				rasterLayers.RemoveAt(rasterLayers.Count - 1);
+
+				HeldBackLayer heldBackLayer = new HeldBackLayer { m_layer = rasterLayer, m_kind = LayerKind.Raster };
+				string imageKey = RasterImageKey.Resolve(rasterLayer.data);
+				heldBackLayer.m_rasterImages[imageKey] = a_dataset.RasterImages[imageKey];
+				heldBack.Add(heldBackLayer);
+			}
+		}
+
+		datamodel.raster_layers = rasterLayers.ToArray();
+		datamodel.vector_layers = vectorLayers.ToArray();
+
+		//Don't decode images that no remaining layer uses
+		Dictionary<string, byte[]> remainingImages = new Dictionary<string, byte[]>();
+		foreach (RasterLayer rasterLayer in rasterLayers)
+		{
+			string imageKey = RasterImageKey.Resolve(rasterLayer.data);
+			remainingImages[imageKey] = a_dataset.RasterImages[imageKey];
+		}
+		a_dataset.RasterImages = remainingImages;
+
+		//Lowest layer id first
+		heldBack.Reverse();
+		foreach (HeldBackLayer heldBackLayer in heldBack)
+		{
+			m_heldBackLayers.Enqueue(heldBackLayer);
+		}
+
+		Debug.Log($"[WorldManager] Holding back {holdBackCount} layer(s) from the initial load");
+	}
+#endif
+
+	private bool CanAddHeldBackLayer => Application.isPlaying && IsSpawned && IsServer
+		&& ImportedConfigRoot.Instance != null && ImportedConfigRoot.Instance.ImportComplete && m_heldBackLayers.Count > 0;
+
+	[Button("Add next held-back layer")]
+	[HideInEditorMode]
+	[EnableIf(nameof(CanAddHeldBackLayer))]
+	private void DebugAddNextHeldBackLayer()
+	{
+		HeldBackLayer heldBackLayer = m_heldBackLayers.Dequeue();
+		Dictionary<string, Texture2D> textures = heldBackLayer.m_kind == LayerKind.Raster ? GisRasterTextureLoader.Decode(heldBackLayer.m_rasterImages) : null;
+
+		Debug.Log($"[WorldManager] Adding held-back layer {heldBackLayer.m_layer.LayerId} ({heldBackLayer.m_layer.name}), {m_heldBackLayers.Count} remaining");
+		AddLayerToSession(heldBackLayer.m_layer, heldBackLayer.m_kind, textures);
 	}
 
 	private void OnHostImportComplete()
