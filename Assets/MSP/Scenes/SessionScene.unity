@@ -14937,6 +14937,7 @@ MonoBehaviour:
   m_worldRootTransform: {fileID: 7012689539346603895}
   m_toolStationSpawner: {fileID: 206523287139407792}
   m_zipDataLoader: {fileID: 1920730891}
+  m_debugHoldBackLayerCount: 40
   m_toolStationSet: {fileID: 11400000, guid: b58883c9343f06e40a7beef49eac56c9, type: 2}
   m_mapToolSet: {fileID: 11400000, guid: c68b8e20c29117a4bb86d42a5d9323ab, type: 2}
   m_mapPawnSet: {fileID: 11400000, guid: d0003d41b1b746c47be164afc1e039da, type: 2}

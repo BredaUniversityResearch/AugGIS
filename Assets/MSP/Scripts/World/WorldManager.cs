@@ -356,19 +356,40 @@ public class WorldManager : NetworkBehaviour
 		Debug.Log($"[WorldManager] Layer catalogue ready, loading dataset from {baseUrl}");
 		ImportedConfigRoot.Instance.NotifyLoadStarted();
 
-		GisHttpDataSource dataSource = new GisHttpDataSource(baseUrl, LayerCatalogue.Instance.Entries);
+		IReadOnlyList<LayerCatalogueEntry> initialCatalogue = LayerCatalogue.Instance.Entries;
+		GisHttpDataSource dataSource = new GisHttpDataSource(baseUrl, initialCatalogue);
+
+		//Layers the host announces after this snapshot are loaded by the layer loader
+		m_clientLayerLoader = new ClientLayerLoader(this, baseUrl, initialCatalogue, OnRuntimeLayerFailed);
 		StartCoroutine(dataSource.LoadDataset(OnClientDatasetLoaded, OnDatasetLoadFailed));
+	}
+
+	private ClientLayerLoader m_clientLayerLoader;
+
+	private void OnRuntimeLayerFailed(int a_layerId, string a_reason)
+	{
+		ReportLayerLoadFailedRpc(a_layerId, a_reason);
+	}
+
+	//Lets the host see during a session that a client could not load a layer
+	[Rpc(SendTo.Server, RequireOwnership = false)]
+	private void ReportLayerLoadFailedRpc(int a_layerId, string a_reason, RpcParams a_rpcParams = default)
+	{
+		Debug.LogWarning($"[WorldManager] Client {a_rpcParams.Receive.SenderClientId} could not load layer {a_layerId}: {a_reason}");
 	}
 
 	private void OnClientDatasetLoaded(GisDataset a_dataset)
 	{
 		GisRasterTextureLoader.Load(a_dataset);
+		m_clientLayerLoader?.Start();
 		ImportedConfigRoot.Instance.Initialise(a_dataset.Config, ParseDisplayMethodConfig());
 	}
 
 	public override void OnNetworkDespawn()
 	{
 		base.OnNetworkDespawn();
+		m_clientLayerLoader?.Stop();
+		m_clientLayerLoader = null;
 		SessionManager.Instance.SetWorldManager(null);
 		m_gameMasterWorldScale.OnValueChanged -= OnWorldScaleValueChanged;
 		SessionManager.Instance.SessionFSM.OnStateEnter -= OnSessionStateEntered;

@@ -26,6 +26,15 @@ namespace MSP.Scripts.GisData
 		private const int RequestTimeoutSeconds = 60;
 		private const string InvisibleTag = "Invisible";
 
+		public class LayerFetchResult
+		{
+			public bool Failed;
+			public RasterLayer RasterLayer;
+			public VectorLayer VectorLayer;
+			public byte[] RasterPng;
+			public string RasterImageKey;
+		}
+
 		private class FetchResult
 		{
 			public byte[] Bytes;
@@ -75,72 +84,29 @@ namespace MSP.Scripts.GisData
 
 			foreach (LayerCatalogueEntry entry in m_catalogue.OrderBy(a_entry => a_entry.m_sortOrder))
 			{
-				if (entry.GetTags().Any(a_tag => string.Equals(a_tag, InvisibleTag, StringComparison.InvariantCultureIgnoreCase)))
+				if (IsInvisible(entry))
 				{
 					Debug.Log($"[GisHttpDataSource] Skipping layer {entry.m_layerId} ({entry.m_name}), tagged {InvisibleTag}");
 					continue;
 				}
 
-				FetchResult manifestResult = new FetchResult();
-				yield return Fetch($"layers/{entry.m_layerId}", manifestResult);
-				if (manifestResult.Bytes == null)
+				LayerFetchResult layerResult = new LayerFetchResult();
+				yield return FetchLayer(entry, layerResult);
+				if (layerResult.Failed)
 				{
 					a_onFailure?.Invoke();
 					yield break;
 				}
 
-				JObject manifest;
-				try
+				if (layerResult.RasterLayer != null)
 				{
-					manifest = JObject.Parse(manifestResult.Text);
+					rasterImages[layerResult.RasterImageKey] = layerResult.RasterPng;
+					rasterLayers.Add(layerResult.RasterLayer);
 				}
-				catch (Exception exception)
+				else
 				{
-					Debug.LogError($"[GisHttpDataSource] Could not parse manifest of layer {entry.m_layerId}: {exception}");
-					a_onFailure?.Invoke();
-					yield break;
+					vectorLayers.Add(layerResult.VectorLayer);
 				}
-
-				//Every asset the manifest lists is fetched, keyed by asset key
-				Dictionary<string, byte[]> assets = new Dictionary<string, byte[]>();
-				foreach (JToken assetInfo in manifest["assets"] as JArray ?? new JArray())
-				{
-					string assetKey = (string)assetInfo["key"];
-					FetchResult assetResult = new FetchResult();
-					yield return Fetch($"layers/{entry.m_layerId}/assets/{assetKey}", assetResult);
-					if (assetResult.Bytes == null)
-					{
-						a_onFailure?.Invoke();
-						yield break;
-					}
-					assets.Add(assetKey, assetResult.Bytes);
-				}
-
-				try
-				{
-					if (entry.m_kind == LayerKind.Raster)
-					{
-						RasterLayer rasterLayer = LayerManifestReader.BuildRasterLayer(manifest);
-						if (!assets.TryGetValue(SqliteLayerPayloadProvider.RasterAssetKey, out byte[] rasterPng))
-						{
-							throw new InvalidOperationException($"Raster layer {entry.m_layerId} has no \"{SqliteLayerPayloadProvider.RasterAssetKey}\" asset");
-						}
-						rasterImages[RasterImageKey.Resolve(rasterLayer.data)] = rasterPng;
-						rasterLayers.Add(rasterLayer);
-					}
-					else
-					{
-						vectorLayers.Add(LayerManifestReader.BuildVectorLayer(manifest));
-					}
-				}
-				catch (Exception exception)
-				{
-					Debug.LogError($"[GisHttpDataSource] Could not build layer {entry.m_layerId} ({entry.m_name}): {exception}");
-					a_onFailure?.Invoke();
-					yield break;
-				}
-
-				Debug.Log($"[GisHttpDataSource] Layer {entry.m_layerId} ({entry.m_name}) fetched, {assets.Count} asset(s)");
 			}
 
 			config.datamodel.raster_layers = rasterLayers.ToArray();
@@ -153,6 +119,97 @@ namespace MSP.Scripts.GisData
 				RasterImages = rasterImages,
 				Source = (string)datasetInfo["source"]
 			});
+		}
+
+		/// <summary>True if the layer is tagged Invisible and so is never fetched.</summary>
+		public static bool IsInvisible(LayerCatalogueEntry a_entry)
+		{
+			return a_entry.GetTags().Any(a_tag => string.Equals(a_tag, InvisibleTag, StringComparison.InvariantCultureIgnoreCase));
+		}
+
+		/// <summary>
+		/// Fetches a single layer (for layers announced after the initial load).
+		/// Exactly one of the layer results is set on success.
+		/// </summary>
+		public IEnumerator LoadLayer(LayerCatalogueEntry a_entry, Action<LayerFetchResult> a_onComplete, Action a_onFailure)
+		{
+			LayerFetchResult result = new LayerFetchResult();
+			yield return FetchLayer(a_entry, result);
+			if (result.Failed)
+			{
+				a_onFailure?.Invoke();
+			}
+			else
+			{
+				a_onComplete?.Invoke(result);
+			}
+		}
+
+		//Fetches manifest and assets of one layer and builds it. Sets Failed (after
+		//logging the error) on any problem.
+		private IEnumerator FetchLayer(LayerCatalogueEntry a_entry, LayerFetchResult a_result)
+		{
+			FetchResult manifestResult = new FetchResult();
+			yield return Fetch($"layers/{a_entry.m_layerId}", manifestResult);
+			if (manifestResult.Bytes == null)
+			{
+				a_result.Failed = true;
+				yield break;
+			}
+
+			JObject manifest;
+			try
+			{
+				manifest = JObject.Parse(manifestResult.Text);
+			}
+			catch (Exception exception)
+			{
+				Debug.LogError($"[GisHttpDataSource] Could not parse manifest of layer {a_entry.m_layerId}: {exception}");
+				a_result.Failed = true;
+				yield break;
+			}
+
+			//Every asset the manifest lists is fetched, keyed by asset key
+			Dictionary<string, byte[]> assets = new Dictionary<string, byte[]>();
+			foreach (JToken assetInfo in manifest["assets"] as JArray ?? new JArray())
+			{
+				string assetKey = (string)assetInfo["key"];
+				FetchResult assetResult = new FetchResult();
+				yield return Fetch($"layers/{a_entry.m_layerId}/assets/{assetKey}", assetResult);
+				if (assetResult.Bytes == null)
+				{
+					a_result.Failed = true;
+					yield break;
+				}
+				assets.Add(assetKey, assetResult.Bytes);
+			}
+
+			try
+			{
+				if (a_entry.m_kind == LayerKind.Raster)
+				{
+					RasterLayer rasterLayer = LayerManifestReader.BuildRasterLayer(manifest);
+					if (!assets.TryGetValue(SqliteLayerPayloadProvider.RasterAssetKey, out byte[] rasterPng))
+					{
+						throw new InvalidOperationException($"Raster layer {a_entry.m_layerId} has no \"{SqliteLayerPayloadProvider.RasterAssetKey}\" asset");
+					}
+					a_result.RasterLayer = rasterLayer;
+					a_result.RasterPng = rasterPng;
+					a_result.RasterImageKey = RasterImageKey.Resolve(rasterLayer.data);
+				}
+				else
+				{
+					a_result.VectorLayer = LayerManifestReader.BuildVectorLayer(manifest);
+				}
+			}
+			catch (Exception exception)
+			{
+				Debug.LogError($"[GisHttpDataSource] Could not build layer {a_entry.m_layerId} ({a_entry.m_name}): {exception}");
+				a_result.Failed = true;
+				yield break;
+			}
+
+			Debug.Log($"[GisHttpDataSource] Layer {a_entry.m_layerId} ({a_entry.m_name}) fetched, {assets.Count} asset(s)");
 		}
 
 		private static DataConfig BuildDataConfig(JObject a_datasetInfo)
