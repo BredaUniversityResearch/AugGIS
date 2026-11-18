@@ -288,6 +288,8 @@ public class Pen : MonoBehaviour
 			SimplifyCurrentLine();
 		}
 
+		//Close the line if the stroke ended near its start (networked lines get this confirmed by the server on finish)
+		m_currentLine.SetClosedWithoutNotify(m_currentLine.EvaluateClosed());
 		m_currentLine.FinishLine();
 		m_currentLine = null;
 		m_strokeBuilderLine = null;

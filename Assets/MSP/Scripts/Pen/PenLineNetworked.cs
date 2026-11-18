@@ -3,15 +3,25 @@ using Unity.Netcode;
 using System.Collections.Generic;
 using POV_Unity;
 
+/// <summary>
+/// Syncs a PenLine. The point list is server-authoritative: the drawer streams its stroke to the server while drawing,
+/// and any client can edit points of a finished line through server RPCs (addressed by stable point id).
+/// </summary>
 [RequireComponent(typeof(PenLine))]
-public class PenLineNetworked : NetworkBehaviour
+public class PenLineNetworked : NetworkBehaviour, IPenLineEditHandler
 {
 	private PenLine m_lineScript;
 
-	private NetworkList<Vector3> m_syncedLinePositions = new NetworkList<Vector3>(new List<Vector3>(), NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+	private NetworkList<PenLinePoint> m_syncedPoints = new NetworkList<PenLinePoint>(new List<PenLinePoint>(), NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 	private NetworkVariable<Color> m_syncedLineColor = new NetworkVariable<Color>(Color.white,NetworkVariableReadPermission.Everyone,NetworkVariableWritePermission.Owner);
 	private NetworkVariable<float> m_syncedLineWidth = new NetworkVariable<float>(0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 	private NetworkVariable<bool> m_lineIsFinished = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+	private NetworkVariable<bool> m_isClosed = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+	//True on the drawer while it is drawing: its local stroke is authoritative and incoming list changes are ignored
+	private bool m_isDrawingLocally = false;
+	private readonly List<PenLinePoint> m_pointBuffer = new List<PenLinePoint>();
+	private bool m_colliderDirty = false;
 
 	private void Awake()
 	{
@@ -21,29 +31,40 @@ public class PenLineNetworked : NetworkBehaviour
 	public override void OnNetworkSpawn()
 	{
 		base.OnNetworkSpawn();
-		
-		if (IsOwner)
+
+		m_lineScript.EditHandler = this;
+
+		if (IsOwner && !m_lineIsFinished.Value)
 		{
+			m_isDrawingLocally = true;
 			m_lineScript.LinePointAddedEvent += OnLineNewPointAdded;
 			m_lineScript.LastPointUpdatedEvent += OnLineLastPointUpdated;
 			m_lineScript.LinePointsReplacedEvent += OnLinePointsReplaced;
 			m_lineScript.LineColorChangedEvent += OnLineColorChanged;
 			m_lineScript.LineWidthChangedEvent += OnLineWidthChanged;
+
+			//Send the points the line already has (its origin)
+			if (m_syncedPoints.Count == 0)
+			{
+				SendReplacePoints();
+			}
 		}
 		else
 		{
-			foreach (Vector3 linePoint in m_syncedLinePositions)
-			{
-				m_lineScript.AddLocalPointWithoutNotify(linePoint);
-			}	
-
+			ApplySyncedPoints();
 			m_lineScript.ChangeLineColorWithoutNotify(m_syncedLineColor.Value);
 			m_lineScript.ChangeLineWidthWithoutNotify(m_syncedLineWidth.Value);
+			m_lineScript.SetClosedWithoutNotify(m_isClosed.Value);
 		}
 
-		m_syncedLinePositions.OnListChanged += OnPositionListChanged;
+		if (IsServer)
+		{
+			NetworkManager.OnClientDisconnectCallback += OnClientDisconnected;
+		}
 
+		m_syncedPoints.OnListChanged += OnPointListChanged;
 		m_lineIsFinished.OnValueChanged += OnLineFinishedChanged;
+		m_isClosed.OnValueChanged += OnClosedChanged;
 
 		m_lineScript.LineErasedEvent += OnLineErased;
 		m_lineScript.LineFinishedEvent += OnLineFinished;
@@ -61,24 +82,56 @@ public class PenLineNetworked : NetworkBehaviour
 		}
 	}
 
-    void OnConfigImportComplete()
-    {
-        if (m_lineIsFinished.Value)
+	void OnConfigImportComplete()
+	{
+		if (m_lineIsFinished.Value)
 		{
-			SyncPointPositions();
+			ApplySyncedPoints();
+			m_lineScript.SetClosedWithoutNotify(m_isClosed.Value);
 			m_lineScript.FinishLineWithoutNotify();
 		}
-    }
+	}
 
-    public override void OnNetworkDespawn()
+	public override void OnNetworkDespawn()
 	{
 		base.OnNetworkDespawn();
+		if (m_lineScript.EditHandler == (IPenLineEditHandler)this)
+		{
+			m_lineScript.EditHandler = null;
+		}
+		if (ImportedConfigRoot.Instance != null)
+		{
+			ImportedConfigRoot.Instance.m_onImportComplete -= OnConfigImportComplete;
+		}
+		if (NetworkManager != null)
+		{
+			NetworkManager.OnClientDisconnectCallback -= OnClientDisconnected;
+		}
+		m_syncedPoints.OnListChanged -= OnPointListChanged;
+		m_lineIsFinished.OnValueChanged -= OnLineFinishedChanged;
+		m_isClosed.OnValueChanged -= OnClosedChanged;
 		m_syncedLineColor.OnValueChanged -= OnSyncedColorValueChanged;
 		m_syncedLineWidth.OnValueChanged -= OnSyncedWidthValueChanged;
 		m_lineScript.LinePointAddedEvent -= OnLineNewPointAdded;
 		m_lineScript.LastPointUpdatedEvent -= OnLineLastPointUpdated;
 		m_lineScript.LinePointsReplacedEvent -= OnLinePointsReplaced;
-    }
+		m_lineScript.LineColorChangedEvent -= OnLineColorChanged;
+		m_lineScript.LineWidthChangedEvent -= OnLineWidthChanged;
+		m_lineScript.LineErasedEvent -= OnLineErased;
+		m_lineScript.LineFinishedEvent -= OnLineFinished;
+	}
+
+	private void ApplySyncedPoints()
+	{
+		m_pointBuffer.Clear();
+		foreach (PenLinePoint point in m_syncedPoints)
+		{
+			m_pointBuffer.Add(point);
+		}
+		m_lineScript.SetPoints(m_pointBuffer);
+	}
+
+	#region Erase / Finish
 
 	private void OnLineErased()
 	{
@@ -88,7 +141,12 @@ public class PenLineNetworked : NetworkBehaviour
 	[Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
 	void EraseServerRpc()
 	{
-		if(NetworkObject.IsSpawned)
+		DespawnLine();
+	}
+
+	private void DespawnLine()
+	{
+		if (NetworkObject.IsSpawned)
 		{
 			NetworkObject.Despawn(true);
 		}
@@ -96,75 +154,320 @@ public class PenLineNetworked : NetworkBehaviour
 
 	private void OnLineFinished()
 	{
-		FinishLineServerRpc(NetworkManager.Singleton.LocalClientId);
+		m_isDrawingLocally = false;
+		FinishLineServerRpc(NetworkManager.Singleton.LocalClientId, m_lineScript.EvaluateClosed());
 	}
 
-	[ServerRpc(InvokePermission = RpcInvokePermission.Everyone)]
-	void FinishLineServerRpc(ulong a_clientId)
+	[Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+	void FinishLineServerRpc(ulong a_clientId, bool a_closed)
 	{
+		m_isClosed.Value = a_closed;
 		m_lineIsFinished.Value = true;
 		FinishLineClientRPC(a_clientId);
 	}
 
-	[ClientRpc]
+	[Rpc(SendTo.ClientsAndHost)]
 	void FinishLineClientRPC(ulong a_clientId)
 	{
 		if (a_clientId != NetworkManager.Singleton.LocalClientId)
+		{
+			ApplySyncedPoints();
+			m_lineScript.FinishLineWithoutNotify();
+		}
+	}
+
+	private void OnLineFinishedChanged(bool a_previousValue, bool a_newValue)
+	{
+		if (a_newValue)
 		{
 			m_lineScript.FinishLineWithoutNotify();
 		}
 	}
 
-	private void OnLineNewPointAdded(Vector3 a_newPosition)
+	#endregion
+
+	#region Drawing (owner -> server)
+
+	private void OnLineNewPointAdded(PenLinePoint a_point)
 	{
-		m_syncedLinePositions.Add(a_newPosition);
+		AddPointServerRpc(a_point.Id, a_point.Position);
 	}
 
-	private void OnLineLastPointUpdated(Vector3 a_newPosition)
+	private void OnLineLastPointUpdated(PenLinePoint a_point)
 	{
-		if (m_syncedLinePositions.Count == 0)
-		{
-			m_syncedLinePositions.Add(a_newPosition);
-		}
-		else
-		{
-			m_syncedLinePositions[m_syncedLinePositions.Count - 1] = a_newPosition;
-		}
+		DrawMovePointServerRpc(a_point.Id, a_point.Position);
 	}
 
 	private void OnLinePointsReplaced()
 	{
-		//Renderer index 0 is the line origin and is not part of the synced list
-		LineRenderer lineRenderer = m_lineScript.LineRenderer;
-		int syncedCount = Mathf.Max(0, lineRenderer.positionCount - 1);
+		SendReplacePoints();
+	}
 
-		for (int i = 0; i < syncedCount; i++)
+	private void SendReplacePoints()
+	{
+		IReadOnlyList<PenLinePoint> points = m_lineScript.Points;
+		ulong[] ids = new ulong[points.Count];
+		Vector3[] positions = new Vector3[points.Count];
+		for (int i = 0; i < points.Count; i++)
 		{
-			Vector3 position = lineRenderer.GetPosition(i + 1);
-			if (i < m_syncedLinePositions.Count)
+			ids[i] = points[i].Id;
+			positions[i] = points[i].Position;
+		}
+		ReplacePointsServerRpc(ids, positions);
+	}
+
+	[Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+	void AddPointServerRpc(ulong a_id, Vector3 a_position, RpcParams a_rpcParams = default)
+	{
+		if (a_rpcParams.Receive.SenderClientId != OwnerClientId || m_lineIsFinished.Value)
+			return;
+
+		m_syncedPoints.Add(new PenLinePoint(a_id, a_position));
+	}
+
+	[Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+	void DrawMovePointServerRpc(ulong a_id, Vector3 a_position, RpcParams a_rpcParams = default)
+	{
+		if (a_rpcParams.Receive.SenderClientId != OwnerClientId || m_lineIsFinished.Value)
+			return;
+
+		int index = ServerIndexOf(a_id);
+		if (index < 0)
+		{
+			m_syncedPoints.Add(new PenLinePoint(a_id, a_position));
+			return;
+		}
+
+		PenLinePoint point = m_syncedPoints[index];
+		point.Position = a_position;
+		m_syncedPoints[index] = point;
+	}
+
+	[Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+	void ReplacePointsServerRpc(ulong[] a_ids, Vector3[] a_positions, RpcParams a_rpcParams = default)
+	{
+		if (a_rpcParams.Receive.SenderClientId != OwnerClientId || m_lineIsFinished.Value)
+			return;
+		if (a_ids == null || a_positions == null || a_ids.Length != a_positions.Length)
+			return;
+
+		//Update in place where possible to keep the delta small
+		for (int i = 0; i < a_ids.Length; i++)
+		{
+			PenLinePoint point = new PenLinePoint(a_ids[i], a_positions[i]);
+			if (i < m_syncedPoints.Count)
 			{
-				if (m_syncedLinePositions[i] != position)
+				if (!m_syncedPoints[i].Equals(point))
 				{
-					m_syncedLinePositions[i] = position;
+					m_syncedPoints[i] = point;
 				}
 			}
 			else
 			{
-				m_syncedLinePositions.Add(position);
+				m_syncedPoints.Add(point);
 			}
 		}
 
-		while (m_syncedLinePositions.Count > syncedCount)
+		while (m_syncedPoints.Count > a_ids.Length)
 		{
-			m_syncedLinePositions.RemoveAt(m_syncedLinePositions.Count - 1);
+			m_syncedPoints.RemoveAt(m_syncedPoints.Count - 1);
 		}
 	}
-	
+
+	#endregion
+
+	#region Editing (any client -> server)
+
+	public void RequestHold(ulong a_pointId)
+	{
+		HoldPointServerRpc(a_pointId);
+	}
+
+	public void RequestMove(ulong a_pointId, Vector3 a_localPosition)
+	{
+		EditMovePointServerRpc(a_pointId, a_localPosition);
+	}
+
+	public void RequestInsert(ulong a_afterPointId, ulong a_newPointId, Vector3 a_localPosition)
+	{
+		InsertPointServerRpc(a_afterPointId, a_newPointId, a_localPosition);
+	}
+
+	public void RequestCommit(ulong a_pointId, Vector3 a_localPosition, bool a_closedAfterEdit)
+	{
+		CommitPointServerRpc(a_pointId, a_localPosition, a_closedAfterEdit);
+	}
+
+	public void RequestRemove(ulong a_pointId, bool a_closedAfterEdit)
+	{
+		RemovePointServerRpc(a_pointId, a_closedAfterEdit);
+	}
+
+	[Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+	void HoldPointServerRpc(ulong a_id, RpcParams a_rpcParams = default)
+	{
+		int index = ServerIndexOf(a_id);
+		if (index < 0)
+			return;
+
+		PenLinePoint point = m_syncedPoints[index];
+		point.HeldBy = a_rpcParams.Receive.SenderClientId;
+		m_syncedPoints[index] = point;
+	}
+
+	[Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone, Delivery = RpcDelivery.Unreliable)]
+	void EditMovePointServerRpc(ulong a_id, Vector3 a_position, RpcParams a_rpcParams = default)
+	{
+		int index = ServerIndexOf(a_id);
+		if (index < 0)
+			return;
+
+		//Only the client holding the point may move it. This also drops unreliable moves that arrive after the commit.
+		PenLinePoint point = m_syncedPoints[index];
+		if (point.HeldBy != a_rpcParams.Receive.SenderClientId)
+			return;
+
+		point.Position = a_position;
+		m_syncedPoints[index] = point;
+	}
+
+	[Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+	void InsertPointServerRpc(ulong a_afterId, ulong a_newId, Vector3 a_position, RpcParams a_rpcParams = default)
+	{
+		int afterIndex = ServerIndexOf(a_afterId);
+		if (afterIndex < 0 || ServerIndexOf(a_newId) >= 0)
+			return;
+
+		m_syncedPoints.Insert(afterIndex + 1, new PenLinePoint(a_newId, a_position, a_rpcParams.Receive.SenderClientId));
+	}
+
+	[Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+	void CommitPointServerRpc(ulong a_id, Vector3 a_position, bool a_closedAfterEdit)
+	{
+		int index = ServerIndexOf(a_id);
+		if (index < 0)
+			return;
+
+		bool isEndpoint = index == 0 || index == m_syncedPoints.Count - 1;
+
+		PenLinePoint point = m_syncedPoints[index];
+		point.Position = a_position;
+		point.HeldBy = PenLinePoint.NOT_HELD;
+		m_syncedPoints[index] = point;
+
+		if (isEndpoint)
+		{
+			m_isClosed.Value = a_closedAfterEdit && m_syncedPoints.Count >= 3;
+		}
+	}
+
+	[Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+	void RemovePointServerRpc(ulong a_id, bool a_closedAfterEdit)
+	{
+		int index = ServerIndexOf(a_id);
+		if (index < 0)
+			return;
+
+		bool wasEndpoint = index == 0 || index == m_syncedPoints.Count - 1;
+		m_syncedPoints.RemoveAt(index);
+
+		if (m_syncedPoints.Count <= 1)
+		{
+			DespawnLine();
+			return;
+		}
+
+		if (wasEndpoint)
+		{
+			m_isClosed.Value = a_closedAfterEdit && m_syncedPoints.Count >= 3;
+		}
+		else if (m_syncedPoints.Count < 3)
+		{
+			m_isClosed.Value = false;
+		}
+	}
+
+	private void OnClientDisconnected(ulong a_clientId)
+	{
+		//Release points that the disconnected client was still holding
+		for (int i = 0; i < m_syncedPoints.Count; i++)
+		{
+			PenLinePoint point = m_syncedPoints[i];
+			if (point.HeldBy == a_clientId)
+			{
+				point.HeldBy = PenLinePoint.NOT_HELD;
+				m_syncedPoints[i] = point;
+			}
+		}
+	}
+
+	private int ServerIndexOf(ulong a_id)
+	{
+		for (int i = 0; i < m_syncedPoints.Count; i++)
+		{
+			if (m_syncedPoints[i].Id == a_id)
+				return i;
+		}
+		return -1;
+	}
+
+	#endregion
+
+	#region Sync (server -> clients)
+
+	private void OnPointListChanged(NetworkListEvent<PenLinePoint> a_changeEvent)
+	{
+		if (m_isDrawingLocally)
+			return;
+
+		ApplySyncedPoints();
+
+		//Rebuild the collider once the line has settled (nobody is dragging a point) instead of on every drag update
+		if (m_lineIsFinished.Value && !IsAnyPointHeld())
+		{
+			m_colliderDirty = true;
+		}
+	}
+
+	private bool IsAnyPointHeld()
+	{
+		if (m_lineScript.HasLocalHolds())
+			return true;
+
+		foreach (PenLinePoint point in m_syncedPoints)
+		{
+			if (point.IsHeld)
+				return true;
+		}
+		return false;
+	}
+
+	private void LateUpdate()
+	{
+		if (m_colliderDirty)
+		{
+			m_colliderDirty = false;
+			m_lineScript.RebuildCollider();
+		}
+	}
+
+	private void OnClosedChanged(bool a_previousValue, bool a_newValue)
+	{
+		if (m_isDrawingLocally)
+			return;
+
+		m_lineScript.SetClosedWithoutNotify(a_newValue);
+		if (m_lineIsFinished.Value)
+		{
+			m_colliderDirty = true;
+		}
+	}
+
 	private void OnLineColorChanged()
 	{
 		m_syncedLineColor.Value = m_lineScript.LineColor;
 	}
-	
+
 	private void OnLineWidthChanged()
 	{
 		m_syncedLineWidth.Value = m_lineScript.LineWidth;
@@ -180,31 +483,5 @@ public class PenLineNetworked : NetworkBehaviour
 		m_lineScript.ChangeLineColorWithoutNotify(a_newValue);
 	}
 
-	private void SyncPointPositions()
-	{		
-		//the first position is set to 0,0,0 abd the synced positions do not contain that so skip syncing the first one
-		m_lineScript.LineRenderer.positionCount = m_syncedLinePositions.Count + 1;
-
-		for(int i = 0; i < m_syncedLinePositions.Count; i++)
-		{
-			m_lineScript.LineRenderer.SetPosition(i + 1, m_syncedLinePositions[i]);
-		}
-	}
-
-	private void OnLineFinishedChanged(bool previousValue, bool newValue)
-	{
-		if (newValue)
-		{
-			m_lineScript.FinishLineWithoutNotify();
-		}
-	}
-
-	private void OnPositionListChanged(NetworkListEvent<Vector3> changeEvent)
-	{
-		SyncPointPositions();
-		if (m_lineIsFinished.Value)
-		{
-			m_lineScript.FinishLineWithoutNotify();
-		}
-	}
+	#endregion
 }
