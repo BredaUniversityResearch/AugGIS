@@ -25,6 +25,8 @@ public class PenLineNetworked : NetworkBehaviour
 		if (IsOwner)
 		{
 			m_lineScript.LinePointAddedEvent += OnLineNewPointAdded;
+			m_lineScript.LastPointUpdatedEvent += OnLineLastPointUpdated;
+			m_lineScript.LinePointsReplacedEvent += OnLinePointsReplaced;
 			m_lineScript.LineColorChangedEvent += OnLineColorChanged;
 			m_lineScript.LineWidthChangedEvent += OnLineWidthChanged;
 		}
@@ -73,6 +75,9 @@ public class PenLineNetworked : NetworkBehaviour
 		base.OnNetworkDespawn();
 		m_syncedLineColor.OnValueChanged -= OnSyncedColorValueChanged;
 		m_syncedLineWidth.OnValueChanged -= OnSyncedWidthValueChanged;
+		m_lineScript.LinePointAddedEvent -= OnLineNewPointAdded;
+		m_lineScript.LastPointUpdatedEvent -= OnLineLastPointUpdated;
+		m_lineScript.LinePointsReplacedEvent -= OnLinePointsReplaced;
     }
 
 	private void OnLineErased()
@@ -80,7 +85,7 @@ public class PenLineNetworked : NetworkBehaviour
 		EraseServerRpc();
 	}
 
-	[Rpc(SendTo.Server, RequireOwnership = false)]
+	[Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
 	void EraseServerRpc()
 	{
 		if(NetworkObject.IsSpawned)
@@ -94,7 +99,7 @@ public class PenLineNetworked : NetworkBehaviour
 		FinishLineServerRpc(NetworkManager.Singleton.LocalClientId);
 	}
 
-	[ServerRpc(RequireOwnership = false)]
+	[ServerRpc(InvokePermission = RpcInvokePermission.Everyone)]
 	void FinishLineServerRpc(ulong a_clientId)
 	{
 		m_lineIsFinished.Value = true;
@@ -113,6 +118,46 @@ public class PenLineNetworked : NetworkBehaviour
 	private void OnLineNewPointAdded(Vector3 a_newPosition)
 	{
 		m_syncedLinePositions.Add(a_newPosition);
+	}
+
+	private void OnLineLastPointUpdated(Vector3 a_newPosition)
+	{
+		if (m_syncedLinePositions.Count == 0)
+		{
+			m_syncedLinePositions.Add(a_newPosition);
+		}
+		else
+		{
+			m_syncedLinePositions[m_syncedLinePositions.Count - 1] = a_newPosition;
+		}
+	}
+
+	private void OnLinePointsReplaced()
+	{
+		//Renderer index 0 is the line origin and is not part of the synced list
+		LineRenderer lineRenderer = m_lineScript.LineRenderer;
+		int syncedCount = Mathf.Max(0, lineRenderer.positionCount - 1);
+
+		for (int i = 0; i < syncedCount; i++)
+		{
+			Vector3 position = lineRenderer.GetPosition(i + 1);
+			if (i < m_syncedLinePositions.Count)
+			{
+				if (m_syncedLinePositions[i] != position)
+				{
+					m_syncedLinePositions[i] = position;
+				}
+			}
+			else
+			{
+				m_syncedLinePositions.Add(position);
+			}
+		}
+
+		while (m_syncedLinePositions.Count > syncedCount)
+		{
+			m_syncedLinePositions.RemoveAt(m_syncedLinePositions.Count - 1);
+		}
 	}
 	
 	private void OnLineColorChanged()

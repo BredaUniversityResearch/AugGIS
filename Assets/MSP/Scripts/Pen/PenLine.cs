@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using POV_Unity;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -6,6 +7,8 @@ using UnityEngine;
 public class PenLine : MonoBehaviour
 {
 	public Action<Vector3> LinePointAddedEvent;
+	public Action<Vector3> LastPointUpdatedEvent;
+	public Action LinePointsReplacedEvent;
 	public Action LineErasedEvent;
 	public Action LineFinishedEvent;
 
@@ -74,14 +77,65 @@ public class PenLine : MonoBehaviour
 
 	public void AddGlobalPoint(Vector3 a_position)
 	{
-		Vector3 localPosition = transform.InverseTransformPoint(a_position);
-		AddLocalPoint(localPosition);
+		AddLocalPoint(GlobalToLocal(a_position));
 	}
 
-	public float GetLastPointDistance(Vector3 a_position)
+	public void UpdateLastLocalPoint(Vector3 a_position)
 	{
-		float distance = Vector3.Distance(m_lineRenderer.GetPosition(m_lineRenderer.positionCount - 1), a_position - transform.position);
-		return distance;
+		if (m_lineRenderer.positionCount == 0)
+		{
+			AddLocalPoint(a_position);
+			return;
+		}
+
+		UpdateLastLocalPointWithoutNotify(a_position);
+		LastPointUpdatedEvent?.Invoke(a_position);
+	}
+
+	public void UpdateLastLocalPointWithoutNotify(Vector3 a_position)
+	{
+		m_lineRenderer.SetPosition(m_lineRenderer.positionCount - 1, a_position);
+	}
+
+	/// <summary>
+	/// Replaces all renderer positions (including the origin point at index 0).
+	/// </summary>
+	public void ReplaceLocalPoints(IReadOnlyList<Vector3> a_points)
+	{
+		m_lineRenderer.positionCount = a_points.Count;
+		for (int i = 0; i < a_points.Count; i++)
+		{
+			m_lineRenderer.SetPosition(i, a_points[i]);
+		}
+		LinePointsReplacedEvent?.Invoke();
+	}
+
+	public void GetLocalPoints(List<Vector3> a_result)
+	{
+		a_result.Clear();
+		for (int i = 0; i < m_lineRenderer.positionCount; i++)
+		{
+			a_result.Add(m_lineRenderer.GetPosition(i));
+		}
+	}
+
+	public Vector3 GetLastLocalPoint()
+	{
+		return m_lineRenderer.positionCount > 0 ? m_lineRenderer.GetPosition(m_lineRenderer.positionCount - 1) : Vector3.zero;
+	}
+
+	public Vector3 GlobalToLocal(Vector3 a_position)
+	{
+		return transform.InverseTransformPoint(a_position);
+	}
+
+	/// <summary>
+	/// Converts a world-space distance into this line's local space (assumes uniform scale).
+	/// </summary>
+	public float GlobalToLocalDistance(float a_distance)
+	{
+		float scale = Mathf.Abs(transform.lossyScale.x);
+		return scale > 1e-6f ? a_distance / scale : a_distance;
 	}
 
 	public void ChangeLineColor(Color a_newColor)

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -67,7 +68,31 @@ public class Pen : MonoBehaviour
 	private Eraser m_eraser;
 
 	[SerializeField]
-	private float m_drawingUpdateDistance = 0.05f;
+	[Tooltip("World-space metres. Raw samples closer than this to the previous sample are ignored.")]
+	private float m_minSampleDistance = 0.003f;
+
+	[SerializeField]
+	[Tooltip("World-space metres. Max deviation from a straight segment before a new point is committed.")]
+	private float m_straightTolerance = 0.002f;
+
+	[SerializeField]
+	[Tooltip("World-space metres. Straight segments longer than this get a new point anyway. 0 disables.")]
+	private float m_maxSegmentLength = 0.15f;
+
+	[SerializeField]
+	[Range(0f, 0.95f)]
+	[Tooltip("Exponential smoothing of the pen tip position (per 60 Hz frame). 0 disables.")]
+	private float m_smoothing = 0f;
+
+	[Header("Simplification")]
+	[SerializeField]
+	[Tooltip("Run Douglas-Peucker on the whole line when the stroke ends.")]
+	private bool m_simplifyOnFinish = true;
+
+	[SerializeField]
+	[ShowIf(nameof(m_simplifyOnFinish))]
+	[Tooltip("World-space metres. Douglas-Peucker tolerance.")]
+	private float m_simplifyTolerance = 0.0015f;
 
 	[SerializeField]
 	private TransformReference m_penLineRootTransformReference;
@@ -95,6 +120,11 @@ public class Pen : MonoBehaviour
 	private bool m_holdingPen = false;
 
 	private RaycastHit m_latestHit;
+
+	private readonly PenStrokeBuilder m_strokeBuilder = new PenStrokeBuilder();
+	private PenLine m_strokeBuilderLine = null;
+	private Vector3 m_smoothedHitPosition;
+	private readonly List<Vector3> m_pointBuffer = new List<Vector3>();
 
 	private void Start()
 	{
@@ -172,22 +202,61 @@ public class Pen : MonoBehaviour
 
 		UpdateTipSize();
 
-		if(m_currentLine != null)
+		if (m_smoothing > 0f)
 		{
-			float pointDistance = m_currentLine.GetLastPointDistance(m_lastHitPosition);
+			float t = 1f - Mathf.Pow(m_smoothing, Time.deltaTime * 60f);
+			m_smoothedHitPosition = Vector3.Lerp(m_smoothedHitPosition, m_lastHitPosition, t);
+		}
+		else
+		{
+			m_smoothedHitPosition = m_lastHitPosition;
+		}
 
-			//TODO: replace with more sensible point algorithm
-			//Set distance threshold much lower, but update last point if it forms a straight-ish line to the target
-			if (pointDistance > m_drawingUpdateDistance)
-			{
-				m_currentLine.AddGlobalPoint(m_lastHitPosition);
-			}
+		if (m_currentLine == null)
+			return;
+
+		// The networked line arrives a few frames after StartDrawing, so start the builder lazily.
+		if (m_strokeBuilderLine != m_currentLine)
+		{
+			m_strokeBuilderLine = m_currentLine;
+			m_strokeBuilder.Begin(m_currentLine.GetLastLocalPoint());
+		}
+
+		Vector3 localSample = m_currentLine.GlobalToLocal(m_smoothedHitPosition);
+		PenStrokeBuilder.Result result = m_strokeBuilder.AddSample(localSample,
+			m_currentLine.GlobalToLocalDistance(m_minSampleDistance),
+			m_currentLine.GlobalToLocalDistance(m_straightTolerance),
+			m_currentLine.GlobalToLocalDistance(m_maxSegmentLength));
+
+		switch (result)
+		{
+			case PenStrokeBuilder.Result.AddedPoint:
+				m_currentLine.AddLocalPoint(localSample);
+				break;
+			case PenStrokeBuilder.Result.UpdatedLastPoint:
+				m_currentLine.UpdateLastLocalPoint(localSample);
+				break;
+		}
+	}
+
+	void SimplifyCurrentLine()
+	{
+		m_currentLine.GetLocalPoints(m_pointBuffer);
+		if (m_pointBuffer.Count <= 2)
+			return;
+
+		List<Vector3> simplified = LineSimplification.DouglasPeucker(m_pointBuffer, m_currentLine.GlobalToLocalDistance(m_simplifyTolerance));
+		if (simplified.Count < m_pointBuffer.Count)
+		{
+			m_currentLine.ReplaceLocalPoints(simplified);
 		}
 	}
 
 	void StartDrawing(Vector3 a_hitPosition)
 	{
 		m_currentLine = null;
+		m_strokeBuilderLine = null;
+		m_smoothedHitPosition = a_hitPosition;
 
 		m_drawing = true;
 
@@ -214,8 +283,14 @@ public class Pen : MonoBehaviour
 			return;
 		}
 
+		if (m_simplifyOnFinish)
+		{
+			SimplifyCurrentLine();
+		}
+
 		m_currentLine.FinishLine();
 		m_currentLine = null;
+		m_strokeBuilderLine = null;
 	}
 
 	//ENABLE TO VISUALIZE CASTING AND TIP VISUALIZATION OUTSIDE PLAY MODE
@@ -237,7 +312,7 @@ public class Pen : MonoBehaviour
 			{
 				Debug.DrawRay(m_castOrigin.position, m_castOrigin.transform.forward * hit.distance, Color.yellow);
 				m_lastHitPosition = m_castOrigin.transform.position + m_castOrigin.forward * (hit.distance - m_drawingOffset);
-				m_hitDistance = m_latestHit.distance;
+				m_hitDistance = hit.distance;
 				
 				if (!m_drawing)
 				{
