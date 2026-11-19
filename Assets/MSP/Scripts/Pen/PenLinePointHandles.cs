@@ -201,6 +201,7 @@ public class PenLinePointHandles : MonoBehaviour
 			return Vector3.Distance(a_point, a_points[0].Position);
 
 		float min = float.MaxValue;
+		//KH: Could be simplified to just check distance to points, rather than line segments
 		for (int i = 1; i < a_points.Count; i++)
 		{
 			min = Mathf.Min(min, LineSimplification.PerpendicularDistance(a_point, a_points[i - 1].Position, a_points[i].Position));

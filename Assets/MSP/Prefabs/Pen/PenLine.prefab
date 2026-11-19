@@ -50,12 +50,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3772224318
+  GlobalObjectIdHash: 94481301
   InScenePlacedSourceGlobalObjectIdHash: 0
+  m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
+  m_InScenePlaced: 0
   ActiveSceneSynchronization: 0
   SceneMigrationSynchronization: 1
   SpawnWithObservers: 1
@@ -122,8 +124,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_set: {fileID: 11400000, guid: 2de77ea55905116489ac8847659f2b60, type: 2}
+  m_closeDistance: 0.03
+  m_removeHeight: 0.08
+  m_fillMaterial: {fileID: 0}
+  m_fillAlpha: 0.35
+  m_fillDepthOffset: 0.0005
   m_lineColor: {r: 0, g: 0, b: 0, a: 0}
   m_lineWidth: 0
+  m_isClosed: 0
+  m_isFinished: 0
 --- !u!114 &1352036567381129355
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -139,7 +148,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
 --- !u!120 &7765468228197889103
 LineRenderer:
-  serializedVersion: 2
+  serializedVersion: 3
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -185,11 +194,12 @@ LineRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_Positions:
   - {x: 0, y: 0, z: 0}
   m_Parameters:
     serializedVersion: 3
-    widthMultiplier: 0.01
+    widthMultiplier: 0.008
     widthCurve:
       serializedVersion: 2
       m_Curve:
@@ -235,14 +245,13 @@ LineRenderer:
       m_ColorSpace: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 0
+    numCornerVertices: 1
     numCapVertices: 0
-    alignment: 0
+    alignment: 1
     textureMode: 0
     textureScale: {x: 1, y: 1}
     shadowBias: 0.5
     generateLightingData: 0
-  m_MaskInteraction: 0
   m_UseWorldSpace: 0
   m_Loop: 0
   m_ApplyActiveColorSpace: 1
