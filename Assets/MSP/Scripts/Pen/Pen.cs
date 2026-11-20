@@ -12,119 +12,68 @@ public class Pen : MonoBehaviour
 	public event Action<Vector3> ExternalLineSpawnerEvent;
 
 	[Header("General")]
-	[SerializeField]
-	private GameObject[] m_coloredObjects;
-
-	[SerializeField]
-	private LayerMask m_drawingLayerMask;
-
-	[SerializeField]
-	[Required]
-	private XRGrabInteractable m_xrGrabInteractable;
-
-	[SerializeField]
-	[Required]
-	private Transform m_castOrigin;
-
-	[SerializeField]
-	private float m_castDistance = 0.08f;
-
-	[SerializeField]
-	private Color m_penColor = Color.black;
+	[SerializeField] private GameObject[] m_coloredObjects;
+	[SerializeField] private LayerMask m_drawingLayerMask;
+	[SerializeField] [Required] private XRGrabInteractable m_xrGrabInteractable;
+	[SerializeField] [Required] private Transform m_castOrigin;
+	[SerializeField] private float m_castDistance = 0.08f;
+	[SerializeField] private Color m_penColor = Color.black;
 	public Color PenColor => m_penColor;
 
-	[SerializeField]
-	private float m_penWidth = 0.01f;
+	[SerializeField] private float m_penWidth = 0.01f;
 	public float PenWidth => m_penWidth;
 
 	[Header("Feel")]
-	[SerializeField]
-	private float m_drawingOffset = 0.1f;
-	
-	[SerializeField]
-	[Required]
-	private Transform m_tipPivotTransform;
-	
-	[SerializeField]
-	private float m_minTipLength = 0.1f;
-	
-	[SerializeField]
-	private float m_maxTipLength = 0.75f;
-	
-	[SerializeField]
-	private float m_restTipLength = 0.5f;
-	
-	[SerializeField]
-	private float m_tipCastOffset = 0.75f;
+	[SerializeField] private float m_drawingOffset = 0.1f;	
+	[SerializeField] [Required] private Transform m_tipPivotTransform;	
+	[SerializeField] private float m_minTipLength = 0.1f;
+	[SerializeField] private float m_maxTipLength = 0.75f;	
+	[SerializeField] private float m_restTipLength = 0.5f;	
+	[SerializeField] private float m_tipCastOffset = 0.75f;
 
 	[Header("Line")]
-	[SerializeField]
-	[Required]
-	private PenLine m_linePrefab;
+	[SerializeField] [Required] private PenLine m_linePrefab;
 	public PenLine LinePrefab => m_linePrefab;
 
-	[SerializeField]
-	[Required]
-	private Eraser m_eraser;
-
-	[SerializeField]
-	[Tooltip("World-space metres. Raw samples closer than this to the previous sample are ignored.")]
-	private float m_minSampleDistance = 0.003f;
-
-	[SerializeField]
-	[Tooltip("World-space metres. Max deviation from a straight segment before a new point is committed.")]
-	private float m_straightTolerance = 0.002f;
-
-	[SerializeField]
-	[Tooltip("World-space metres. Straight segments longer than this get a new point anyway. 0 disables.")]
-	private float m_maxSegmentLength = 0.15f;
-
-	[SerializeField]
-	[Range(0f, 0.95f)]
-	[Tooltip("Exponential smoothing of the pen tip position (per 60 Hz frame). 0 disables.")]
-	private float m_smoothing = 0f;
+	[SerializeField] [Required] private Eraser m_eraser;
+	[SerializeField] private float m_minSampleDistance = 0.003f; //World-space metres. Raw samples closer than this to the previous sample are ignored.
+	[SerializeField] private float m_straightTolerance = 0.002f; //World-space metres. Max deviation from a straight segment before a new point is committed.
+	[SerializeField] private float m_maxSegmentLength = 0.15f; //World-space metres. Straight segments longer than this get a new point anyway. 0 disables.
+	[SerializeField] [Range(0f, 0.95f)] private float m_smoothing = 0f; //Exponential smoothing of the pen tip position (per 60 Hz frame). 0 disables.
 
 	[Header("Simplification")]
-	[SerializeField]
-	[Tooltip("Run Douglas-Peucker on the whole line when the stroke ends.")]
-	private bool m_simplifyOnFinish = true;
-
-	[SerializeField]
-	[ShowIf(nameof(m_simplifyOnFinish))]
-	[Tooltip("World-space metres. Douglas-Peucker tolerance.")]
-	private float m_simplifyTolerance = 0.0015f;
-
-	[SerializeField]
-	private TransformReference m_penLineRootTransformReference;
+	[SerializeField] private bool m_simplifyOnFinish = true; //Run Douglas-Peucker on the whole line when the stroke ends.
+	[SerializeField] [ShowIf(nameof(m_simplifyOnFinish))] private float m_simplifyTolerance = 0.0015f; //World-space metres. Douglas-Peucker tolerance.
+	[SerializeField] private TransformReference m_penLineRootTransformReference;
 	public TransformReference PenLineRootTransformReference => m_penLineRootTransformReference;
 
-	[Header("Debug")]
-	[SerializeField]
-	[ReadOnly]
-	private bool m_drawing = false;
+	[Header("Continue drawing")]
+	[SerializeField] [Required] private GameObjectSet m_penLineSet; //Set containing all PenLines (same asset as the PenLine prefab's set).
+	[SerializeField] private float m_continueDistance = 0.02f; //World-space metres. Starting a stroke this close to the start/end of an open line continues that line.
+	public float ContinueDistance => m_continueDistance;
 
-	[SerializeField]
-	[ReadOnly]
-	private PenLine m_currentLine = null;
-
-	[SerializeField]
-	[ReadOnly]
-	private float m_hitDistance;
-
-	[SerializeField]
-	[ReadOnly]
-	private Vector3 m_lastHitPosition;
-
-	[SerializeField]
-	[ReadOnly]
-	private bool m_holdingPen = false;
-
-	private RaycastHit m_latestHit;
+	[Header("Debug")] 
+	[SerializeField] [ReadOnly] private bool m_drawing = false;
+	[SerializeField] [ReadOnly] private PenLine m_currentLine = null;
+	[SerializeField] [ReadOnly] private float m_hitDistance;
+	[SerializeField] [ReadOnly] private Vector3 m_lastHitPosition;
+	[SerializeField] [ReadOnly] private bool m_holdingPen = false;
 
 	private readonly PenStrokeBuilder m_strokeBuilder = new PenStrokeBuilder();
 	private PenLine m_strokeBuilderLine = null;
 	private Vector3 m_smoothedHitPosition;
 	private readonly List<Vector3> m_pointBuffer = new List<Vector3>();
+
+	//Line this pen asked to continue, waiting for the answer
+	private PenLine m_pendingContinueLine = null;
+	private Vector3 m_pendingContinueStartPosition;
+
+	private static readonly List<Pen> ms_heldPens = new List<Pen>();
+
+
+	public static IReadOnlyList<Pen> HeldPens => ms_heldPens; //Pens that are currently held by a local user.
+	public Vector3 TipPosition => m_castOrigin.position; //World position of the pen tip (the drawing cast origin).
+	public bool IsDrawing => m_drawing;
 
 	private void Start()
 	{
@@ -135,22 +84,32 @@ public class Pen : MonoBehaviour
 		SetWidth(m_penWidth);
 	}
 
+	private void OnDisable()
+	{
+		ms_heldPens.Remove(this);
+	}
+
 	private void Update()
 	{
 		CheckPenTouchState();
 		UpdateDrawing();
 	}
-	
+
 	private void StartHoldingPen(SelectEnterEventArgs a_args)
 	{
 		m_holdingPen = true;
 		m_eraser.enabled = true;
+		if (!ms_heldPens.Contains(this))
+		{
+			ms_heldPens.Add(this);
+		}
 	}
 
 	private void EndHoldingPen(SelectExitEventArgs a_args)
 	{
 		m_holdingPen = false;
 		m_eraser.enabled = false;
+		ms_heldPens.Remove(this);
 	}
 
 	public void SetColor(Color a_color)
@@ -179,17 +138,6 @@ public class Pen : MonoBehaviour
 		m_tipPivotTransform.transform.localScale = new Vector3(a_width, m_tipPivotTransform.transform.localScale.y, a_width);
 	}
 
-	void UpdateTipSize()
-	{
-		float tipLength = Mathf.Clamp(m_hitDistance-m_tipCastOffset, m_minTipLength, m_maxTipLength);
-		m_tipPivotTransform.localScale = new Vector3(m_penWidth, tipLength, m_penWidth);
-	}
-
-	void ResetTip()
-	{
-		m_tipPivotTransform.localScale = new Vector3(m_penWidth, m_restTipLength, m_penWidth);
-	}
-
 	public void SetCurrentLine(PenLine a_newLine)
 	{
 		m_currentLine = a_newLine;
@@ -200,7 +148,9 @@ public class Pen : MonoBehaviour
 		if (m_drawing == false)
 			return;
 
-		UpdateTipSize();
+		//Update tip size
+		float tipLength = Mathf.Clamp(m_hitDistance-m_tipCastOffset, m_minTipLength, m_maxTipLength);
+		m_tipPivotTransform.localScale = new Vector3(m_penWidth, tipLength, m_penWidth);
 
 		if (m_smoothing > 0f)
 		{
@@ -260,6 +210,80 @@ public class Pen : MonoBehaviour
 
 		m_drawing = true;
 
+		if (TryFindContinueTarget(a_hitPosition, out PenLine continueLine, out bool fromStart))
+		{
+			m_pendingContinueLine = continueLine;
+			m_pendingContinueStartPosition = a_hitPosition;
+			continueLine.RequestContinue(fromStart, a_granted => OnContinueResult(continueLine, a_granted));
+			return;
+		}
+
+		SpawnNewLine(a_hitPosition);
+	}
+
+	public bool TryFindContinueTarget(Vector3 a_worldPosition, out PenLine a_line, out bool a_fromStart)
+	{
+		// Finds the open line whose start/end point is closest to a_worldPosition, within the continue distance.
+		a_line = null;
+		a_fromStart = false;
+		if (m_penLineSet == null)
+			return false;
+
+		float bestDistance = float.MaxValue;
+		foreach (GameObject lineObject in m_penLineSet)
+		{
+			if (lineObject == null)
+				continue;
+
+			PenLine line = lineObject.GetComponent<PenLine>();
+			if (line == null || !line.CanContinue)
+				continue;
+
+			if (line.TryGetContinueEndpoint(a_worldPosition, m_continueDistance, out bool fromStart, out float distance) && distance < bestDistance)
+			{
+				bestDistance = distance;
+				a_line = line;
+				a_fromStart = fromStart;
+			}
+		}
+		return a_line != null;
+	}
+
+	private void OnContinueResult(PenLine a_line, bool a_granted)
+	{
+		bool stillWaiting = m_pendingContinueLine == a_line && m_pendingContinueLine != null;
+		if (stillWaiting)
+		{
+			m_pendingContinueLine = null;
+		}
+
+		if (!a_granted)
+		{
+			//Someone else got the line first, draw a new one instead
+			if (stillWaiting && m_drawing)
+			{
+				SpawnNewLine(m_pendingContinueStartPosition);
+			}
+			return;
+		}
+
+		if (a_line == null)
+			return;
+
+		if (stillWaiting && m_drawing)
+		{
+			SetCurrentLine(a_line);
+		}
+		else
+		{
+			//The stroke already ended (or a new one started), release the line again
+			a_line.SetClosedWithoutNotify(a_line.EvaluateClosed());
+			a_line.FinishLine();
+		}
+	}
+
+	void SpawnNewLine(Vector3 a_hitPosition)
+	{
 		if (ExternalLineSpawnerEvent == null)
 		{
 			m_currentLine = Instantiate<PenLine>(m_linePrefab, this.transform.parent);
@@ -276,7 +300,10 @@ public class Pen : MonoBehaviour
 	void StopDrawing()
 	{
 		m_drawing = false;
-		ResetTip();
+		m_pendingContinueLine = null;
+
+		//Reset tip
+		m_tipPivotTransform.localScale = new Vector3(m_penWidth, m_restTipLength, m_penWidth);
 
 		if (m_currentLine == null)
 		{
@@ -286,6 +313,12 @@ public class Pen : MonoBehaviour
 		if (m_simplifyOnFinish)
 		{
 			SimplifyCurrentLine();
+		}
+
+		//A stroke that barely moved becomes a single-point line (a dot)
+		if (m_currentLine.PointCount > 1 && m_currentLine.IsCollapsed())
+		{
+			m_currentLine.ReplaceLocalPoints(new[] { m_currentLine.GetLocalCentroid() });
 		}
 
 		//Close the line if the stroke ended near its start (networked lines get this confirmed by the server on finish)
@@ -312,7 +345,7 @@ public class Pen : MonoBehaviour
 			// Does the ray intersect any objects excluding the player layer
 			if (Physics.Raycast(m_castOrigin.position, m_castOrigin.transform.forward, out hit, m_castDistance, m_drawingLayerMask))
 			{
-				Debug.DrawRay(m_castOrigin.position, m_castOrigin.transform.forward * hit.distance, Color.yellow);
+				// Debug.DrawRay(m_castOrigin.position, m_castOrigin.transform.forward * hit.distance, Color.yellow);
 				m_lastHitPosition = m_castOrigin.transform.position + m_castOrigin.forward * (hit.distance - m_drawingOffset);
 				m_hitDistance = hit.distance;
 				
@@ -320,8 +353,6 @@ public class Pen : MonoBehaviour
 				{
 					StartDrawing(m_lastHitPosition);
 				}
-
-				m_latestHit = hit;
 			}
 			else if(m_drawing)
 			{

@@ -7,6 +7,9 @@ using UnityEngine.Rendering;
 
 public class PenLine : MonoBehaviour
 {
+	private const int DOT_COLLIDER_SEGMENTS = 12;
+	private const float LOCAL_EDIT_TIMEOUT = 2f;
+
 	// Drawing events (raised by the drawer while the stroke is being created)
 	public Action<PenLinePoint> LinePointAddedEvent;
 	public Action<PenLinePoint> LastPointUpdatedEvent;
@@ -14,79 +17,60 @@ public class PenLine : MonoBehaviour
 	public Action LineErasedEvent;
 	public Action LineFinishedEvent;
 
+	//Line property events
 	public Action LineColorChangedEvent;
 	public Action LineWidthChangedEvent;
 
 	// Raised whenever the point model changes for any reason (drawing, editing, network sync)
 	public Action PointsChangedEvent;
 	public Action<bool> ClosedChangedEvent;
+	private Action<bool> m_continueCallback;
 
-	private LineRenderer m_lineRenderer;
-	public LineRenderer LineRenderer => m_lineRenderer;
-	private MeshCollider m_meshCollider;
-
-	[SerializeField]
-	private GameObjectSet m_set;
+	[SerializeField] private GameObjectSet m_set;
 
 	[Header("Editing")]
-	[SerializeField]
-	[Tooltip("World-space metres. A line is closed when its first and last point are closer than this (on the drawing plane).")]
-	private float m_closeDistance = 0.03f;
+	[SerializeField] private float m_closeDistance = 0.03f; //World-space metres. A line is closed when its first and last point are closer than this (on the drawing plane).
+	[SerializeField] private float m_removeHeight = 0.08f; //World-space metres. Points dragged further than this above/below the drawing plane are removed on release.
+	[SerializeField] private float m_collapseDistance = 0.01f; //World-space metres. A line whose points all lie within this distance of each other is shown as a dot (and collapsed into a single point when a stroke ends).
 
-	[SerializeField]
-	[Tooltip("World-space metres. Points dragged further than this above/below the drawing plane are removed on release.")]
-	private float m_removeHeight = 0.08f;
-	public float RemoveHeight => m_removeHeight;
+	[Header("Dot")]
+	[SerializeField] private Sprite m_dotSprite; //Sprite used to render single-point (dot) lines.
+	[SerializeField] private Material m_dotMaterial; //Optional. Material for the dot sprite. Falls back to the SpriteRenderer default.
+	[SerializeField] private float m_dotSizeMultiplier = 1.5f; //Dot diameter as a multiple of the line width.
+	private SpriteRenderer m_dotRenderer;
+	private Material m_dotMaterialInstance;
+	private Mesh m_dotColliderMesh;
+	private bool m_isDot;
 
 	[Header("Fill")]
-	[SerializeField]
-	[Tooltip("Optional. Material for the fill of closed lines, must use vertex colours. Falls back to a copy of the line material.")]
-	private Material m_fillMaterial;
-
-	[SerializeField]
-	[Range(0f, 1f)]
-	private float m_fillAlpha = 0.35f;
-
-	[SerializeField]
-	[Tooltip("World-space metres. The fill is drawn this far below the drawing plane so the line stays on top.")]
-	private float m_fillDepthOffset = 0.0005f;
-
-	[SerializeField]
-	[ReadOnly]
-	private Color m_lineColor;
-	public Color LineColor => m_lineColor;
-
-	[SerializeField]
-	[ReadOnly]
-	private float m_lineWidth;
-	public float LineWidth => m_lineWidth;
-
-	[SerializeField]
-	[ReadOnly]
-	private bool m_isClosed;
-	public bool IsClosed => m_isClosed;
-
-	[SerializeField]
-	[ReadOnly]
-	private bool m_isFinished;
-	public bool IsFinished => m_isFinished;
-
-	/// <summary>
-	/// When set, point edits are forwarded to this handler (e.g. the network layer) instead of only being applied locally.
-	/// </summary>
-	public IPenLineEditHandler EditHandler { get; set; }
-
-	private readonly List<PenLinePoint> m_points = new List<PenLinePoint>();
-	public IReadOnlyList<PenLinePoint> Points => m_points;
-	public int PointCount => m_points.Count;
-
-	private Vector3[] m_positionBuffer = new Vector3[16];
-
+	[SerializeField] private Material m_fillMaterial; //Optional. Material for the fill of closed lines, must use vertex colours. Falls back to a copy of the line material.
+	[SerializeField] [Range(0f, 1f)] private float m_fillAlpha = 0.35f;
+	[SerializeField] private float m_fillDepthOffset = 0.0005f; //World-space metres. The fill is drawn this far below the drawing plane so the line stays on top.
 	private GameObject m_fillObject;
 	private Mesh m_fillMesh;
 	private Material m_fillMaterialInstance;
 
-	private const float LOCAL_EDIT_TIMEOUT = 2f;
+	[Header("Other")]
+	[SerializeField] [ReadOnly] private Color m_lineColor;
+	[SerializeField] [ReadOnly] private float m_lineWidth;
+	[SerializeField] [ReadOnly] private bool m_isClosed;
+	[SerializeField] [ReadOnly] private bool m_isFinished;
+	private LineRenderer m_lineRenderer;
+	private MeshCollider m_meshCollider;
+	private readonly List<PenLinePoint> m_points = new List<PenLinePoint>();
+	private Vector3[] m_positionBuffer = new Vector3[16];
+
+	//Properties
+	public bool IsDot => m_isDot;
+	public LineRenderer LineRenderer => m_lineRenderer;
+	public float LineWidth => m_lineWidth;
+	public bool IsClosed => m_isClosed;
+	public bool IsFinished => m_isFinished;
+	public Color LineColor => m_lineColor;
+	public float RemoveHeight => m_removeHeight;
+	public int PointCount => m_points.Count;
+	public IReadOnlyList<PenLinePoint> Points => m_points;
+	public IPenLineEditHandler EditHandler { get; set; } //When set, point edits are forwarded to this handler (e.g. the network layer) instead of only being applied locally.
 
 	private enum LocalEditState
 	{
@@ -136,6 +120,8 @@ public class PenLine : MonoBehaviour
 
 		m_set.Add(gameObject);
 
+		UpdateDotVisual();
+
 #if !UNITY_SERVER
 		if (GetComponent<PenLinePointHandles>() == null)
 		{
@@ -157,8 +143,14 @@ public class PenLine : MonoBehaviour
 			Destroy(m_fillMesh);
 		if (m_fillMaterialInstance != null)
 			Destroy(m_fillMaterialInstance);
-		if (m_meshCollider != null && m_meshCollider.sharedMesh != null)
+		if (m_dotMaterialInstance != null)
+			Destroy(m_dotMaterialInstance);
+		if (m_meshCollider != null && m_meshCollider.sharedMesh != null && m_meshCollider.sharedMesh != m_dotColliderMesh)
 			Destroy(m_meshCollider.sharedMesh);
+		if (m_dotColliderMesh != null)
+			Destroy(m_dotColliderMesh);
+
+		m_continueCallback = null;
 	}
 
 	private void OnConfigImportComplete()
@@ -167,6 +159,10 @@ public class PenLine : MonoBehaviour
 		if (m_fillMaterialInstance != null)
 		{
 			m_fillMaterialInstance.renderQueue = m_lineRenderer.material.renderQueue - 1;
+		}
+		if (m_dotMaterialInstance != null)
+		{
+			m_dotMaterialInstance.renderQueue = m_lineRenderer.material.renderQueue;
 		}
 	}
 
@@ -243,6 +239,158 @@ public class PenLine : MonoBehaviour
 	public Vector3 GetLastLocalPoint()
 	{
 		return m_points.Count > 0 ? m_points[m_points.Count - 1].Position : Vector3.zero;
+	}
+
+	/// <summary>
+	/// Reverses the point order (keeping ids) so that the first point becomes the last one.
+	/// </summary>
+	public void ReversePointsWithoutNotify()
+	{
+		m_points.Reverse();
+		OnPointsChanged();
+	}
+
+	/// <summary>
+	/// True if all points lie within the collapse distance of each other (approximated by their bounding box).
+	/// </summary>
+	public bool IsCollapsed()
+	{
+		return IsCollapsed(m_points);
+	}
+
+	public bool IsCollapsed(IReadOnlyList<PenLinePoint> a_points)
+	{
+		if (a_points.Count == 0)
+			return false;
+		if (a_points.Count == 1)
+			return true;
+
+		Vector3 min = a_points[0].Position;
+		Vector3 max = min;
+		for (int i = 1; i < a_points.Count; i++)
+		{
+			min = Vector3.Min(min, a_points[i].Position);
+			max = Vector3.Max(max, a_points[i].Position);
+		}
+		float collapseDistance = GlobalToLocalDistance(m_collapseDistance);
+		return (max - min).sqrMagnitude <= collapseDistance * collapseDistance;
+	}
+
+	public Vector3 GetLocalCentroid()
+	{
+		if (m_points.Count == 0)
+			return Vector3.zero;
+
+		Vector3 sum = Vector3.zero;
+		for (int i = 0; i < m_points.Count; i++)
+		{
+			sum += m_points[i].Position;
+		}
+		return sum / m_points.Count;
+	}
+
+	/// <summary>
+	/// World-space bounds of the points (the line renderer's bounds are not valid while it is disabled for dots).
+	/// </summary>
+	public Bounds GetWorldBounds()
+	{
+		if (m_points.Count == 0)
+			return new Bounds(transform.position, Vector3.zero);
+
+		Bounds bounds = new Bounds(transform.TransformPoint(m_points[0].Position), Vector3.zero);
+		for (int i = 1; i < m_points.Count; i++)
+		{
+			bounds.Encapsulate(transform.TransformPoint(m_points[i].Position));
+		}
+		bounds.Expand(m_lineWidth * Mathf.Abs(transform.lossyScale.x));
+		return bounds;
+	}
+
+	#endregion
+
+	#region Continue drawing
+
+	/// <summary>
+	/// True if a user may continue drawing this line from one of its endpoints.
+	/// </summary>
+	public bool CanContinue => m_isFinished && !m_isClosed && m_points.Count > 0 && !HasAnyHeldPoint() && m_continueCallback == null;
+
+	public bool HasAnyHeldPoint()
+	{
+		for (int i = 0; i < m_points.Count; i++)
+		{
+			if (m_points[i].IsHeld)
+				return true;
+		}
+		return m_localEdits.Count > 0;
+	}
+
+	/// <summary>
+	/// Finds the endpoint closest to a world position (measured on the drawing plane).
+	/// </summary>
+	/// <param name="a_fromStart">True if the closest endpoint is the first point. Always false for single-point lines.</param>
+	/// <param name="a_distance">World-space distance to the endpoint.</param>
+	public bool TryGetContinueEndpoint(Vector3 a_worldPosition, float a_maxWorldDistance, out bool a_fromStart, out float a_distance)
+	{
+		a_fromStart = false;
+		a_distance = float.MaxValue;
+		if (m_points.Count == 0)
+			return false;
+
+		Vector3 local = GlobalToLocal(a_worldPosition);
+		float endDistance = PlaneDistance(local, m_points[m_points.Count - 1].Position);
+		float startDistance = m_points.Count > 1 ? PlaneDistance(local, m_points[0].Position) : float.MaxValue;
+
+		a_fromStart = startDistance < endDistance;
+		float localDistance = Mathf.Min(startDistance, endDistance);
+		a_distance = localDistance * Mathf.Abs(transform.lossyScale.x);
+		return a_distance <= a_maxWorldDistance;
+	}
+
+	private static float PlaneDistance(Vector3 a_a, Vector3 a_b)
+	{
+		return new Vector2(a_a.x - a_b.x, a_a.z - a_b.z).magnitude;
+	}
+
+	/// <summary>
+	/// Requests to continue drawing this line. a_onResult is called with true once the caller may add points to the line's end.
+	/// </summary>
+	public void RequestContinue(bool a_fromStart, Action<bool> a_onResult)
+	{
+		if (EditHandler == null)
+		{
+			if (a_fromStart)
+			{
+				ReversePointsWithoutNotify();
+			}
+			SetFinishedWithoutNotify(false);
+			a_onResult?.Invoke(true);
+			return;
+		}
+
+		m_continueCallback = a_onResult;
+		EditHandler.RequestContinue(a_fromStart);
+	}
+
+	/// <summary>
+	/// Called by the edit handler when a continue request was answered.
+	/// </summary>
+	public void OnContinueResult(bool a_granted)
+	{
+		Action<bool> callback = m_continueCallback;
+		m_continueCallback = null;
+		callback?.Invoke(a_granted);
+	}
+
+	#endregion
+
+	#region Moving
+
+	public bool HasTransformAuthority => EditHandler == null || EditHandler.HasTransformAuthority;
+
+	public void RequestTransformAuthority(ulong a_pointA, ulong a_pointB)
+	{
+		EditHandler?.RequestTransformAuthority(a_pointA, a_pointB);
 	}
 
 	#endregion
@@ -472,7 +620,7 @@ public class PenLine : MonoBehaviour
 		if (EditHandler == null)
 		{
 			m_localEdits.Remove(a_pointId);
-			if (a_remove && m_points.Count <= 1)
+			if (a_remove && m_points.Count == 0)
 			{
 				Destroy(gameObject);
 				return;
@@ -533,11 +681,109 @@ public class PenLine : MonoBehaviour
 	private void OnPointsChanged()
 	{
 		ApplyPointsToRenderer();
+		UpdateDotVisual();
 		if (m_isClosed)
 		{
 			UpdateFill();
 		}
 		PointsChangedEvent?.Invoke();
+	}
+
+	private void UpdateDotVisual()
+	{
+		bool wasDot = m_isDot;
+		m_isDot = IsCollapsed();
+#if !UNITY_SERVER
+		m_lineRenderer.enabled = !m_isDot;
+
+		if (!m_isDot)
+		{
+			if (m_dotRenderer != null)
+				m_dotRenderer.gameObject.SetActive(false);
+		}
+		else
+		{
+			EnsureDotRenderer();
+			m_dotRenderer.gameObject.SetActive(true);
+			m_dotRenderer.color = m_lineColor;
+
+			Transform dotTransform = m_dotRenderer.transform;
+			dotTransform.localPosition = GetLocalCentroid();
+			float spriteSize = m_dotRenderer.sprite != null ? Mathf.Max(m_dotRenderer.sprite.bounds.size.x, 1e-6f) : 1f;
+			dotTransform.localScale = Vector3.one * (GetDotDiameter() / spriteSize);
+		}
+#endif
+		//Becoming a dot (or leaving dot state) changes the collider shape
+		if (wasDot != m_isDot && m_isFinished)
+		{
+			RebuildCollider();
+		}
+	}
+
+	/// <summary>
+	/// Dot diameter in line-local units (same space as the line renderer width).
+	/// </summary>
+	private float GetDotDiameter()
+	{
+		return Mathf.Max(m_lineWidth, 1e-4f) * m_dotSizeMultiplier;
+	}
+
+	private void EnsureDotRenderer()
+	{
+		if (m_dotRenderer != null)
+			return;
+
+		GameObject dotObject = new GameObject("Dot");
+		dotObject.layer = gameObject.layer;
+		dotObject.transform.SetParent(transform, false);
+		dotObject.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+
+		m_dotRenderer = dotObject.AddComponent<SpriteRenderer>();
+		m_dotRenderer.sprite = m_dotSprite;
+		m_dotRenderer.shadowCastingMode = ShadowCastingMode.Off;
+		m_dotRenderer.receiveShadows = false;
+		if (m_dotMaterial != null)
+		{
+			m_dotRenderer.sharedMaterial = m_dotMaterial;
+		}
+		if (m_dotRenderer.sharedMaterial != null)
+		{
+			m_dotMaterialInstance = m_dotRenderer.material;
+			m_dotMaterialInstance.renderQueue = m_lineRenderer.sharedMaterial.renderQueue;
+		}
+
+		if (m_dotSprite == null)
+		{
+			Debug.LogWarning("PenLine has no dot sprite assigned, single-point lines will be invisible.", this);
+		}
+	}
+
+	private Mesh BuildDotColliderMesh()
+	{
+		if (m_dotColliderMesh == null)
+		{
+			m_dotColliderMesh = new Mesh { name = "PenLineDotCollider" };
+		}
+
+		Vector3 center = GetLocalCentroid();
+		float radius = GetDotDiameter() * 0.5f;
+		Vector3[] vertices = new Vector3[DOT_COLLIDER_SEGMENTS + 1];
+		int[] triangles = new int[DOT_COLLIDER_SEGMENTS * 3];
+		vertices[0] = center;
+		for (int i = 0; i < DOT_COLLIDER_SEGMENTS; i++)
+		{
+			float angle = i * Mathf.PI * 2f / DOT_COLLIDER_SEGMENTS;
+			vertices[i + 1] = center + new Vector3(Mathf.Cos(angle) * radius, 0f, Mathf.Sin(angle) * radius);
+			triangles[i * 3] = 0;
+			triangles[i * 3 + 1] = i + 1;
+			triangles[i * 3 + 2] = (i + 1) % DOT_COLLIDER_SEGMENTS + 1;
+		}
+
+		m_dotColliderMesh.Clear();
+		m_dotColliderMesh.vertices = vertices;
+		m_dotColliderMesh.triangles = triangles;
+		m_dotColliderMesh.RecalculateBounds();
+		return m_dotColliderMesh;
 	}
 
 	private void ApplyPointsToRenderer()
@@ -636,6 +882,7 @@ public class PenLine : MonoBehaviour
 		{
 			UpdateFill();
 		}
+		UpdateDotVisual();
 	}
 
 	public void ChangeLineWidth(float a_newWidth)
@@ -649,6 +896,14 @@ public class PenLine : MonoBehaviour
 		m_lineWidth = a_newWidth;
 		m_lineRenderer.startWidth = a_newWidth;
 		m_lineRenderer.endWidth = a_newWidth;
+
+		bool wasDot = m_isDot;
+		UpdateDotVisual();
+		if (wasDot && m_isFinished)
+		{
+			//Dot collider size depends on the width
+			RebuildCollider();
+		}
 	}
 
 	public void FinishLine()
@@ -659,8 +914,19 @@ public class PenLine : MonoBehaviour
 
 	public void FinishLineWithoutNotify()
 	{
-		m_isFinished = true;
-		RebuildCollider();
+		SetFinishedWithoutNotify(true);
+	}
+
+	/// <summary>
+	/// Marks the line as finished (editable, erasable) or as being drawn (e.g. while someone continues it).
+	/// </summary>
+	public void SetFinishedWithoutNotify(bool a_finished)
+	{
+		m_isFinished = a_finished;
+		if (a_finished)
+		{
+			RebuildCollider();
+		}
 	}
 
 	public void RebuildCollider()
@@ -669,15 +935,25 @@ public class PenLine : MonoBehaviour
 		//Line colliders are only used by the (client side) eraser
 		return;
 #else
-		if (m_points.Count < 2)
+		if (m_points.Count == 0)
 			return;
 
 		Mesh previousMesh = m_meshCollider.sharedMesh;
-		Mesh mesh = new Mesh();
-		m_lineRenderer.BakeMesh(mesh, Camera.main);
+		Mesh mesh;
+		if (m_isDot)
+		{
+			mesh = BuildDotColliderMesh();
+		}
+		else
+		{
+			mesh = new Mesh();
+			m_lineRenderer.BakeMesh(mesh, Camera.main);
+		}
 
+		//Reassign so the collider picks up changes to a reused mesh
+		m_meshCollider.sharedMesh = null;
 		m_meshCollider.sharedMesh = mesh;
-		if (previousMesh != null)
+		if (previousMesh != null && previousMesh != mesh && previousMesh != m_dotColliderMesh)
 		{
 			Destroy(previousMesh);
 		}

@@ -16,4 +16,20 @@ public interface IPenLineEditHandler
 
 	/// <param name="a_closedAfterEdit">Closed state of the line as evaluated by the editing client after applying the edit.</param>
 	void RequestRemove(ulong a_pointId, bool a_closedAfterEdit);
+
+	/// <summary>
+	/// Requests to continue drawing this (finished, open) line. The handler must answer through PenLine.OnContinueResult.
+	/// </summary>
+	/// <param name="a_fromStart">True to continue from the first point (the line gets reversed), false to continue from the last point.</param>
+	void RequestContinue(bool a_fromStart);
+
+	/// <summary>
+	/// True if this client may move the line's transform.
+	/// </summary>
+	bool HasTransformAuthority { get; }
+
+	/// <summary>
+	/// Requests the right to move the line's transform. Only granted while this client holds both given points.
+	/// </summary>
+	void RequestTransformAuthority(ulong a_pointA, ulong a_pointB);
 }

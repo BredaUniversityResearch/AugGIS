@@ -50,7 +50,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 94481301
+  GlobalObjectIdHash: 3772224318
   InScenePlacedSourceGlobalObjectIdHash: 0
   m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
@@ -126,6 +126,10 @@ MonoBehaviour:
   m_set: {fileID: 11400000, guid: 2de77ea55905116489ac8847659f2b60, type: 2}
   m_closeDistance: 0.03
   m_removeHeight: 0.08
+  m_collapseDistance: 0.01
+  m_dotSprite: {fileID: 21300000, guid: 860d25d53f2faaa48b43db37180e567b, type: 3}
+  m_dotMaterial: {fileID: 0}
+  m_dotSizeMultiplier: 1.5
   m_fillMaterial: {fileID: 0}
   m_fillAlpha: 0.35
   m_fillDepthOffset: 0.0005

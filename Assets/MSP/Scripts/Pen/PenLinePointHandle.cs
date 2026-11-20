@@ -26,6 +26,7 @@ public class PenLinePointHandle : XRGrabInteractable
 	public PenLinePointHandles Owner => m_owner;
 	public ulong PointId => m_pointId;
 	public bool IsDraggedLocally => m_isDraggedLocally;
+	public bool IsInRemoveRange => m_isInRemoveRange;
 
 	/// <summary>
 	/// One-time XRI configuration, called right after the component is added.
@@ -116,12 +117,26 @@ public class PenLinePointHandle : XRGrabInteractable
 
 	private void EndDrag()
 	{
+		PenLine line = m_owner.Line;
+		bool wasMovingLine = m_owner.IsMovePoint(m_pointId);
+
 		m_isDraggedLocally = false;
 		m_dragInteractor = null;
 
-		PenLine line = m_owner.Line;
-		Vector3 localPosition = line.transform.InverseTransformPoint(transform.position);
-		bool remove = IsInRemoveRange(line, localPosition);
+		Vector3 localPosition;
+		bool remove;
+		if (wasMovingLine && line.TryGetPoint(m_pointId, out PenLinePoint point))
+		{
+			//The whole line was moved: the point keeps its place on the line (no stretching)
+			m_owner.EndLineMove();
+			localPosition = point.Position;
+			remove = false;
+		}
+		else
+		{
+			localPosition = line.transform.InverseTransformPoint(transform.position);
+			remove = CheckRemoveRange(line, localPosition);
+		}
 		localPosition.y = 0f;
 
 		SetRemoveState(false);
@@ -146,6 +161,13 @@ public class PenLinePointHandle : XRGrabInteractable
 		if (!m_isDraggedLocally)
 			return;
 
+		//While the whole line is being moved by this point, the point itself stays where it is on the line
+		if (m_owner.IsMovePoint(m_pointId))
+		{
+			SetRemoveState(false);
+			return;
+		}
+
 		Vector3 localPosition = line.transform.InverseTransformPoint(transform.position);
 		bool send = Time.unscaledTime >= m_nextSendTime;
 		if (send)
@@ -154,7 +176,7 @@ public class PenLinePointHandle : XRGrabInteractable
 		}
 		line.DragPoint(m_pointId, localPosition, send);
 
-		SetRemoveState(IsInRemoveRange(line, localPosition));
+		SetRemoveState(CheckRemoveRange(line, localPosition));
 	}
 
 	private void ProcessPendingInserts(PenLine a_line)
@@ -208,7 +230,7 @@ public class PenLinePointHandle : XRGrabInteractable
 		m_pendingInsertInteractors.Clear();
 	}
 
-	private bool IsInRemoveRange(PenLine a_line, Vector3 a_localPosition)
+	private bool CheckRemoveRange(PenLine a_line, Vector3 a_localPosition)
 	{
 		return Mathf.Abs(a_localPosition.y) > a_line.GlobalToLocalDistance(a_line.RemoveHeight);
 	}
@@ -221,7 +243,7 @@ public class PenLinePointHandle : XRGrabInteractable
 		m_isInRemoveRange = a_remove;
 		if (m_owner != null)
 		{
-			m_owner.SetHandleRemoveState(this, a_remove);
+			m_owner.RefreshHandleVisual(this);
 		}
 	}
 }

@@ -407,6 +407,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &5847575004425524965
 MonoBehaviour:
@@ -510,10 +511,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GlobalObjectIdHash: 2818549517
   InScenePlacedSourceGlobalObjectIdHash: 0
+  m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
+  m_InScenePlaced: 0
   ActiveSceneSynchronization: 0
   SceneMigrationSynchronization: 1
   SpawnWithObservers: 1
@@ -552,8 +555,15 @@ MonoBehaviour:
   m_tipCastOffset: 0.05
   m_linePrefab: {fileID: -2074547166315061666, guid: e27ab6edf9558e74dade5cd928671a98, type: 3}
   m_eraser: {fileID: 2498406650090046924}
-  m_drawingUpdateDistance: 0.015
+  m_minSampleDistance: 0.003
+  m_straightTolerance: 0.002
+  m_maxSegmentLength: 0.15
+  m_smoothing: 0
+  m_simplifyOnFinish: 1
+  m_simplifyTolerance: 0.0015
   m_penLineRootTransformReference: {fileID: 11400000, guid: 23e138f95e7cb9945906ea6f1c3ef0e0, type: 2}
+  m_penLineSet: {fileID: 11400000, guid: 2de77ea55905116489ac8847659f2b60, type: 2}
+  m_continueDistance: 0.02
   m_drawing: 0
   m_currentLine: {fileID: 0}
   m_hitDistance: 0
@@ -573,8 +583,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   m_syncedPenColor:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
     m_InternalValue: {r: 1, g: 1, b: 1, a: 1}
   m_syncedPenWidth:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
     m_InternalValue: 1
 --- !u!136 &4121982817866744647
 CapsuleCollider:
@@ -718,6 +734,8 @@ MonoBehaviour:
   m_StartingHoverFilters: []
   m_StartingSelectFilters: []
   m_StartingInteractionStrengthFilters: []
+  m_AutoFindParentInteractableInHierarchy: 0
+  m_ParentInteractableObject: {fileID: 0}
   m_AttachTransform: {fileID: 4386505208429998040}
   m_SecondaryAttachTransform: {fileID: 0}
   m_UseDynamicAttach: 1
@@ -764,6 +782,7 @@ MonoBehaviour:
   m_ThrowVelocityScale: 1.5
   m_ThrowAngularVelocityScale: 1
   m_ForceGravityOnDetach: 0
+  m_UnparentTransformOnGrab: 1
   m_RetainTransformParent: 0
   m_StartingSingleGrabTransformers: []
   m_StartingMultipleGrabTransformers: []
@@ -806,6 +825,9 @@ MonoBehaviour:
   m_set: {fileID: 11400000, guid: c68b8e20c29117a4bb86d42a5d9323ab, type: 2}
   m_xrGrabInteractable: {fileID: 1615933126743615963}
   m_currentState:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
   m_interactableVisualHandler: {fileID: 5847575004425524965}
   m_destroyLayerMask:
@@ -832,6 +854,8 @@ MonoBehaviour:
   m_DisableVisualsWhenBlockedInGroup: 1
   m_StartingSelectedInteractable: {fileID: 0}
   m_StartingTargetFilter: {fileID: 0}
+  m_AutoFindParentInteractableInHierarchy: 0
+  m_ParentInteractableObject: {fileID: 0}
   m_HoverEntered:
     m_PersistentCalls:
       m_Calls: []
@@ -855,6 +879,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   m_PhysicsTriggerInteraction: 2
+  m_SnapVolumeInteraction: 0
   m_UIDocumentTriggerInteraction: 1
   m_RequirePokeFilter: 0
   m_EnableUIInteraction: 0
@@ -1200,6 +1225,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &8363484463719955211
 GameObject:
@@ -1321,4 +1347,5 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}

@@ -10,6 +10,7 @@ using POV_Unity;
 [RequireComponent(typeof(PenLine))]
 public class PenLineNetworked : NetworkBehaviour, IPenLineEditHandler
 {
+	private const float AUTHORITY_REQUEST_INTERVAL = 0.5f;
 	private PenLine m_lineScript;
 
 	private NetworkList<PenLinePoint> m_syncedPoints = new NetworkList<PenLinePoint>(new List<PenLinePoint>(), NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -20,6 +21,12 @@ public class PenLineNetworked : NetworkBehaviour, IPenLineEditHandler
 
 	//True on the drawer while it is drawing: its local stroke is authoritative and incoming list changes are ignored
 	private bool m_isDrawingLocally = false;
+	private bool m_drawingEventsSubscribed = false;
+
+	//Server only: client currently drawing (or continuing) the line, used to release it when that client disconnects
+	private ulong m_serverDrawerClientId = ulong.MaxValue;
+
+	private float m_nextAuthorityRequestTime = 0f;
 	private readonly List<PenLinePoint> m_pointBuffer = new List<PenLinePoint>();
 	private bool m_colliderDirty = false;
 
@@ -37,9 +44,7 @@ public class PenLineNetworked : NetworkBehaviour, IPenLineEditHandler
 		if (IsOwner && !m_lineIsFinished.Value)
 		{
 			m_isDrawingLocally = true;
-			m_lineScript.LinePointAddedEvent += OnLineNewPointAdded;
-			m_lineScript.LastPointUpdatedEvent += OnLineLastPointUpdated;
-			m_lineScript.LinePointsReplacedEvent += OnLinePointsReplaced;
+			SubscribeDrawingEvents();
 			m_lineScript.LineColorChangedEvent += OnLineColorChanged;
 			m_lineScript.LineWidthChangedEvent += OnLineWidthChanged;
 
@@ -60,6 +65,10 @@ public class PenLineNetworked : NetworkBehaviour, IPenLineEditHandler
 		if (IsServer)
 		{
 			NetworkManager.OnClientDisconnectCallback += OnClientDisconnected;
+			if (!m_lineIsFinished.Value)
+			{
+				m_serverDrawerClientId = OwnerClientId;
+			}
 		}
 
 		m_syncedPoints.OnListChanged += OnPointListChanged;
@@ -112,13 +121,33 @@ public class PenLineNetworked : NetworkBehaviour, IPenLineEditHandler
 		m_isClosed.OnValueChanged -= OnClosedChanged;
 		m_syncedLineColor.OnValueChanged -= OnSyncedColorValueChanged;
 		m_syncedLineWidth.OnValueChanged -= OnSyncedWidthValueChanged;
-		m_lineScript.LinePointAddedEvent -= OnLineNewPointAdded;
-		m_lineScript.LastPointUpdatedEvent -= OnLineLastPointUpdated;
-		m_lineScript.LinePointsReplacedEvent -= OnLinePointsReplaced;
+		UnsubscribeDrawingEvents();
 		m_lineScript.LineColorChangedEvent -= OnLineColorChanged;
 		m_lineScript.LineWidthChangedEvent -= OnLineWidthChanged;
 		m_lineScript.LineErasedEvent -= OnLineErased;
 		m_lineScript.LineFinishedEvent -= OnLineFinished;
+	}
+
+	private void SubscribeDrawingEvents()
+	{
+		if (m_drawingEventsSubscribed)
+			return;
+
+		m_drawingEventsSubscribed = true;
+		m_lineScript.LinePointAddedEvent += OnLineNewPointAdded;
+		m_lineScript.LastPointUpdatedEvent += OnLineLastPointUpdated;
+		m_lineScript.LinePointsReplacedEvent += OnLinePointsReplaced;
+	}
+
+	private void UnsubscribeDrawingEvents()
+	{
+		if (!m_drawingEventsSubscribed)
+			return;
+
+		m_drawingEventsSubscribed = false;
+		m_lineScript.LinePointAddedEvent -= OnLineNewPointAdded;
+		m_lineScript.LastPointUpdatedEvent -= OnLineLastPointUpdated;
+		m_lineScript.LinePointsReplacedEvent -= OnLinePointsReplaced;
 	}
 
 	private void ApplySyncedPoints()
@@ -155,12 +184,14 @@ public class PenLineNetworked : NetworkBehaviour, IPenLineEditHandler
 	private void OnLineFinished()
 	{
 		m_isDrawingLocally = false;
+		UnsubscribeDrawingEvents();
 		FinishLineServerRpc(NetworkManager.Singleton.LocalClientId, m_lineScript.EvaluateClosed());
 	}
 
 	[Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
 	void FinishLineServerRpc(ulong a_clientId, bool a_closed)
 	{
+		m_serverDrawerClientId = ulong.MaxValue;
 		m_isClosed.Value = a_closed;
 		m_lineIsFinished.Value = true;
 		FinishLineClientRPC(a_clientId);
@@ -182,6 +213,94 @@ public class PenLineNetworked : NetworkBehaviour, IPenLineEditHandler
 		{
 			m_lineScript.FinishLineWithoutNotify();
 		}
+		else if (!m_isDrawingLocally)
+		{
+			//Someone continues drawing the line
+			m_lineScript.SetFinishedWithoutNotify(false);
+		}
+	}
+
+	#endregion
+
+	#region Continue drawing
+
+	public void RequestContinue(bool a_fromStart)
+	{
+		ContinueLineServerRpc(a_fromStart);
+	}
+
+	[Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+	void ContinueLineServerRpc(bool a_fromStart, RpcParams a_rpcParams = default)
+	{
+		ulong sender = a_rpcParams.Receive.SenderClientId;
+		bool granted = m_lineIsFinished.Value && !m_isClosed.Value && m_syncedPoints.Count > 0 && !IsAnySyncedPointHeld();
+
+		if (granted)
+		{
+			if (OwnerClientId != sender)
+			{
+				NetworkObject.ChangeOwnership(sender);
+			}
+			m_serverDrawerClientId = sender;
+			m_lineIsFinished.Value = false;
+		}
+
+		ContinueResultRpc(granted, a_fromStart, RpcTarget.Single(sender, RpcTargetUse.Temp));
+	}
+
+	[Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Everyone)]
+	void ContinueResultRpc(bool a_granted, bool a_fromStart, RpcParams a_rpcParams = default)
+	{
+		if (a_granted)
+		{
+			//Start from the authoritative points; the server did not reverse them, the drawer does and sends the result
+			ApplySyncedPoints();
+			m_isDrawingLocally = true;
+			SubscribeDrawingEvents();
+			m_lineScript.SetFinishedWithoutNotify(false);
+
+			if (a_fromStart && m_lineScript.PointCount > 1)
+			{
+				m_lineScript.ReversePointsWithoutNotify();
+				SendReplacePoints();
+			}
+		}
+
+		m_lineScript.OnContinueResult(a_granted);
+	}
+
+	#endregion
+
+	#region Moving
+
+	public bool HasTransformAuthority => IsOwner;
+
+	public void RequestTransformAuthority(ulong a_pointA, ulong a_pointB)
+	{
+		if (IsOwner || Time.unscaledTime < m_nextAuthorityRequestTime)
+			return;
+
+		m_nextAuthorityRequestTime = Time.unscaledTime + AUTHORITY_REQUEST_INTERVAL;
+		TransformAuthorityServerRpc(a_pointA, a_pointB);
+	}
+
+	[Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+	void TransformAuthorityServerRpc(ulong a_pointA, ulong a_pointB, RpcParams a_rpcParams = default)
+	{
+		ulong sender = a_rpcParams.Receive.SenderClientId;
+		if (!m_lineIsFinished.Value || OwnerClientId == sender || a_pointA == a_pointB)
+			return;
+
+		int indexA = ServerIndexOf(a_pointA);
+		int indexB = ServerIndexOf(a_pointB);
+		if (indexA < 0 || indexB < 0)
+			return;
+
+		//Only the client holding both points may move the line
+		if (m_syncedPoints[indexA].HeldBy != sender || m_syncedPoints[indexB].HeldBy != sender)
+			return;
+
+		NetworkObject.ChangeOwnership(sender);
 	}
 
 	#endregion
@@ -371,7 +490,8 @@ public class PenLineNetworked : NetworkBehaviour, IPenLineEditHandler
 		bool wasEndpoint = index == 0 || index == m_syncedPoints.Count - 1;
 		m_syncedPoints.RemoveAt(index);
 
-		if (m_syncedPoints.Count <= 1)
+		//A single remaining point is a dot, removing the last point deletes the line
+		if (m_syncedPoints.Count == 0)
 		{
 			DespawnLine();
 			return;
@@ -399,6 +519,29 @@ public class PenLineNetworked : NetworkBehaviour, IPenLineEditHandler
 				m_syncedPoints[i] = point;
 			}
 		}
+
+		//Finish a line the disconnected client was still drawing, so others can edit or continue it
+		if (m_serverDrawerClientId == a_clientId && !m_lineIsFinished.Value)
+		{
+			m_serverDrawerClientId = ulong.MaxValue;
+			if (m_syncedPoints.Count == 0)
+			{
+				DespawnLine();
+				return;
+			}
+			m_lineIsFinished.Value = true;
+			FinishLineClientRPC(a_clientId);
+		}
+	}
+
+	private bool IsAnySyncedPointHeld()
+	{
+		foreach (PenLinePoint point in m_syncedPoints)
+		{
+			if (point.IsHeld)
+				return true;
+		}
+		return false;
 	}
 
 	private int ServerIndexOf(ulong a_id)
@@ -431,15 +574,7 @@ public class PenLineNetworked : NetworkBehaviour, IPenLineEditHandler
 
 	private bool IsAnyPointHeld()
 	{
-		if (m_lineScript.HasLocalHolds())
-			return true;
-
-		foreach (PenLinePoint point in m_syncedPoints)
-		{
-			if (point.IsHeld)
-				return true;
-		}
-		return false;
+		return m_lineScript.HasLocalHolds() || IsAnySyncedPointHeld();
 	}
 
 	private void LateUpdate()
