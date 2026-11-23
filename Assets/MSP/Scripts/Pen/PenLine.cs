@@ -97,16 +97,18 @@ public class PenLine : MonoBehaviour
 
 	private void Awake()
 	{
-		m_lineRenderer = GetComponent<LineRenderer>();
+		//The renderer lives on a child whose local Z faces up (for 'Transform Z' alignment), points stay in this transform's space
+		m_lineRenderer = GetComponentInChildren<LineRenderer>(true);
 		m_meshCollider = GetComponent<MeshCollider>();
 
 		Debug.Assert(m_lineRenderer != null, this);
 		Debug.Assert(m_meshCollider != null, this);
 
 		//The prefab's renderer contains the line origin, adopt it into the point model
+		Matrix4x4 rendererToLine = RendererToLineMatrix();
 		for (int i = 0; i < m_lineRenderer.positionCount; i++)
 		{
-			m_points.Add(new PenLinePoint(PenLinePoint.NewId(), m_lineRenderer.GetPosition(i)));
+			m_points.Add(new PenLinePoint(PenLinePoint.NewId(), rendererToLine.MultiplyPoint3x4(m_lineRenderer.GetPosition(i))));
 		}
 
 		if (ImportedConfigRoot.Instance.ImportComplete)
@@ -313,7 +315,7 @@ public class PenLine : MonoBehaviour
 	/// <summary>
 	/// True if a user may continue drawing this line from one of its endpoints.
 	/// </summary>
-	public bool CanContinue => m_isFinished && !m_isClosed && m_points.Count > 0 && !HasAnyHeldPoint() && m_continueCallback == null;
+	public bool CanContinue => m_isFinished && m_points.Count > 0 && !HasAnyHeldPoint() && m_continueCallback == null;
 
 	public bool HasAnyHeldPoint()
 	{
@@ -793,12 +795,35 @@ public class PenLine : MonoBehaviour
 		{
 			m_positionBuffer = new Vector3[count];
 		}
+		Matrix4x4 lineToRenderer = LineToRendererMatrix();
 		for (int i = 0; i < count; i++)
 		{
-			m_positionBuffer[i] = m_points[i].Position;
+			m_positionBuffer[i] = lineToRenderer.MultiplyPoint3x4(m_points[i].Position);
 		}
 		m_lineRenderer.positionCount = count;
 		m_lineRenderer.SetPositions(m_positionBuffer);
+	}
+
+	/// <summary>
+	/// Converts from this transform's space (the point model) to the line renderer's local space.
+	/// </summary>
+	private Matrix4x4 LineToRendererMatrix()
+	{
+		Transform rendererTransform = m_lineRenderer.transform;
+		if (rendererTransform == transform)
+			return Matrix4x4.identity;
+		return rendererTransform.worldToLocalMatrix * transform.localToWorldMatrix;
+	}
+
+	/// <summary>
+	/// Converts from the line renderer's local space to this transform's space (the point model).
+	/// </summary>
+	private Matrix4x4 RendererToLineMatrix()
+	{
+		Transform rendererTransform = m_lineRenderer.transform;
+		if (rendererTransform == transform)
+			return Matrix4x4.identity;
+		return transform.worldToLocalMatrix * rendererTransform.localToWorldMatrix;
 	}
 
 	private void UpdateFill()
@@ -948,6 +973,19 @@ public class PenLine : MonoBehaviour
 		{
 			mesh = new Mesh();
 			m_lineRenderer.BakeMesh(mesh, Camera.main);
+
+			//Baked in the renderer's local space, the collider sits on this transform
+			if (m_lineRenderer.transform != transform)
+			{
+				Matrix4x4 rendererToLine = RendererToLineMatrix();
+				Vector3[] vertices = mesh.vertices;
+				for (int i = 0; i < vertices.Length; i++)
+				{
+					vertices[i] = rendererToLine.MultiplyPoint3x4(vertices[i]);
+				}
+				mesh.vertices = vertices;
+				mesh.RecalculateBounds();
+			}
 		}
 
 		//Reassign so the collider picks up changes to a reused mesh

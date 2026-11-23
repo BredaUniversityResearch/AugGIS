@@ -110,9 +110,21 @@ public class MSPLocalNetworkDiscovery : NetworkDiscovery<DiscoveryBroadcastData,
 
 	private void OnServerStopped(bool obj)
 	{
-		if (m_networkManager.IsServer)
+		// NetworkManager resets its LocalClient (so IsServer is already false) before invoking OnServerStopped,
+		// so check our own discovery state instead.
+		if (IsServer)
 		{
 			StopDiscovery();
 		}
+	}
+
+	private void OnDestroy()
+	{
+		if (m_networkManager != null)
+		{
+			m_networkManager.OnServerStarted -= OnServerStarted;
+			m_networkManager.OnServerStopped -= OnServerStopped;
+		}
+		StopDiscovery();
 	}
 }

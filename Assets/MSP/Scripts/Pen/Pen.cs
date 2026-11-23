@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit;
+using Unity.Mathematics;
 
 public class Pen : MonoBehaviour
 {
@@ -288,6 +289,7 @@ public class Pen : MonoBehaviour
 		{
 			m_currentLine = Instantiate<PenLine>(m_linePrefab, this.transform.parent);
 			m_currentLine.transform.position = a_hitPosition;
+			m_currentLine.transform.rotation = quaternion.Euler(90f,0f,0f);
 			m_currentLine.ChangeLineColor(m_penColor);
 			m_currentLine.ChangeLineWidth(m_penWidth);
 		}

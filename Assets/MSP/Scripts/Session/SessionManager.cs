@@ -231,7 +231,7 @@ public class SessionManager : MonoBehaviour
 		}
 		else
 		{
-			m_sessionUserManager.DisconnectClient();
+			m_sessionUserManager?.DisconnectClient();
 		}
 	}
 
