@@ -1,208 +1,164 @@
-# AugGIS Data Backend Rework — Implementation Info
+# AugGIS GIS Data Layer — Implementation Info
 
-Local reference doc for this work, kept out of version control on purpose (per
-@sainsay — most documentation lives outside the repo; this file is just a shared,
-fixed point of reference between us for continuity across sessions/chats).
+Reference doc for the GIS data work, a shared, fixed point of continuity between
+us across sessions/chats. Semi-static: updated at milestones, as its own step.
 
-Branch: `data-backend-rework`.
+Current branch: `rest-gis-layer` (S2/S3). Previous branch `data-backend-rework`
+(Phase A + sub-phase 1 + S1) is finished and in review.
 
-## Phase A — done
+## Done (summary)
 
-Goal: move GIS dataset storage from "re-parsed from a zip every time" to a local
-SQLite database, as a stepping stone to real GIS-compliant layers later (Phase B).
-Kept the existing MSPC zip-shaped data model unchanged in meaning for Phase A — no
-GIS compliance yet, just proving the persistence + transport mechanism works.
-
-**Status: fully done and live-tested.**
-
-- SQLite schema (JSON-text columns, per-layer raster BLOBs, single-dataset model),
-  under `Assets/MSP/Scripts/GisData/` (namespace `MSP.Scripts.GisData`):
-  `DatasetInfoRow` / `LayerRow` / `RasterLayerRow` / `VectorObjectRow`.
-- `IGisDataSource` + `GisDataset` envelope abstraction; `MspChallengeZipDataSource`
-  (wraps the legacy MSPC zip pipeline unchanged); `SqliteGisDatasetWriter` /
-  `SqliteGisDataSource` (write/read, enforcing "DB stays pristine" by throwing if
-  handed already-rendered data); `SqliteRuntimeBootstrap` / `GisDatabaseService`
-  (provider init + connection lifecycle).
-- **`network-transport-swap`** (the whole-DB-file transport described here was
-  later replaced by the layer fetch API, see Phase B sub-phase 1): `WorldManager` now fully replaces the old
-  raw-zip-over-the-network flow (hard cut, no legacy toggle/dual-path — explicitly
-  agreed, since backward compatibility isn't being kept beyond "load the zip into
-  the DB"):
-  - Host loads via `MspChallengeZipDataSource` → `SqliteGisDatasetWriter.Write`
-    (persists to `gisdata.db`) → new `GisRasterTextureLoader` (decodes raw PNG
-    bytes → `Texture2D`, replacing `ZipUtil`'s decode-as-side-effect) →
-    `ImportedConfigRoot.Instance.Initialise(...)`, using the **in-memory** dataset
-    directly (no DB re-read on the host — nothing mutates it before `Initialise`).
-  - Host ships the written `gisdata.db` file's bytes (`File.ReadAllBytes`) to each
-    connecting client over the existing `NetworkDataMessenger` chunked transport,
-    instead of raw zip bytes.
-  - Client writes received bytes to its own local `gisdata.db`, reads it back via
-    `SqliteGisDataSource`, same `GisRasterTextureLoader` → `Initialise(...)` path.
-  - `LoadZipData`/`ZipUtil` remain only for `ConfigImporterWindow`'s manual/offline
-    tooling — no longer part of the live session path. Two small additive getters
-    added to `LoadZipData` (`DisplayMethodConfigFile`, `FileName`) so `WorldManager`
-    can reuse its existing configured Inspector references instead of duplicating
-    them.
-  - `GisDatabaseService` must be constructed in `Awake()`/`Start()`, not a field
-    initializer — its constructor touches `Application.persistentDataPath`, which
-    Unity disallows outside those lifecycle methods (hit and fixed during testing).
-  - **Live-tested and confirmed working**: laptop-as-host + XR-device-as-client,
-    and XR-device-as-host + XR-device-as-client. Both topologies render identically
-    to the old zip flow (confirmed via `config.zip`; the `Test_Small/Medium/Large`
-    zips show unrelated pre-existing layer-validation warnings from stale fixture
-    data, not something this rework introduced).
-- **Deferred, not dropped**: `sqlite-caching-versioning` (persist/reuse the DB
-  across host restarts) — confirmed low priority for now after checking with the
-  game designer. `DatasetInfoRow.SchemaVersion`/`GisDatabaseService.SchemaVersion`
-  already exist in the schema if/when this becomes relevant again.
-- **Explicitly out of scope here, by design**: a dedicated failure-mode/recovery
-  pass (e.g. the `NetworkDataMessenger.OnNetworkDespawn` `NullReferenceException`
-  seen once during testing, mid-disconnect-cascade) — @sainsay has a separate,
-  already-assigned task specifically for failure modes/recovery across the project,
-  so this is intentionally left alone here rather than fixed piecemeal.
-
-## Phase B, sub-phase 1 — layer discovery/fetch API — done
-
-Goal: stop sending the whole DB file over the network; clients discover which
-layers exist and fetch only through a layer-kind-agnostic protocol. Milestones
-M1-M5, all live-tested (editor, Linux server host, Quest host + Quest client,
-early join, late join, failure case).
-
-- **M1 — stable layer identity.** `ALayer.LayerId` (data-sourced, assigned by
-  `SqliteGisDatasetWriter`, equals `LayerRow.Id`/`SortOrder`) replaces positional
-  identity everywhere identity crosses a network/lookup boundary
-  (`LayerManager`, `LayerTag*`, `LayerMenuLayer`, NetworkList structs
-  `m_layerId`). `LayerIndex` stays a purely render-time positional value
-  (vertical offset / render-queue order), unrelated to identity.
-- **M2 — layer catalogue.** `LayerCatalogue` (on the `LayerManager` GameObject)
-  holds a server-written `NetworkList<LayerCatalogueEntry>` (metadata only:
-  id/kind/sortOrder/name/short/tags, fixed-size strings: 128/128/512 bytes,
-  truncation is logged). Late joiners receive it automatically; entries added
-  later raise `OnEntryAdded`. Entries already present at spawn raise no events,
-  so consumers read `Entries` once when ready. `LayerManager` looks up its
-  positional NetworkLists by id (`IndexOfLayerData`/`IndexOfTagData`).
-- **M3 — host REST server.** `GisHttpServer` (Watson.Lite 6.6.0, TCP-based, works
-  on Android/IL2CPP; bound to `0.0.0.0`, default port 50124, override with env
-  `MSPXRHttpPort`; no auth, LAN only). Protocol is identical for every layer
-  kind and goes through the `ILayerPayloadProvider` seam
-  (`SqliteLayerPayloadProvider` today; opens a short-lived read-only SQLite
-  connection per request because handlers run on thread-pool threads):
-  - `GET /dataset` -> projection, coordinates, metadata, source, schemaVersion
-  - `GET /layers/{id}` -> JSON manifest: common fields (id, kind, sortOrder,
-    name, short, tags, types), an opaque kind-specific `data` object, and an
-    `assets` array of `{key, contentType, length, meta?}`
-  - `GET /layers/{id}/assets/{key}` -> raw bytes with the asset's content type
-  - Raster today: `data` = coordinates/dataPath/scale/mapping + one asset
-    `raster` (image/png). Vector today: `data.objects` inline, no assets.
-    Future timeline PNGs or dense binary blobs fit as extra assets; how an
-    asset is interpreted is up to each layer kind, not the protocol.
-- **M4 — client fetch.** `LayerCatalogue.WhenReady` fires once the host has
-  published the catalogue AND finished its own `ImportedConfigRoot` import
-  (the `NetworkVariable<int>` published-count is only set on host
-  `ImportComplete`; this deliberately preserves the old "clients load only after
-  host import is complete" guarantee, because `LayerManager` ignores `Add` events
-  on its per-layer lists). The client then runs `GisHttpDataSource` (an
-  `IGisDataSource`): fetch `/dataset`, then each catalogue entry's manifest and
-  assets sequentially in sort order (skipping layers tagged `Invisible`),
-  `LayerManifestReader` builds `RasterLayer`/`VectorLayer`, and the assembled
-  `GisDataset` goes through the existing `GisRasterTextureLoader` ->
-  `Initialise(...)` path. The host URL comes from
-  `UnityTransport.ConnectionData.Address` + `GisHttpServer.ResolvePort()`.
-  Clients keep no local database.
-- **M5 — cleanup.** Removed the whole-DB-file transport:
-  `NetworkDataMessenger` (script and scene component), `WorldManager`'s
-  send/receive code. Only the host opens `GisDatabaseService`.
-  `SqliteGisDataSource` is intentionally kept for the deferred caching work.
+### Phase A — SQLite storage
+GIS datasets are stored in a local SQLite database instead of being re-parsed from
+a zip every time. Code under `Assets/MSP/Scripts/GisData/` (namespace
+`MSP.Scripts.GisData`).
+- Schema: `DatasetInfoRow` / `LayerRow` / `RasterLayerRow` / `VectorObjectRow`
+  (JSON-text columns, per-layer raster BLOBs, single-dataset model).
+- `IGisDataSource` + `GisDataset` envelope; `MspChallengeZipDataSource` (legacy MSPC
+  zip); `SqliteGisDatasetWriter` / `SqliteGisDataSource` (the DB stays pristine:
+  throws if handed already-rendered data); `GisDatabaseService` (provider init and
+  connection lifecycle). It must be constructed in `Awake()`/`Start()` because it
+  touches `Application.persistentDataPath`.
+- `WorldManager` loads via the zip source, writes `gisdata.db`, decodes rasters with
+  `GisRasterTextureLoader`, and calls `ImportedConfigRoot.Instance.Initialise(...)`.
   `LoadZipData`/`ZipUtil` remain only for `ConfigImporterWindow`'s offline tooling.
+- Deferred: `sqlite-caching-versioning` (reuse the DB across host restarts, low
+  priority; `SchemaVersion` already exists).
 
-Notes:
-- `GisDatabaseService` must be constructed in `Awake()`/`Start()` (touches
-  `Application.persistentDataPath`).
-- Known, accepted limitations: `Initialise` is still all-at-once and clients
-  fetch every non-`Invisible` layer including ones `Initialise` later drops as
-  invalid; fetching is sequential and vector JSON is parsed on the main thread
-  (not measured on Quest). Failure handling is out of scope here, see
-  `FAILURE_MODES_HANDOFF.md` (untracked) for what to pass to the failure-modes
-  task.
+### Phase B, sub-phase 1 — layer discovery/fetch API (M1-M5)
+Clients no longer receive the DB file; they discover layers and fetch them over a
+layer-kind-agnostic protocol. Live-tested (editor, Linux server host, Quest
+host/client, early/late join).
+- **Stable identity:** `ALayer.LayerId` (= `LayerRow.Id`/`SortOrder`) replaces
+  positional identity wherever identity crosses a network/lookup boundary.
+  `LayerIndex` is render-time only.
+- **Catalogue:** `LayerCatalogue` holds a server-written
+  `NetworkList<LayerCatalogueEntry>` (metadata only, fixed-size strings, truncation
+  logged). Entries present at spawn raise no events, entries added later raise
+  `OnEntryAdded`. `WhenReady` fires only once the host finished its own import.
+- **Host REST server:** `GisHttpServer` (Watson.Lite 6.6.0, TCP, works on
+  Android/IL2CPP, `0.0.0.0`, default port 50124, env `MSPXRHttpPort`, no auth, LAN
+  only). Handlers run on thread-pool threads. All content goes through
+  `ILayerPayloadProvider` (`SqliteLayerPayloadProvider` today, short-lived read-only
+  SQLite connection per request):
+  - `GET /dataset` -> projection, coordinates, metadata, source, schemaVersion
+  - `GET /layers/{id}` -> manifest: common fields (id, kind, sortOrder, name, short,
+    tags, types), an opaque kind-specific `data` object, and `assets`
+    (`{key, contentType, length, meta?}`)
+  - `GET /layers/{id}/assets/{key}` -> raw bytes with the asset's content type
+  - Raster: `data` = coordinates/dataPath/scale/mapping + asset `raster` (image/png).
+    Vector: `data.objects` inline, no assets.
+- **Client fetch:** `GisHttpDataSource` (an `IGisDataSource`) fetches `/dataset`,
+  then each catalogue entry's manifest and assets sequentially (skipping
+  `Invisible`). `LayerManifestReader` builds `RasterLayer`/`VectorLayer`. The host
+  URL = `UnityTransport.ConnectionData.Address` + `GisHttpServer.ResolvePort()`.
+  Clients keep no local database. The old whole-DB transport and
+  `NetworkDataMessenger` were removed; `SqliteGisDataSource` is kept for the
+  deferred caching work.
+- Known, accepted: `Initialise` is all-at-once; clients fetch layers `Initialise`
+  later drops as invalid; fetching is sequential; vector JSON is parsed on the main
+  thread (not measured on Quest).
 
-## Phase B, sub-phase 1b (S1) — runtime layer add — done
+### Sub-phase 1b (S1) — runtime layer add
+Layers can be added to a running session, on the host and every client. Live-tested
+(editor host + 2 Quest clients, early and late joiner).
+- **Host:** `WorldManager.AddLayerToSession(layer, kind, textures)` (server, main
+  thread; **the layer must already be in the DB**) calls
+  `ImportedConfigRoot.AddLayer` (queued, one at a time, needs completed initial
+  import, same Invisible/Validate filtering, raises `m_onLayerAdded`). Only on
+  success it appends to `LayerCatalogue`, which notifies clients.
+  `LayerManager.OnLayerAddedAfterImport` handles it; runtime layers start hidden.
+- **Layer menu:** the host owns an append-only `NetworkList<FixedString128Bytes>` of
+  category names (`LayerMenuNetworked`); the list index is the category id. A new
+  layer in an existing category is appended in place; a new category is appended at
+  the end. A shared selection of a category not built yet is applied once it appears.
+- **Client:** `ClientLayerLoader` keeps a set of handled ids (seeded from the
+  initial catalogue snapshot), reconciles against the catalogue after the initial
+  import and on every `OnEntryAdded`, fetches unknown non-Invisible layers one at a
+  time via `GisHttpDataSource.LoadLayer`, then `ImportedConfigRoot.AddLayer`.
+- **Failures:** a failed runtime layer on a client is logged, skipped, never
+  retried, no disconnect; the client reports it (`ReportLayerLoadFailedRpc`) and the
+  host logs a warning.
+- **Editor test aid:** `WorldManager.m_debugHoldBackLayerCount` holds back the last N
+  layers at load; the Odin button "Add next held-back layer" adds them one by one.
+- Known, accepted: runtime category entries call `AssetManager.GetSprite`, which may
+  recreate an `AssetManager` destroyed by the import; vertical step is not
+  re-applied to runtime layers; a new category can briefly show an empty page on a
+  client that has not loaded its layers yet.
 
-Goal: layers can be added to a running session, on the host and on every client,
-without a reload. Live-tested (editor host + 2 Quest clients, one early, one late
-joiner). This is the last step of branch `data-backend-rework`.
+## Decisions (don't re-litigate)
 
-- **Host add.** `WorldManager.AddLayerToSession(layer, kind, textures)` (server,
-  main thread; layer data must already be in the DB) calls
-  `ImportedConfigRoot.AddLayer` (queued, one at a time, requires the initial import
-  to be complete, same Invisible/Validate filtering, applies all display methods,
-  raises `m_onLayerAdded`), and only on success appends the layer to
-  `LayerCatalogue`, which tells the clients. `LayerManager` handles
-  `m_onLayerAdded` (`OnLayerAddedAfterImport`); runtime layers start hidden
-  (static layers still follow config).
-- **Layer menu.** The host owns an append-only `NetworkList<FixedString128Bytes>`
-  of category names (`LayerMenuNetworked`); the list index is the category id, so
-  indices agree on every machine and late joiners get it for free. Every machine
-  builds category entries from that list (`LayerMenu.AddCategory`). A new layer in
-  an existing category is appended to its page in place; a layer in a new category
-  appends that category at the end. Empty categories are ignored. A shared
-  selection naming a category not built yet on this machine is remembered and
-  applied when it appears.
-- **Client add.** `ClientLayerLoader` (created by `WorldManager` on the client):
-  keeps a set of handled layer ids (seeded from the catalogue snapshot used by the
-  initial load), reconciles it against the catalogue when the client's initial
-  import completes and on every `OnEntryAdded`, and fetches unknown non-Invisible
-  layers one at a time via `GisHttpDataSource.LoadLayer` (the same per-layer fetch
-  code the initial load uses), then `ImportedConfigRoot.AddLayer`. Late joiners
-  get everything through the normal initial path.
-- **Failures.** A runtime layer that fails on a client is logged, skipped, never
-  retried and does not disconnect; the client reports it to the host
-  (`WorldManager.ReportLayerLoadFailedRpc`) which logs a warning with the client id
-  and layer id.
-- **Testing aid (editor only).** `WorldManager.m_debugHoldBackLayerCount` holds back
-  the last N layers at dataset load; the Odin button "Add next held-back layer"
-  (play mode, host) adds them one by one through `AddLayerToSession`.
-- Small additions: `AssetManager.AddRasterTextures`,
-  `GisRasterTextureLoader.Decode`, `LayerManager.TryGetLayerData`.
-
-Known, accepted: a category entry created at runtime calls `AssetManager.GetSprite`,
-which may recreate an `AssetManager` after the import destroyed it; the vertical
-step is not re-applied to runtime layers (they start at step 0, like initial
-import); a new category can briefly show an empty page on a client that has not
-loaded its layers yet.
-
-## Decisions for what comes next
-
-- **Target format: GeoPackage** (OGC GPKG, SQLite based), with GeoJSON as input
-  format. New layers follow standard GIS formats; the host only needs to receive
-  the data, not download it from sources.
-- **Write endpoint: no authentication** for now (LAN, trusted); at most a fixed
+- **Target format: GeoPackage** (OGC GPKG, SQLite based); GeoJSON is the input
+  format for vector data.
+- **No authentication** on the layer API for now (LAN, trusted); at most a fixed
   shared token later.
-- **Projection gap:** the MSP dataset projection is a PROJ.4 laea string, GeoJSON is
-  WGS84, and the project has no projection library, so reprojection must be added.
-- **New layers** are hidden by default and should show up in the layer list and be
+- **Caller of the write API:** not the AR devices but the team's "Extended
+  Functionality" service (LLM-orchestrated; a Quest voice command makes it look up,
+  process and present layers from an external DB, and it POSTs them to the host).
+- **Reprojection stays minimal:** the project has no projection library, the MSP
+  dataset projection is a PROJ.4 laea string and GeoJSON is WGS84. Implement only a
+  small WGS84 -> dataset-laea converter behind an interface; reject anything else
+  with a clear error. Generic PROJ support is explicitly out of scope.
+- **Geometry types:** points, lines, polygons (plus Multi variants) from GeoJSON.
+- **Raster ingestion (first version):** PNG plus bounds in the dataset's own
+  projection, matching what `RasterLayer` already stores. GeoTIFF and raster
+  reprojection are later work.
+- **New layers** are hidden by default and should appear in the layer list and be
   loaded by clients as soon as possible, even if not shown.
+- **Failure handling** belongs to another teammate's task; gaps are noted in
+  `FAILURE_MODES_HANDOFF.md`, not fixed piecemeal.
 
-## Deferred / next (separate branches)
+## Plan — branch `rest-gis-layer`
 
-- **S2 — POST ingestion on the host:** HTTP endpoint on `GisHttpServer`; handlers
-  run on thread-pool threads, so hand the layer to the main thread and call
-  `AddLayerToSession`. The layer must be written to the DB BEFORE
-  `AddLayerToSession`, otherwise clients get a 404 when they fetch it.
-- **S3 — GeoPackage tables, GeoJSON parsing, reprojection** (likely behind
-  `ILayerPayloadProvider`, with a generic asset table: layer id, key, content type,
-  bytes).
-- **S4 — spatial indexing** (R-tree / bbox) for large layers.
-- **Later:** incremental `Initialise` for the initial load; clients fetching only
-  relevant layers.
-- **`sqlite-caching-versioning`:** persist/reuse the DB across host restarts (low
-  priority; `SchemaVersion` exists).
-- **Out of scope by design:** failure-mode/recovery pass (separate task, see
-  `FAILURE_MODES_HANDOFF.md`).
+Each step is handed over individually; nothing is started before it is asked for.
+
+### S2 — POST ingestion (receive only; nothing stored)
+Goal: prove the host can receive large uploads without being blocked. Data is
+parsed/measured and then **discarded**: no DB writes, no `AddLayerToSession`.
+- `POST /layers` on `GisHttpServer`: one JSON request (layer metadata + GeoJSON, or
+  PNG + bounds for raster; exact request shape to be settled when S2 is handed over).
+- **Large files:** read the body as a stream, not a single `DataAsBytes`; enforce a
+  configurable maximum size and answer `413`. Check what Watson.Lite 6.6.0 exposes
+  for streaming and body limits before choosing the mechanism.
+- **Non-blocking:** all reading and parsing on the handler's thread-pool thread,
+  parsing with Newtonsoft's streaming reader (no full `JObject` of big files).
+  Nothing touches Unity objects. Handing the result to the main thread is only
+  needed from S3b on.
+- **Verification output:** handler logs size, geometry counts and timings; host
+  frame times stay steady during an upload.
+- Test: curl uploads (small, very large, malformed, over the limit) against the
+  editor host and a Quest host.
+
+### S3 — reprojection, storage, wiring
+- **S3a:** WGS84 -> dataset laea converter behind an interface (small, unit-checkable
+  with known coordinates).
+- **S3b:** GeoPackage-shaped tables and a generic asset table (layer id, key,
+  content type, bytes) behind `ILayerPayloadProvider`; write the layer to the DB,
+  then hand it to the main thread and call `AddLayerToSession`. **The DB write must
+  complete before `AddLayerToSession`**, otherwise clients get a 404 on fetch.
+  Response returns the new layer id or an error.
+
+### S3c — upload API self-description and usage docs (after S3b)
+Done after S3b so it describes the final request shape.
+- `GET /layers/schema`: small, hand-written, static JSON describing the upload API:
+  accepted content types, query parameters (required/optional, type, example), the
+  live size limit (`MSPXRMaxUploadMB`), layer kinds and their required fields. Lets
+  the Extended Functionality service read the live contract instead of a hardcoded
+  copy. No OpenAPI generator or UI.
+- Usage documentation for the service developers (curl examples, parameters,
+  status codes, response format). Written as its own step when asked.
+
+### Later
+- **S4:** spatial indexing (R-tree / bbox) for large layers.
+- Incremental `Initialise` for the initial load; clients fetching only relevant
+  layers.
+- GeoTIFF / raster reprojection; `sqlite-caching-versioning`.
+- Failure-mode/recovery pass (separate task, `FAILURE_MODES_HANDOFF.md`).
 
 ## How to pick this back up
 
 1. Re-read this file top to bottom.
-2. Check `git log` on `data-backend-rework` for anything newer than described here.
+2. Check `git log` on `rest-gis-layer` for anything newer than described here.
 3. Plan the next step collaboratively before writing code; implement only the
    part explicitly handed over; never commit (the user manages git); the user
    tests in Unity.

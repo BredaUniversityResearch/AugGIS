@@ -13,6 +13,7 @@ namespace MSP.Scripts.GisData
 	///   GET /dataset                     -> JSON dataset info (projection, coordinates, metadata)
 	///   GET /layers/{id}                 -> JSON manifest (see ILayerPayloadProvider)
 	///   GET /layers/{id}/assets/{key}    -> raw asset bytes with its Content-Type
+	///   POST /layers                     -> upload a layer (S2: received and discarded, see LayerUploadReceiver)
 	/// The API is identical for every layer kind; what a layer contains is the
 	/// provider's and the client's business. Handlers run on thread-pool threads.
 	/// No authentication: intended for the local network session only.
@@ -25,6 +26,7 @@ namespace MSP.Scripts.GisData
 		private readonly ILayerPayloadProvider m_provider;
 		private readonly ushort m_port;
 		private WebserverLite m_server;
+		private long m_maxUploadBytes;
 
 		public bool IsRunning => m_server != null && m_server.IsListening;
 
@@ -49,7 +51,10 @@ namespace MSP.Scripts.GisData
 			{
 				//Watson.Lite uses a TCP listener, 0.0.0.0 = listen on all interfaces
 				WebserverSettings settings = new WebserverSettings("0.0.0.0", m_port);
+				m_maxUploadBytes = LayerUploadReceiver.ResolveMaxBytes();
+				settings.IO.MaxRequestBodySize = m_maxUploadBytes;
 				m_server = new WebserverLite(settings, HandleNotFound);
+				m_server.Routes.PreAuthentication.Static.Add(HttpMethod.POST, "/layers", HandleUpload);
 				m_server.Routes.PreAuthentication.Static.Add(HttpMethod.GET, "/dataset", HandleDatasetInfo);
 				m_server.Routes.PreAuthentication.Parameter.Add(HttpMethod.GET, "/layers/{id}", HandleManifest);
 				m_server.Routes.PreAuthentication.Parameter.Add(HttpMethod.GET, "/layers/{id}/assets/{key}", HandleAsset);
@@ -153,6 +158,28 @@ namespace MSP.Scripts.GisData
 				a_context.Response.StatusCode = 200;
 				a_context.Response.ContentType = asset.ContentType;
 				await a_context.Response.Send(asset.Bytes);
+			}
+			catch (Exception exception)
+			{
+				await SendError(a_context, exception);
+			}
+		}
+
+		//S2: receives and discards the upload, see LayerUploadReceiver
+		private async Task HandleUpload(HttpContextBase a_context)
+		{
+			try
+			{
+				JObject summary = await LayerUploadReceiver.ReceiveAsync(a_context, m_maxUploadBytes);
+
+				a_context.Response.StatusCode = 200;
+				a_context.Response.ContentType = "application/json";
+				await a_context.Response.Send(summary.ToString(Formatting.None));
+			}
+			catch (UploadRejectedException exception)
+			{
+				Debug.LogWarning($"[GisHttpServer] Upload rejected ({exception.StatusCode}): {exception.Message}");
+				await SendText(a_context, exception.StatusCode, exception.Message);
 			}
 			catch (Exception exception)
 			{

@@ -46,6 +46,19 @@ failure-mode/recovery task. Update as milestones land.
 - Untidy, not failures: `AssetManager` is recreated by sprite lookups after the
   import destroyed it; vertical step is not re-applied to runtime layers.
 
+## S2 — POST /layers (`LayerUploadReceiver`, receive-and-discard)
+- Chunked uploads (no Content-Length) are rejected with 411; no support yet.
+- No limit on the number of concurrent uploads beyond Watson's own; each runs on a
+  thread-pool thread and is read at network speed. A stalled client holds a handler
+  until Watson's read timeout (not verified what its default is).
+- Oversized or malformed uploads are answered (413/400/415) and logged, but the
+  caller (Extended Functionality service) gets no retry guidance.
+- A client that aborts mid-upload surfaces as a logged HTTP 500. A client that
+  sends FEWER bytes than its Content-Length leaves the read waiting on the socket
+  (the request stream is not bounded by Watson), until a socket/read timeout.
+- Whether Watson keeps the connection clean after an early 413 (body not read) is
+  untested.
+
 ## Not in scope of the data-backend rework at all
 - Behaviour when the host leaves/crashes mid-session, reconnect handling,
   and cleanup of partially-initialised layers.
