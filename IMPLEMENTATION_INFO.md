@@ -100,6 +100,11 @@ Layers can be added to a running session, on the host and every client. Live-tes
   small WGS84 -> dataset-laea converter behind an interface; reject anything else
   with a clear error. Generic PROJ support is explicitly out of scope.
 - **Geometry types:** points, lines, polygons (plus Multi variants) from GeoJSON.
+  One geometry type per layer; mixed files are rejected, the caller sends clean
+  single-purpose layers.
+- **GeoPackage scope:** standard GPKG tables in the existing `gisdata.db`, new
+  layers only, data reprojected into the dataset CRS BEFORE it lands in the DB so
+  the rest of the path stays simple. Zip-imported layers stay in the old tables.
 - **Raster ingestion (first version):** PNG plus bounds in the dataset's own
   projection, matching what `RasterLayer` already stores. GeoTIFF and raster
   reprojection are later work.
@@ -112,41 +117,74 @@ Layers can be added to a running session, on the host and every client. Live-tes
 
 Each step is handed over individually; nothing is started before it is asked for.
 
-### S2 — POST ingestion (receive only; nothing stored)
-Goal: prove the host can receive large uploads without being blocked. Data is
-parsed/measured and then **discarded**: no DB writes, no `AddLayerToSession`.
-- `POST /layers` on `GisHttpServer`: one JSON request (layer metadata + GeoJSON, or
-  PNG + bounds for raster; exact request shape to be settled when S2 is handed over).
-- **Large files:** read the body as a stream, not a single `DataAsBytes`; enforce a
-  configurable maximum size and answer `413`. Check what Watson.Lite 6.6.0 exposes
-  for streaming and body limits before choosing the mechanism.
-- **Non-blocking:** all reading and parsing on the handler's thread-pool thread,
-  parsing with Newtonsoft's streaming reader (no full `JObject` of big files).
-  Nothing touches Unity objects. Handing the result to the main thread is only
-  needed from S3b on.
-- **Verification output:** handler logs size, geometry counts and timings; host
-  frame times stay steady during an upload.
-- Test: curl uploads (small, very large, malformed, over the limit) against the
-  editor host and a Quest host.
+### S2 — POST ingestion (receive only) — done
+`POST /layers` (`LayerUploadReceiver`, called from `GisHttpServer`) receives an
+upload and discards it. Live-tested with a large GeoJSON (600+ MultiPolygon
+features), PNG, and invalid input.
+- **Request shape:** body = raw payload, metadata in the query string. Vector:
+  `Content-Type: application/json` or `application/geo+json`, GeoJSON body. Raster:
+  `image/png`, PNG body plus `bounds=minX,minY,maxX,maxY`. Query: `name` (required),
+  `short`, `category`, `tags` (comma separated).
+- **Large files, non-blocking:** body read as a stream on the handler's thread-pool
+  thread; GeoJSON walked with a forward-only `JsonTextReader` (no full `JObject`).
+  `Content-Length` required (chunked -> 411); limit 512 MB, env `MSPXRMaxUploadMB`
+  (413); 400 for bad JSON/PNG/missing params; 415 for other content types.
+- **Gotcha:** Watson's `Request.Data` is not bounded by `Content-Length`; a read
+  past the body blocks on the kept-alive socket forever. `CountingStream` reports
+  end-of-stream after `Content-Length` bytes (also counts bytes, logs progress
+  about once a second).
 
-### S3 — reprojection, storage, wiring
-- **S3a:** WGS84 -> dataset laea converter behind an interface (small, unit-checkable
-  with known coordinates).
-- **S3b:** GeoPackage-shaped tables and a generic asset table (layer id, key,
-  content type, bytes) behind `ILayerPayloadProvider`; write the layer to the DB,
-  then hand it to the main thread and call `AddLayerToSession`. **The DB write must
-  complete before `AddLayerToSession`**, otherwise clients get a 404 on fetch.
-  Response returns the new layer id or an error.
+### S3 — reprojection, conversion, storage, wiring
+Findings that shape it: a runtime `VectorObject` is ONE polygon (`points` = outer
+ring, `gaps` = holes), line or point in dataset-projection `float` coordinates, so a
+MultiPolygon feature becomes several objects. A layer's geometry type comes from its
+tag (`Polygon`/`Line`/`Point`), so layers are homogeneous. Polygons/lines are
+clipped to the play area at render time, so no clipping at ingest. The `types`
+catalogue is per layer (`name`, `colour`, ...), objects index into it.
 
-### S3c — upload API self-description and usage docs (after S3b)
-Done after S3b so it describes the final request shape.
-- `GET /layers/schema`: small, hand-written, static JSON describing the upload API:
-  accepted content types, query parameters (required/optional, type, example), the
-  live size limit (`MSPXRMaxUploadMB`), layer kinds and their required fields. Lets
-  the Extended Functionality service read the live contract instead of a hardcoded
-  copy. No OpenAPI generator or UI.
-- Usage documentation for the service developers (curl examples, parameters,
-  status codes, response format). Written as its own step when asked.
+- **S3a — reprojection.** `ICoordinateConverter` with an ellipsoidal Lambert
+  azimuthal equal-area implementation (Snyder), parameters read from the dataset's
+  PROJ string; any other projection is rejected with a clear error. Check: lon 10,
+  lat 52 must give exactly (x_0, y_0); plus a forward/inverse round trip (no pyproj
+  available for reference values). No DB involved.
+- **S3b — GeoJSON -> layer model.** Streaming conversion to `VectorObject[]`: Multi*
+  split into several objects, rings reprojected, feature `properties` -> object
+  metadata, layer tags and types catalogue built. A file mixing geometry types is
+  rejected (400); the caller must send clean single-type layers. Types: optional
+  query param `typeProperty` (distinct values of that feature property become the
+  catalogue, default colour or a `colour` param); without it one type named after
+  the layer. Still no DB (log/inspect the result).
+  CRS: optional query param `crs` on vector uploads: `wgs84` (default, reprojected
+  through `CoordinateConverterFactory`) or `dataset` (already in the dataset
+  projection, passed through untouched). Anything else is a 400. We do NOT verify
+  what the caller claims. A caller that cannot send WGS84 finds the dataset
+  projection string via the existing `GET /dataset` (`projection`), projects the
+  data itself and sends `crs=dataset`. The legacy GeoJSON `crs` member stays ignored.
+- **S3c — storage + wiring.** Standard GPKG tables added to the existing
+  `gisdata.db` (`gpkg_spatial_ref_sys`, `gpkg_contents`, `gpkg_geometry_columns`),
+  one feature table per uploaded layer (WKB geometry + attributes), stored already
+  reprojected into the dataset CRS, so serving stays cheap. Plus the generic asset
+  table (layer id, key, content type, bytes). Served through `ILayerPayloadProvider`
+  (manifest format unchanged for clients). Zip-imported layers stay in the old
+  tables, no compatibility work. The DB write must complete BEFORE the main-thread
+  handoff to `AddLayerToSession` (otherwise clients get a 404). The POST response
+  returns the new layer id or an error.
+- **S3d — raster ingest.** PNG + bounds into `RasterLayerRow` through the same add
+  flow. `DataPath` is only the key under which `AssetManager` stores the texture
+  (the zip path is legacy), so uploads get a generated unique key. Open: what kind
+  of raster the service sends (value map with a scale vs. type map vs. a
+  display-as-is image); the current `RasterLayer` has no plain-image mode, a layer
+  without scale falls back to Lin(0,1000) with a warning.
+- **S3e — upload API self-description and usage docs** (after S3d, so it describes the
+  final request shape).
+  - `GET /layers/schema`: small, hand-written, static JSON describing the upload API:
+    accepted content types, query parameters (required/optional, type, example), the
+    live size limit (`MSPXRMaxUploadMB`), layer kinds and their required fields, the
+    `crs` options and where to find the dataset projection. Lets
+    the Extended Functionality service read the live contract instead of a hardcoded
+    copy. No OpenAPI generator or UI.
+  - Usage documentation for the service developers (curl examples, parameters,
+    status codes, response format). Written as its own step when asked.
 
 ### Later
 - **S4:** spatial indexing (R-tree / bbox) for large layers.
