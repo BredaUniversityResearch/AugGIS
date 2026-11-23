@@ -44,6 +44,13 @@ namespace MSP.Scripts.GisData
 				return;
 
 			m_connection = new SQLiteConnection(DatabasePath);
+
+			//Write-ahead logging lets clients keep fetching layers while an upload is being
+			//written (readers do not block on the writer). The mode is stored in the file.
+			string journalMode = m_connection.ExecuteScalar<string>("PRAGMA journal_mode=WAL");
+			if (!string.Equals(journalMode, "wal", StringComparison.OrdinalIgnoreCase))
+				Debug.LogWarning($"[GisDatabaseService] Could not enable WAL mode (journal_mode = {journalMode}); layer uploads may briefly block layer fetches.");
+
 			CreateSchema();
 		}
 

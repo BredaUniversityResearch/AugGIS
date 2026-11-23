@@ -119,7 +119,7 @@ public class WorldManager : NetworkBehaviour
 			//layers over HTTP and have no local copy.
 			m_gisDatabaseService.Open();
 
-			m_gisHttpServer = new GisHttpServer(new SqliteLayerPayloadProvider(m_gisDatabaseService.DatabasePath), GisHttpServer.ResolvePort());
+			m_gisHttpServer = new GisHttpServer(new SqliteLayerPayloadProvider(m_gisDatabaseService.DatabasePath), new GpkgLayerStore(m_gisDatabaseService.DatabasePath), GisHttpServer.ResolvePort());
 			m_gisHttpServer.Start();
 			//default region coords if none is set in enviorment variables
 			//Small sample

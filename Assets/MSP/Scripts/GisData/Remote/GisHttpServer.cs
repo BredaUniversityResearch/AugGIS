@@ -13,7 +13,7 @@ namespace MSP.Scripts.GisData
 	///   GET /dataset                     -> JSON dataset info (projection, coordinates, metadata)
 	///   GET /layers/{id}                 -> JSON manifest (see ILayerPayloadProvider)
 	///   GET /layers/{id}/assets/{key}    -> raw asset bytes with its Content-Type
-	///   POST /layers                     -> upload a layer (S3b: received, converted and discarded, see LayerUploadReceiver)
+	///   POST /layers                     -> upload a layer (vector: converted and stored, see LayerUploadReceiver)
 	/// The API is identical for every layer kind; what a layer contains is the
 	/// provider's and the client's business. Handlers run on thread-pool threads.
 	/// No authentication: intended for the local network session only.
@@ -24,15 +24,17 @@ namespace MSP.Scripts.GisData
 		private const string PortEnvironmentVariable = "MSPXRHttpPort";
 
 		private readonly ILayerPayloadProvider m_provider;
+		private readonly GpkgLayerStore m_layerStore;
 		private readonly ushort m_port;
 		private WebserverLite m_server;
 		private long m_maxUploadBytes;
 
 		public bool IsRunning => m_server != null && m_server.IsListening;
 
-		public GisHttpServer(ILayerPayloadProvider a_provider, ushort a_port)
+		public GisHttpServer(ILayerPayloadProvider a_provider, GpkgLayerStore a_layerStore, ushort a_port)
 		{
 			m_provider = a_provider;
+			m_layerStore = a_layerStore;
 			m_port = a_port;
 		}
 
@@ -165,12 +167,12 @@ namespace MSP.Scripts.GisData
 			}
 		}
 
-		//S2/S3b: receives and converts the upload, then discards it, see LayerUploadReceiver
+		//Receives, converts and stores an uploaded layer, see LayerUploadReceiver
 		private async Task HandleUpload(HttpContextBase a_context)
 		{
 			try
 			{
-				JObject summary = await LayerUploadReceiver.ReceiveAsync(a_context, m_maxUploadBytes, m_provider);
+				JObject summary = await LayerUploadReceiver.ReceiveAsync(a_context, m_maxUploadBytes, m_provider, m_layerStore);
 
 				a_context.Response.StatusCode = 200;
 				a_context.Response.ContentType = "application/json";

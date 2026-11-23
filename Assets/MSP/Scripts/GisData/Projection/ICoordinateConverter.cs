@@ -17,5 +17,10 @@ namespace MSP.Scripts.GisData
 		/// Inverse of FromWgs84. Result in degrees.
 		/// </summary>
 		void ToWgs84(double a_x, double a_y, out double a_lon, out double a_lat);
+
+		/// <summary>
+		/// The projection as OGC WKT (the form GeoPackage's gpkg_spatial_ref_sys.definition holds).
+		/// </summary>
+		string ToWkt();
 	}
 }

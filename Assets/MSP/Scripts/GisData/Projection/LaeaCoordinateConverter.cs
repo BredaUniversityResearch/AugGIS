@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 
 namespace MSP.Scripts.GisData
 {
@@ -18,6 +19,10 @@ namespace MSP.Scripts.GisData
 		private const double Deg2Rad = Math.PI / 180.0;
 		private const double Rad2Deg = 180.0 / Math.PI;
 
+		private readonly double m_semiMajorAxis;
+		private readonly double m_flattening;
+		private readonly double m_lat0Degrees;
+		private readonly double m_lon0Degrees;
 		private readonly double m_lat0;
 		private readonly double m_lon0;
 		private readonly double m_falseEasting;
@@ -39,6 +44,10 @@ namespace MSP.Scripts.GisData
 			if (Math.Abs(a_lat0Degrees) >= 89.999999)
 				throw new NotSupportedException("The polar aspect of laea (lat_0 = +-90) is not supported.");
 
+			m_semiMajorAxis = a_semiMajorAxis;
+			m_flattening = a_flattening;
+			m_lat0Degrees = a_lat0Degrees;
+			m_lon0Degrees = a_lon0Degrees;
 			m_e2 = a_flattening * (2.0 - a_flattening);
 			m_e = Math.Sqrt(m_e2);
 			m_lat0 = a_lat0Degrees * Deg2Rad;
@@ -98,6 +107,21 @@ namespace MSP.Scripts.GisData
 
 			a_lon = NormaliseRadians(m_lon0 + deltaLon) * Rad2Deg;
 			a_lat = AuthalicToGeodetic(beta) * Rad2Deg;
+		}
+
+		public string ToWkt()
+		{
+			CultureInfo c = CultureInfo.InvariantCulture;
+			return "PROJCS[\"MSP dataset projection (LAEA)\"," +
+				"GEOGCS[\"Geographic CRS on the dataset ellipsoid\"," +
+				$"DATUM[\"Dataset datum\",SPHEROID[\"Dataset ellipsoid\",{m_semiMajorAxis.ToString("R", c)},{(1.0 / m_flattening).ToString("R", c)}]]," +
+				"PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433]]," +
+				"PROJECTION[\"Lambert_Azimuthal_Equal_Area\"]," +
+				$"PARAMETER[\"latitude_of_center\",{m_lat0Degrees.ToString("R", c)}]," +
+				$"PARAMETER[\"longitude_of_center\",{m_lon0Degrees.ToString("R", c)}]," +
+				$"PARAMETER[\"false_easting\",{m_falseEasting.ToString("R", c)}]," +
+				$"PARAMETER[\"false_northing\",{m_falseNorthing.ToString("R", c)}]," +
+				"UNIT[\"metre\",1]]";
 		}
 
 		//Snyder 3-12: q for geodetic latitude phi

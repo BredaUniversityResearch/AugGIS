@@ -40,6 +40,13 @@ namespace MSP.Scripts.GisData
 
 		/// <summary>Called with the number of features seen so far (progress reporting).</summary>
 		public Action<int> OnFeature;
+
+		/// <summary>
+		/// Called once, with "Polygon", "Line" or "Point", as soon as the first feature
+		/// with geometry fixes the layer's geometry type and before its objects reach the
+		/// sink (a storage sink needs the type to create its table).
+		/// </summary>
+		public Action<string> OnGeometryTag;
 	}
 
 	public class GeoJsonConversionResult
@@ -223,7 +230,10 @@ namespace MSP.Scripts.GisData
 			string type = (string)geometry["type"];
 			string tag = TagFor(type, a_index);
 			if (m_result.GeometryTag == null)
+			{
 				m_result.GeometryTag = tag;
+				m_options.OnGeometryTag?.Invoke(tag);
+			}
 			else if (m_result.GeometryTag != tag)
 				throw new GeoJsonConversionException($"Feature #{a_index} is a {type}, but the layer already holds {m_result.GeometryTag} geometry. Send one geometry type per layer.");
 

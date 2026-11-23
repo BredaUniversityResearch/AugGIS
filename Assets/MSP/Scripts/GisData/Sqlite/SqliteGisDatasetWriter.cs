@@ -53,6 +53,8 @@ namespace MSP.Scripts.GisData
 
 		private static void ClearExistingDataset(SQLiteConnection a_connection)
 		{
+			//uploaded layers live in their own feature tables, which go with the dataset
+			GpkgSchema.DropAllLayerTables(a_connection);
 			a_connection.DeleteAll<VectorObjectRow>();
 			a_connection.DeleteAll<RasterLayerRow>();
 			a_connection.DeleteAll<LayerRow>();

@@ -26,9 +26,10 @@ namespace MSP.Scripts.GisData
 	}
 
 	/// <summary>
-	/// Receives a layer upload (POST /layers). S2/S3b: the upload is received and
-	/// converted (vector) or checked (raster), then DISCARDED. Nothing is stored and no
-	/// layer is added to the session yet; storage and the session handoff are S3c.
+	/// Receives a layer upload (POST /layers). Vector uploads are converted and stored in
+	/// the database (GpkgVectorLayerWriter), where GET /layers/{id} serves them;
+	/// announcing the new layer to the session is not wired up yet (S3c step 2). Raster
+	/// uploads are only checked and then DISCARDED (S3d).
 	///
 	/// Request shape: the body is the raw payload, the metadata is in the query string.
 	///  - Vector: Content-Type application/json or application/geo+json, body = GeoJSON
@@ -67,7 +68,7 @@ namespace MSP.Scripts.GisData
 		/// Reads and validates the upload, returns a JSON summary for the response.
 		/// Throws UploadRejectedException for anything the caller did wrong.
 		/// </summary>
-		public static async Task<JObject> ReceiveAsync(HttpContextBase a_context, long a_maxBytes, ILayerPayloadProvider a_datasetProvider)
+		public static async Task<JObject> ReceiveAsync(HttpContextBase a_context, long a_maxBytes, ILayerPayloadProvider a_datasetProvider, GpkgLayerStore a_store)
 		{
 			System.Diagnostics.Stopwatch stopwatch = System.Diagnostics.Stopwatch.StartNew();
 			HttpRequestBase request = a_context.Request;
@@ -106,71 +107,100 @@ namespace MSP.Scripts.GisData
 
 			Debug.Log($"[LayerUploadReceiver] {name}, trying to ingest {request.ContentLength} bytes");
 
+			//Vector uploads are stored in one transaction that is only committed once the
+			//whole body has been read and converted; disposing without a commit rolls back.
+			GpkgVectorLayerWriter writer = null;
+			GeoJsonConversionResult result = null;
+			List<string> vectorTags = null;
+			string shortName = request.RetrieveQueryValue("short");
+			if (string.IsNullOrWhiteSpace(shortName))
+				shortName = name;
 
-			using (CountingStream body = new CountingStream(request.Data, a_maxBytes, name, request.ContentLength))
+			try
 			{
-				if (isRaster)
+				using (CountingStream body = new CountingStream(request.Data, a_maxBytes, name, request.ContentLength))
 				{
-					summary["kind"] = "raster";
-					summary["tags"] = new JArray(ParseTags(request.RetrieveQueryValue("tags")));
-					summary["bounds"] = new JArray(ParseBounds(request.RetrieveQueryValue("bounds")));
-					await ScanPngAsync(body);
-				}
-				else
-				{
-					summary["kind"] = "vector";
-					VectorObject firstObject = null;
-					GeoJsonConversionOptions options = new GeoJsonConversionOptions
+					if (isRaster)
 					{
-						LayerName = name,
-						TypeProperty = request.RetrieveQueryValue("typeProperty"),
-						Colour = request.RetrieveQueryValue("colour"),
-						Converter = converter,
-						OnFeature = a_count => body.ItemsSeen = a_count
-					};
-
-					GeoJsonConversionResult result;
-					try
-					{
-						//S3b: the sink only keeps the first object for the log, S3c will store them
-						result = await GeoJsonLayerConverter.ConvertAsync(body, options, a_object => { if (firstObject == null) firstObject = a_object; });
+						summary["kind"] = "raster";
+						summary["tags"] = new JArray(ParseTags(request.RetrieveQueryValue("tags")));
+						summary["bounds"] = new JArray(ParseBounds(request.RetrieveQueryValue("bounds")));
+						await ScanPngAsync(body);
 					}
-					catch (GeoJsonConversionException exception)
+					else
 					{
-						throw new UploadRejectedException(400, exception.Message);
-					}
+						summary["kind"] = "vector";
+						writer = await a_store.BeginVectorLayerAsync();
+						VectorObject firstObject = null;
+						GeoJsonConversionOptions options = new GeoJsonConversionOptions
+						{
+							LayerName = name,
+							TypeProperty = request.RetrieveQueryValue("typeProperty"),
+							Colour = request.RetrieveQueryValue("colour"),
+							Converter = converter,
+							OnFeature = a_count => body.ItemsSeen = a_count,
+							OnGeometryTag = writer.BeginTable
+						};
 
-					Debug.Log($"[LayerUploadReceiver] '{name}' conversion finished, {body.BytesRead} bytes read, {stopwatch.ElapsedMilliseconds} ms");
-					summary["geometry"] = result.GeometryTag;
-					summary["tags"] = new JArray(BuildVectorTags(request.RetrieveQueryValue("tags"), result.GeometryTag));
-					summary["features"] = result.Features;
-					summary["skippedFeatures"] = result.SkippedFeatures;
-					summary["objects"] = result.Objects;
-					summary["positions"] = result.Positions;
-					summary["types"] = new JArray(result.Types);
-					if (result.Positions > 0)
-						summary["bounds"] = new JArray(result.MinX, result.MinY, result.MaxX, result.MaxY);
+						try
+						{
+							result = await GeoJsonLayerConverter.ConvertAsync(body, options, a_object =>
+							{
+								if (firstObject == null)
+									firstObject = a_object;
+								writer.Add(a_object);
+							});
+						}
+						catch (GeoJsonConversionException exception)
+						{
+							throw new UploadRejectedException(400, exception.Message);
+						}
 
-					if (firstObject != null)
-					{
+						if (writer.ObjectCount == 0)
+							throw new UploadRejectedException(400, "The file contains no geometry.");
+
+						Debug.Log($"[LayerUploadReceiver] '{name}' conversion finished, {body.BytesRead} bytes read, {stopwatch.ElapsedMilliseconds} ms");
+						vectorTags = BuildVectorTags(request.RetrieveQueryValue("tags"), result.GeometryTag);
+						summary["geometry"] = result.GeometryTag;
+						summary["tags"] = new JArray(vectorTags);
+						summary["features"] = result.Features;
+						summary["skippedFeatures"] = result.SkippedFeatures;
+						summary["objects"] = result.Objects;
+						summary["positions"] = result.Positions;
+						summary["types"] = new JArray(result.Types);
+						if (result.Positions > 0)
+							summary["bounds"] = new JArray(result.MinX, result.MinY, result.MaxX, result.MaxY);
+
 						Debug.Log($"[LayerUploadReceiver] '{name}' first object: {firstObject.points.Length} points, first point ({firstObject.points[0][0]}, {firstObject.points[0][1]}), " +
 							$"{(firstObject.gaps != null ? firstObject.gaps.Length + " gaps" : "no gaps")}, metadata {firstObject.metadata?.ToString(Formatting.None) ?? "none"}");
 					}
+
+					//drain whatever the scan did not consume (e.g. trailing whitespace) so the
+					//byte count is the real body size and the connection is left clean
+					byte[] drain = new byte[BufferSize];
+					while (await body.ReadAsync(drain, 0, drain.Length) > 0)
+					{
+					}
+
+					summary["bytes"] = body.BytesRead;
 				}
 
-				//drain whatever the scan did not consume (e.g. trailing whitespace) so the
-				//byte count is the real body size and the connection is left clean
-				byte[] drain = new byte[BufferSize];
-				while (await body.ReadAsync(drain, 0, drain.Length) > 0)
+				if (writer != null)
 				{
-					// Debug.Log($"[LayerUploadReceiver] {name} draining, read {body.BytesRead}");
+					//Only now is the layer complete: this makes it visible to GET /layers/{id}
+					int layerId = writer.Commit(result, name, shortName, vectorTags);
+					summary["stored"] = true;
+					summary["layerId"] = layerId;
 				}
-				
-				summary["bytes"] = body.BytesRead;
+			}
+			finally
+			{
+				writer?.Dispose();
 			}
 
 			summary["elapsedMs"] = stopwatch.ElapsedMilliseconds;
-			Debug.Log($"[LayerUploadReceiver] Received (and discarded) {summary["kind"]} layer '{name}': {summary["bytes"]} bytes in {stopwatch.ElapsedMilliseconds} ms on thread {Environment.CurrentManagedThreadId}");
+			Debug.Log($"[LayerUploadReceiver] Received {summary["kind"]} layer '{name}': {summary["bytes"]} bytes in {stopwatch.ElapsedMilliseconds} ms on thread {Environment.CurrentManagedThreadId}, " +
+				(writer != null ? $"stored as layer {summary["layerId"]}" : "discarded (raster ingest is not implemented yet)"));
 			return summary;
 		}
 
@@ -216,13 +246,15 @@ namespace MSP.Scripts.GisData
 
 		private static ICoordinateConverter ResolveConverter(string a_crs, ILayerPayloadProvider a_datasetProvider)
 		{
-			if (a_crs == "dataset")
-				return null;
-			if (a_crs != "wgs84")
+			if (a_crs != "wgs84" && a_crs != "dataset")
 				throw new UploadRejectedException(400, "Query parameter 'crs' must be 'wgs84' (default) or 'dataset'");
 
+			//Needed for both: the layer is stored into the loaded dataset
 			if (!a_datasetProvider.TryGetDatasetInfo(out JObject datasetInfo))
-				throw new UploadRejectedException(503, "No dataset is loaded yet, so the dataset projection is unknown");
+				throw new UploadRejectedException(503, "No dataset is loaded yet, so there is nothing to add the layer to");
+
+			if (a_crs == "dataset")
+				return null;
 
 			try
 			{

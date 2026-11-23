@@ -70,6 +70,23 @@ failure-mode/recovery task. Update as milestones land.
 - Malformed features abort the whole upload with a 400 naming the feature index;
   there is no partial acceptance.
 
+## S3c step 1 — storing uploaded vector layers (`GpkgVectorLayerWriter`)
+- Uploads are serialised by one lock held for the whole upload, so a slow or
+  stalled upload makes every later upload wait (no timeout on the wait).
+- An upload that arrives before the host's dataset is in the DB gets a 503. One that
+  arrives while the host writes the dataset can interleave with it, and replacing the
+  dataset (every host start) drops all uploaded layers and restarts layer ids at 0.
+- A stored layer is not yet announced to the session (step 2): until then it is in
+  the DB but invisible to clients; if the announce step fails later, the stored layer
+  stays behind as an orphan.
+- Needs WAL mode (set when the host opens the DB) so uploads do not block layer
+  fetches. Not tested on Quest/Android; if WAL cannot be enabled only a warning is
+  logged.
+- If the dataset projection cannot be described as WKT the layer is stored with the
+  undefined-Cartesian srs_id -1 instead (the PROJ string stays in dataset_info).
+- Coordinates are stored as double but originate from float (about 0.25 m at MSP
+  coordinates); a Multi* feature becomes one row per part, with its metadata repeated.
+
 ## Not in scope of the data-backend rework at all
 - Behaviour when the host leaves/crashes mid-session, reconnect handling,
   and cleanup of partially-initialised layers.

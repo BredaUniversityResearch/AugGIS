@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SQLite;
 
@@ -152,8 +153,35 @@ namespace MSP.Scripts.GisData
 			};
 		}
 
+		//Uploaded layers keep their geometry in a GeoPackage feature table (one row per
+		//VectorObject) instead of vector_objects; the manifest looks the same either way.
+		private static JObject BuildUploadedVectorData(SQLiteConnection a_connection, string a_tableName)
+		{
+			List<UploadedFeatureRow> rows = a_connection.Query<UploadedFeatureRow>(
+				$"SELECT geom AS Geom, type_index AS TypeIndex, metadata AS Metadata FROM {a_tableName} ORDER BY id");
+
+			JArray objects = new JArray();
+			foreach (UploadedFeatureRow row in rows)
+			{
+				GpkgGeometryCodec.Decode(row.Geom, out float[][] points, out float[][][] gaps);
+				objects.Add(new JObject
+				{
+					["points"] = new JRaw(JsonConvert.SerializeObject(points)),
+					["gaps"] = gaps != null ? new JRaw(JsonConvert.SerializeObject(gaps)) : JValue.CreateNull(),
+					["types"] = new JArray(row.TypeIndex),
+					["metadata"] = RawOrNull(row.Metadata)
+				});
+			}
+
+			return new JObject { ["objects"] = objects };
+		}
+
 		private static JObject BuildVectorData(SQLiteConnection a_connection, int a_layerId)
 		{
+			string uploadedTable = GpkgSchema.TableName(a_layerId);
+			if (GpkgSchema.TableExists(a_connection, uploadedTable))
+				return BuildUploadedVectorData(a_connection, uploadedTable);
+
 			List<VectorObjectRow> objectRows = a_connection.Table<VectorObjectRow>()
 				.Where(a_row => a_row.LayerId == a_layerId)
 				.OrderBy(a_row => a_row.ObjectIndex)
@@ -180,5 +208,13 @@ namespace MSP.Scripts.GisData
 		{
 			return a_json != null ? new JRaw(a_json) : JValue.CreateNull();
 		}
+	}
+
+	/// <summary>Result row when reading an uploaded layer's feature table (sqlite-net maps by property name).</summary>
+	public class UploadedFeatureRow
+	{
+		public byte[] Geom { get; set; }
+		public int TypeIndex { get; set; }
+		public string Metadata { get; set; }
 	}
 }
