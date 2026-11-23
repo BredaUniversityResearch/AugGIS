@@ -59,6 +59,17 @@ failure-mode/recovery task. Update as milestones land.
 - Whether Watson keeps the connection clean after an early 413 (body not read) is
   untested.
 
+## S3b — GeoJSON conversion (`GeoJsonLayerConverter`)
+- `crs=dataset` is trusted: data that is not actually in the dataset projection
+  lands in the wrong place without any error. (`crs=wgs84` does reject positions
+  outside the lon/lat range.)
+- Layers whose tags match no category/display method in the display method config
+  are accepted but will not appear in the layer menu (known, shown/handled later).
+- Memory is bounded per feature while parsing, but one enormous single feature is
+  loaded whole. Coordinates are stored as float (about 0.25 m at MSP coordinates).
+- Malformed features abort the whole upload with a 400 naming the feature index;
+  there is no partial acceptance.
+
 ## Not in scope of the data-backend rework at all
 - Behaviour when the host leaves/crashes mid-session, reconnect handling,
   and cleanup of partially-initialised layers.

@@ -16,6 +16,8 @@ namespace MSP.Scripts.GisData.Editor
 	{
 		private const string MspProjection = "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs";
 
+		private const string DownloadedProjection = "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs";
+
 		[MenuItem("Tools/GIS Data/Check Coordinate Converter")]
 		private static void Run()
 		{
@@ -53,9 +55,15 @@ namespace MSP.Scripts.GisData.Editor
 			converter.ToWgs84(4048536.0, 3470232.0, out double areaLon, out double areaLat);
 			Debug.Log($"[CoordinateConverterCheck] INFO sample dataset coordinate0 (4048536, 3470232) = lon {areaLon:F4}, lat {areaLat:F4} (expected somewhere in the North Sea, roughly 5.8E 54.3N)");
 
+			//4b. The string of freshly downloaded MSP data (EPSG:3035 style) must give the same result
+			ICoordinateConverter downloadedConverter = CoordinateConverterFactory.Create(DownloadedProjection);
+			downloadedConverter.FromWgs84(5.0, 54.0, out double downloadedX, out double downloadedY);
+			converter.FromWgs84(5.0, 54.0, out double plainX, out double plainY);
+			failures += Report("downloaded projection string (+towgs84=0..., +type=crs)", downloadedX == plainX && downloadedY == plainY, $"({downloadedX}, {downloadedY}) vs ({plainX}, {plainY})");
+
 			//5. Unsupported strings must be refused, not guessed
 			failures += ReportRefused("refuses utm", "+proj=utm +zone=31 +ellps=GRS80 +units=m");
-			failures += ReportRefused("refuses +towgs84", "+proj=laea +lat_0=52 +lon_0=10 +ellps=GRS80 +towgs84=0,0,0");
+			failures += ReportRefused("refuses a real +towgs84 shift", "+proj=laea +lat_0=52 +lon_0=10 +ellps=GRS80 +towgs84=1,2,3,0,0,0,0");
 			failures += ReportRefused("refuses other ellipsoid", "+proj=laea +lat_0=52 +lon_0=10 +ellps=bessel");
 			failures += ReportRefused("refuses units=ft", "+proj=laea +lat_0=52 +lon_0=10 +units=ft");
 			failures += ReportRefused("refuses polar aspect", "+proj=laea +lat_0=90 +lon_0=0");

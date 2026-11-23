@@ -13,7 +13,7 @@ namespace MSP.Scripts.GisData
 	///   GET /dataset                     -> JSON dataset info (projection, coordinates, metadata)
 	///   GET /layers/{id}                 -> JSON manifest (see ILayerPayloadProvider)
 	///   GET /layers/{id}/assets/{key}    -> raw asset bytes with its Content-Type
-	///   POST /layers                     -> upload a layer (S2: received and discarded, see LayerUploadReceiver)
+	///   POST /layers                     -> upload a layer (S3b: received, converted and discarded, see LayerUploadReceiver)
 	/// The API is identical for every layer kind; what a layer contains is the
 	/// provider's and the client's business. Handlers run on thread-pool threads.
 	/// No authentication: intended for the local network session only.
@@ -165,12 +165,12 @@ namespace MSP.Scripts.GisData
 			}
 		}
 
-		//S2: receives and discards the upload, see LayerUploadReceiver
+		//S2/S3b: receives and converts the upload, then discards it, see LayerUploadReceiver
 		private async Task HandleUpload(HttpContextBase a_context)
 		{
 			try
 			{
-				JObject summary = await LayerUploadReceiver.ReceiveAsync(a_context, m_maxUploadBytes);
+				JObject summary = await LayerUploadReceiver.ReceiveAsync(a_context, m_maxUploadBytes, m_provider);
 
 				a_context.Response.StatusCode = 200;
 				a_context.Response.ContentType = "application/json";

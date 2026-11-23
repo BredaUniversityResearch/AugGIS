@@ -19,7 +19,7 @@ namespace MSP.Scripts.GisData
 		//Parameters that change the result in ways this implementation ignores.
 		private static readonly string[] UnsupportedParameters =
 		{
-			"towgs84", "datum", "nadgrids", "geoidgrids", "pm", "axis", "to_meter", "a", "b", "rf", "f", "es", "R"
+			"datum", "nadgrids", "geoidgrids", "pm", "axis", "to_meter", "a", "b", "rf", "f", "es", "R"
 		};
 
 		public static ICoordinateConverter Create(string a_projString)
@@ -38,6 +38,11 @@ namespace MSP.Scripts.GisData
 				if (parameters.ContainsKey(unsupported))
 					throw new NotSupportedException($"Unsupported parameter +{unsupported} in \"{a_projString}\".");
 			}
+
+			//Strings for the standard European LAEA (EPSG:3035) carry +towgs84=0,0,0,0,0,0,0,
+			//a datum shift of nothing, so it is accepted. A real shift is refused.
+			if (parameters.TryGetValue("towgs84", out string datumShift))
+				RequireZeroDatumShift(datumShift, a_projString);
 
 			if (parameters.TryGetValue("units", out string units) && units != "m")
 				throw new NotSupportedException($"Unsupported units '{units}' in \"{a_projString}\". Only metres are supported.");
@@ -58,6 +63,20 @@ namespace MSP.Scripts.GisData
 				GetNumber(parameters, "lon_0", a_projString),
 				GetNumber(parameters, "x_0", a_projString),
 				GetNumber(parameters, "y_0", a_projString));
+		}
+
+		private static void RequireZeroDatumShift(string a_shift, string a_projString)
+		{
+			string[] values = a_shift.Split(',');
+			bool valid = values.Length == 3 || values.Length == 7;
+			foreach (string value in values)
+			{
+				if (!double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out double number) || number != 0.0)
+					valid = false;
+			}
+
+			if (!valid)
+				throw new NotSupportedException($"Unsupported parameter +towgs84={a_shift} in \"{a_projString}\". Only a zero datum shift is supported.");
 		}
 
 		private static Dictionary<string, string> Parse(string a_projString)

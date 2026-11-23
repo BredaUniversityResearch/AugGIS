@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using POV_Unity;
 using UnityEngine;
 using WatsonWebserver.Core;
 
@@ -25,15 +26,22 @@ namespace MSP.Scripts.GisData
 	}
 
 	/// <summary>
-	/// S2: receives a layer upload (POST /layers) and then DISCARDS it. Nothing is
-	/// stored and no layer is added to the session yet; the point is to prove the host
-	/// can take large bodies without being blocked.
+	/// Receives a layer upload (POST /layers). S2/S3b: the upload is received and
+	/// converted (vector) or checked (raster), then DISCARDED. Nothing is stored and no
+	/// layer is added to the session yet; storage and the session handoff are S3c.
 	///
 	/// Request shape: the body is the raw payload, the metadata is in the query string.
 	///  - Vector: Content-Type application/json or application/geo+json, body = GeoJSON
+	///    (one geometry type per file). Converted to VectorObjects by GeoJsonLayerConverter.
+	///    Query: crs=wgs84 (default, reprojected into the dataset projection) or
+	///    crs=dataset (already in the dataset projection, passed through, not verified;
+	///    the projection is available from GET /dataset), typeProperty=<feature property
+	///    whose distinct values become the layer's types>, colour=#rrggbb
 	///  - Raster: Content-Type image/png, body = PNG, query also needs
 	///    bounds=minX,minY,maxX,maxY (in the dataset's own projection)
-	///  - Query: name (required), short, category, tags (comma separated)
+	///  - Common query: name (required), short, tags (comma separated; they decide the
+	///    layer's category and display methods through the display method config, the
+	///    geometry tag Polygon/Line/Point is added automatically for vector layers)
 	/// A Content-Length is required (chunked uploads are answered with 411 for now).
 	///
 	/// Everything runs on the handler's thread-pool thread and the body is read as a
@@ -59,7 +67,7 @@ namespace MSP.Scripts.GisData
 		/// Reads and validates the upload, returns a JSON summary for the response.
 		/// Throws UploadRejectedException for anything the caller did wrong.
 		/// </summary>
-		public static async Task<JObject> ReceiveAsync(HttpContextBase a_context, long a_maxBytes)
+		public static async Task<JObject> ReceiveAsync(HttpContextBase a_context, long a_maxBytes, ILayerPayloadProvider a_datasetProvider)
 		{
 			System.Diagnostics.Stopwatch stopwatch = System.Diagnostics.Stopwatch.StartNew();
 			HttpRequestBase request = a_context.Request;
@@ -85,9 +93,16 @@ namespace MSP.Scripts.GisData
 				["stored"] = false,
 				["name"] = name,
 				["short"] = request.RetrieveQueryValue("short"),
-				["category"] = request.RetrieveQueryValue("category"),
-				["tags"] = request.RetrieveQueryValue("tags"),
 			};
+
+			//Resolved before the body is read, so a bad request is refused without receiving it
+			ICoordinateConverter converter = null;
+			if (isVector)
+			{
+				string crs = (request.RetrieveQueryValue("crs") ?? "wgs84").Trim().ToLowerInvariant();
+				summary["crs"] = crs;
+				converter = ResolveConverter(crs, a_datasetProvider);
+			}
 
 			Debug.Log($"[LayerUploadReceiver] {name}, trying to ingest {request.ContentLength} bytes");
 
@@ -97,18 +112,50 @@ namespace MSP.Scripts.GisData
 				if (isRaster)
 				{
 					summary["kind"] = "raster";
+					summary["tags"] = new JArray(ParseTags(request.RetrieveQueryValue("tags")));
 					summary["bounds"] = new JArray(ParseBounds(request.RetrieveQueryValue("bounds")));
 					await ScanPngAsync(body);
 				}
 				else
 				{
 					summary["kind"] = "vector";
-					Dictionary<string, int> counts = await ScanGeoJsonAsync(body);
-					Debug.Log($"[LayerUploadReceiver] '{name}' scan finished, {body.BytesRead} bytes read, {stopwatch.ElapsedMilliseconds} ms");
-					JObject geometryCounts = new JObject();
-					foreach (KeyValuePair<string, int> pair in counts)
-						geometryCounts[pair.Key] = pair.Value;
-					summary["typeCounts"] = geometryCounts;
+					VectorObject firstObject = null;
+					GeoJsonConversionOptions options = new GeoJsonConversionOptions
+					{
+						LayerName = name,
+						TypeProperty = request.RetrieveQueryValue("typeProperty"),
+						Colour = request.RetrieveQueryValue("colour"),
+						Converter = converter,
+						OnFeature = a_count => body.ItemsSeen = a_count
+					};
+
+					GeoJsonConversionResult result;
+					try
+					{
+						//S3b: the sink only keeps the first object for the log, S3c will store them
+						result = await GeoJsonLayerConverter.ConvertAsync(body, options, a_object => { if (firstObject == null) firstObject = a_object; });
+					}
+					catch (GeoJsonConversionException exception)
+					{
+						throw new UploadRejectedException(400, exception.Message);
+					}
+
+					Debug.Log($"[LayerUploadReceiver] '{name}' conversion finished, {body.BytesRead} bytes read, {stopwatch.ElapsedMilliseconds} ms");
+					summary["geometry"] = result.GeometryTag;
+					summary["tags"] = new JArray(BuildVectorTags(request.RetrieveQueryValue("tags"), result.GeometryTag));
+					summary["features"] = result.Features;
+					summary["skippedFeatures"] = result.SkippedFeatures;
+					summary["objects"] = result.Objects;
+					summary["positions"] = result.Positions;
+					summary["types"] = new JArray(result.Types);
+					if (result.Positions > 0)
+						summary["bounds"] = new JArray(result.MinX, result.MinY, result.MaxX, result.MaxY);
+
+					if (firstObject != null)
+					{
+						Debug.Log($"[LayerUploadReceiver] '{name}' first object: {firstObject.points.Length} points, first point ({firstObject.points[0][0]}, {firstObject.points[0][1]}), " +
+							$"{(firstObject.gaps != null ? firstObject.gaps.Length + " gaps" : "no gaps")}, metadata {firstObject.metadata?.ToString(Formatting.None) ?? "none"}");
+					}
 				}
 
 				//drain whatever the scan did not consume (e.g. trailing whitespace) so the
@@ -167,58 +214,48 @@ namespace MSP.Scripts.GisData
 				throw new UploadRejectedException(400, "Body is empty");
 		}
 
-		//Forward-only walk, no JObject of the whole file. "properties", "coordinates",
-		//"crs" and "bbox" subtrees are skipped (still parsed, but never materialised)
-		//so only geometry/feature "type" values are tallied.
-		private static async Task<Dictionary<string, int>> ScanGeoJsonAsync(CountingStream a_body)
+		private static ICoordinateConverter ResolveConverter(string a_crs, ILayerPayloadProvider a_datasetProvider)
 		{
-			Dictionary<string, int> counts = new Dictionary<string, int>();
+			if (a_crs == "dataset")
+				return null;
+			if (a_crs != "wgs84")
+				throw new UploadRejectedException(400, "Query parameter 'crs' must be 'wgs84' (default) or 'dataset'");
+
+			if (!a_datasetProvider.TryGetDatasetInfo(out JObject datasetInfo))
+				throw new UploadRejectedException(503, "No dataset is loaded yet, so the dataset projection is unknown");
 
 			try
 			{
-				using (StreamReader streamReader = new StreamReader(a_body, new UTF8Encoding(false), true, BufferSize, true))
-				using (JsonTextReader reader = new JsonTextReader(streamReader))
-				{
-					if (!await reader.ReadAsync() || reader.TokenType != JsonToken.StartObject)
-						throw new UploadRejectedException(400, "GeoJSON root must be an object");
-
-					while (await reader.ReadAsync())
-					{
-						if (reader.TokenType != JsonToken.PropertyName)
-							continue;
-
-						string propertyName = (string)reader.Value;
-						if (propertyName == "properties" || propertyName == "coordinates" || propertyName == "crs" || propertyName == "bbox")
-						{
-							await reader.SkipAsync();
-						}
-						else if (propertyName == "type")
-						{
-							await reader.ReadAsync();
-							if (reader.TokenType == JsonToken.String)
-							{
-								string type = (string)reader.Value;
-								counts.TryGetValue(type, out int count);
-								counts[type] = count + 1;
-								// Debug.Log($"{type} seen at {reader.LineNumber}:{reader.LinePosition}");
-								if (type == "Feature")
-								{
-									a_body.ItemsSeen = count + 1;
-								}
-							}
-						}
-					}
-				}
+				return CoordinateConverterFactory.Create((string)datasetInfo["projection"]);
 			}
-			catch (JsonReaderException exception)
+			catch (NotSupportedException exception)
 			{
-				throw new UploadRejectedException(400, $"Invalid JSON: {exception.Message}");
+				throw new UploadRejectedException(501, $"{exception.Message} Send crs=dataset with data already in the dataset projection instead.");
 			}
+		}
 
-			if (counts.Count == 0)
-				throw new UploadRejectedException(400, "Body is not GeoJSON (no 'type' found)");
+		private static List<string> ParseTags(string a_tags)
+		{
+			List<string> tags = new List<string>();
+			foreach (string part in (a_tags ?? string.Empty).Split(','))
+			{
+				string tag = part.Trim();
+				if (tag.Length > 0 && !tags.Exists(a_existing => string.Equals(a_existing, tag, StringComparison.OrdinalIgnoreCase)))
+					tags.Add(tag);
+			}
+			return tags;
+		}
 
-			return counts;
+		//The geometry tag drives how VectorLayer processes the data, so it always comes
+		//from the data itself; a caller-supplied Polygon/Line/Point tag is dropped.
+		private static List<string> BuildVectorTags(string a_tags, string a_geometryTag)
+		{
+			List<string> tags = ParseTags(a_tags);
+			tags.RemoveAll(a_tag => a_tag.Equals("Polygon", StringComparison.OrdinalIgnoreCase)
+				|| a_tag.Equals("Line", StringComparison.OrdinalIgnoreCase)
+				|| a_tag.Equals("Point", StringComparison.OrdinalIgnoreCase));
+			tags.Insert(0, a_geometryTag);
+			return tags;
 		}
 
 		/// <summary>
