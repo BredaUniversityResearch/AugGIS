@@ -365,6 +365,7 @@ public class PenLine : MonoBehaviour
 			{
 				ReversePointsWithoutNotify();
 			}
+			SetClosedWithoutNotify(false);
 			SetFinishedWithoutNotify(false);
 			a_onResult?.Invoke(true);
 			return;
@@ -382,17 +383,6 @@ public class PenLine : MonoBehaviour
 		Action<bool> callback = m_continueCallback;
 		m_continueCallback = null;
 		callback?.Invoke(a_granted);
-	}
-
-	#endregion
-
-	#region Moving
-
-	public bool HasTransformAuthority => EditHandler == null || EditHandler.HasTransformAuthority;
-
-	public void RequestTransformAuthority(ulong a_pointA, ulong a_pointB)
-	{
-		EditHandler?.RequestTransformAuthority(a_pointA, a_pointB);
 	}
 
 	#endregion
@@ -521,6 +511,13 @@ public class PenLine : MonoBehaviour
 	#endregion
 
 	#region Editing
+
+	public bool HasTransformAuthority => EditHandler == null || EditHandler.HasTransformAuthority;
+
+	public void RequestTransformAuthority(ulong a_pointA, ulong a_pointB)
+	{
+		EditHandler?.RequestTransformAuthority(a_pointA, a_pointB);
+	}
 
 	/// <summary>
 	/// Starts dragging an existing point.

@@ -1,8 +1,6 @@
 #if !UNITY_SERVER
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.Receiver.Rendering;
-using UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.Theme.Primitives;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 /// <summary>
@@ -31,14 +29,19 @@ public class PenLinePointHandles : MonoBehaviour
 	[SerializeField] private float m_handleSize = 0.015f; //World-space metres. Diameter of a handle sphere.
 	[SerializeField] private float m_penTargetScale = 1.4f; //Scale multiplier of the endpoint a held pen would continue from.
 	[SerializeField] private float m_sendInterval = 0.05f; //Seconds between network position updates while dragging.
-	// [SerializeField] private Color m_handleColor = new Color(1f, 1f, 1f, 0.85f);
-	// [SerializeField] private Color m_endpointColor = new Color(0.3f, 1f, 0.45f, 0.9f); //Colour of the start and end point handles of open lines.
-	// [SerializeField] private Color m_removeColor = new Color(1f, 0.15f, 0.15f, 0.9f);
-	// [SerializeField] private Material m_handleMaterial; //Optional. Material for the handles, must use vertex colours. Falls back to a copy of the line material.
-	[SerializeField] private ColorAffordanceThemeDatum m_normalColorAffordance; //TODO: Replace affordance change with basecolour change
-	[SerializeField] private ColorAffordanceThemeDatum m_deletedColorAffordance; 
-	[SerializeField] private ColorAffordanceThemeDatum m_endpointColorAffordance; 
-	[SerializeField] private GameObject m_penLinePointPrefab; 
+	//Category colours, written to the handle material's _BaseColor. Hover/select feedback comes from the prefab's affordance theme,
+	//which is multiplied on top (so keep its idle colour white).
+	[SerializeField] private Color m_handleColor = Color.white;
+	[SerializeField] private Color m_endpointColor = new Color(0.384f, 0.937f, 0.698f, 1f); //Colour of the start and end point handles of open lines.
+	[SerializeField] private Color m_removeColor = new Color(0.937f, 0.235f, 0.235f, 1f);
+	[SerializeField] private GameObject m_penLinePointPrefab;
+
+	[Header("Drop shadow")]
+	[SerializeField] private Sprite m_shadowSprite; //Shown flat on the drawing plane where a dragged point would land. No shadow if unassigned.
+	[SerializeField] private Material m_shadowMaterial; //Optional, the default sprite material is used if unassigned.
+	[SerializeField] private Color m_shadowColor = new Color(0f, 0f, 0f, 0.5f);
+	[SerializeField] private float m_shadowSize = 0.002f; //World-space metres. Width of the shadow sprite.
+	[SerializeField] private float m_shadowHeightOffset = 0.001f; //World-space metres. Lifts the shadow off the plane to avoid z-fighting with the fill.
 
 	public float SendInterval => m_sendInterval;
 	public PenLine Line => m_line;
@@ -54,6 +57,8 @@ public class PenLinePointHandles : MonoBehaviour
 	private readonly List<ulong> m_removeBuffer = new List<ulong>();
 	private readonly List<PenLinePointHandle> m_tickBuffer = new List<PenLinePointHandle>();
 	private Transform m_handleRoot;
+	private readonly List<SpriteRenderer> m_shadows = new List<SpriteRenderer>();
+	private int m_activeShadowCount;
 
 	// Whole-line move state
 	private bool m_isMoving;
@@ -69,10 +74,6 @@ public class PenLinePointHandles : MonoBehaviour
 	private static float ms_nextHandRefreshTime = 0f;
 	private const float HAND_REFRESH_INTERVAL = 1f;
 	private const float PEN_HIDE_FACTOR = 1.5f;
-	// private static Mesh ms_normalMesh;
-	// private static Mesh ms_endpointMesh;
-	// private static Mesh ms_removeMesh;
-	// private static Material ms_sharedMaterial;
 
 	private void Awake()
 	{
@@ -135,6 +136,7 @@ public class PenLinePointHandles : MonoBehaviour
 		if (m_mode == VisibilityMode.Hidden)
 		{
 			EndLineMove();
+			SetActiveShadowCount(0);
 			return;
 		}
 
@@ -168,6 +170,8 @@ public class PenLinePointHandles : MonoBehaviour
 			bool isPenTarget = m_mode == VisibilityMode.PenEndpoints && m_hasPenTarget && handle.PointId == m_penTargetPointId;
 			SetWorldScale(handle.transform, isPenTarget ? m_handleSize * m_penTargetScale : m_handleSize);
 		}
+
+		UpdateShadows();
 	}
 
 	private VisibilityMode EvaluateVisibility()
@@ -458,43 +462,14 @@ public class PenLinePointHandles : MonoBehaviour
 		if (points.Count < 2)
 			return false;
 
-		// if (!m_line.IsClosed)
-		// {
-			if (m_handles.TryGetValue(points[0].Id, out a_handleA) && m_handles.TryGetValue(points[points.Count - 1].Id, out a_handleB)
-				&& a_handleA != null && a_handleB != null && a_handleA.IsDraggedLocally && a_handleB.IsDraggedLocally)
-			{
-				return true;
-			}
-			a_handleA = null;
-			a_handleB = null;
-			return false;
-		// }
-
-		// //Closed: keep the current pair while it is still held, otherwise take the first two dragged handles
-		// if (m_isMoving && m_moveHandleA != null && m_moveHandleB != null && m_moveHandleA.IsDraggedLocally && m_moveHandleB.IsDraggedLocally)
-		// {
-		// 	a_handleA = m_moveHandleA;
-		// 	a_handleB = m_moveHandleB;
-		// 	return true;
-		// }
-
-		// foreach (PenLinePointHandle handle in m_handles.Values)
-		// {
-		// 	if (handle == null || !handle.IsDraggedLocally)
-		// 		continue;
-
-		// 	if (a_handleA == null)
-		// 	{
-		// 		a_handleA = handle;
-		// 	}
-		// 	else
-		// 	{
-		// 		a_handleB = handle;
-		// 		return true;
-		// 	}
-		// }
-		// a_handleA = null;
-		// return false;
+		if (m_handles.TryGetValue(points[0].Id, out a_handleA) && m_handles.TryGetValue(points[points.Count - 1].Id, out a_handleB)
+			&& a_handleA != null && a_handleB != null && a_handleA.IsDraggedLocally && a_handleB.IsDraggedLocally)
+		{
+			return true;
+		}
+		a_handleA = null;
+		a_handleB = null;
+		return false;
 	}
 
 	private void BeginLineMove(PenLinePointHandle a_handleA, PenLinePointHandle a_handleB)
@@ -570,93 +545,95 @@ public class PenLinePointHandles : MonoBehaviour
 
 	private PenLinePointHandle CreateHandle()
 	{
-		// EnsureSharedAssets();
-
-		//TODO: replace with prefab spawn
 		GameObject handleObject = Instantiate(m_penLinePointPrefab,m_handleRoot);
 		handleObject.SetActive(false);
-		// handleObject.layer = m_handleLayer;
-		// handleObject.transform.SetParent(m_handleRoot, false);
-
-		// handleObject.AddComponent<MeshFilter>().sharedMesh = ms_normalMesh;
-		// MeshRenderer meshRenderer = handleObject.AddComponent<MeshRenderer>();
-		// meshRenderer.sharedMaterial = m_handleMaterial != null ? m_handleMaterial : ms_sharedMaterial;
-		// meshRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-		// meshRenderer.receiveShadows = false;
-
-		// SphereCollider sphereCollider = handleObject.AddComponent<SphereCollider>();
-		// sphereCollider.radius = 0.5f;
-		// //Not a trigger: the hands' near caster ignores triggers (QueryTriggerInteraction.Ignore)
-		// sphereCollider.isTrigger = false;
-
-		// Rigidbody body = handleObject.AddComponent<Rigidbody>();
-		// body.isKinematic = true;
-		// body.useGravity = false;
-
-		//Added last so XRI's Awake (on activation) picks up the collider
-		// PenLinePointHandle handle = handleObject.AddComponent<PenLinePointHandle>();
 		PenLinePointHandle handle = handleObject.GetComponent<PenLinePointHandle>();
 		handle.Configure();
 		return handle;
 	}
 
-	// private void EnsureSharedAssets()
-	// {
-	// 	if (ms_normalMesh == null)
-	// 	{
-	// 		GameObject primitive = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-	// 		Mesh sphere = primitive.GetComponent<MeshFilter>().sharedMesh;
-	// 		Destroy(primitive);
-
-	// 		ms_normalMesh = CreateColoredMesh(sphere, m_handleColor, "PenLineHandle");
-	// 		ms_endpointMesh = CreateColoredMesh(sphere, m_endpointColor, "PenLineHandleEndpoint");
-	// 		ms_removeMesh = CreateColoredMesh(sphere, m_removeColor, "PenLineHandleRemove");
-	// 	}
-
-	// 	if (ms_sharedMaterial == null)
-	// 	{
-	// 		ms_sharedMaterial = new Material(m_line.LineRenderer.sharedMaterial);
-	// 		ms_sharedMaterial.renderQueue = m_line.LineRenderer.sharedMaterial.renderQueue + 1;
-	// 	}
-	// }
-
-	// private static Mesh CreateColoredMesh(Mesh a_source, Color a_color, string a_name)
-	// {
-	// 	Mesh mesh = Instantiate(a_source);
-	// 	mesh.name = a_name;
-	// 	Color[] colors = new Color[mesh.vertexCount];
-	// 	for (int i = 0; i < colors.Length; i++)
-	// 	{
-	// 		colors[i] = a_color;
-	// 	}
-	// 	mesh.colors = colors;
-	// 	return mesh;
-	// }
-
 	/// <summary>
-	/// Picks the handle mesh: remove (red) > endpoint > normal.
+	/// Picks the handle's category colour: remove (red) > endpoint > normal.
 	/// </summary>
 	public void RefreshHandleVisual(PenLinePointHandle a_handle)
 	{
-		ColorMaterialPropertyAffordanceReceiver affordance = a_handle.GetComponentInChildren<ColorMaterialPropertyAffordanceReceiver>();
+		Color color;
 		if (a_handle.IsInRemoveRange)
-			affordance.affordanceThemeDatum.Value = m_deletedColorAffordance.Value;
+			color = m_removeColor;
 		else if (m_line.IsEndpoint(a_handle.PointId))
-			affordance.affordanceThemeDatum.Value = m_endpointColorAffordance.Value;
+			color = m_endpointColor;
 		else
-			affordance.affordanceThemeDatum.Value = m_normalColorAffordance.Value;
+			color = m_handleColor;
 
+		a_handle.SetBaseColor(color);
+	}
 
+	/// <summary>
+	/// Places a shadow sprite on the drawing plane under every locally dragged point, where it would land if released.
+	/// </summary>
+	private void UpdateShadows()
+	{
+		if (m_shadowSprite == null)
+		{
+			SetActiveShadowCount(0);
+			return;
+		}
 
-		// Mesh mesh;
-		// if (a_handle.IsInRemoveRange)
-		// 	mesh = ms_removeMesh;
-		// else if (!m_line.IsClosed && m_line.IsEndpoint(a_handle.PointId))
-		// 	mesh = ms_endpointMesh;
-		// else
-		// 	mesh = ms_normalMesh;
+		float heightOffset = m_line.GlobalToLocalDistance(m_shadowHeightOffset);
+		float spriteWidth = Mathf.Max(m_shadowSprite.bounds.size.x, 1e-6f);
+		int count = 0;
 
-		// a_handle.GetComponent<MeshFilter>().sharedMesh = mesh;
+		foreach (PenLinePointHandle handle in m_handles.Values)
+		{
+			if (handle == null || !handle.TryGetLandingPosition(out Vector3 landing))
+				continue;
+
+			if (count == m_shadows.Count)
+			{
+				m_shadows.Add(CreateShadow());
+			}
+
+			SpriteRenderer shadow = m_shadows[count++];
+			//m_handleRoot has an identity local transform, so line-local == shadow-parent-local
+			shadow.transform.localPosition = new Vector3(landing.x, heightOffset, landing.z);
+			SetWorldScale(shadow.transform, m_shadowSize / spriteWidth);
+		}
+
+		SetActiveShadowCount(count);
+	}
+
+	private void SetActiveShadowCount(int a_count)
+	{
+		for (int i = a_count; i < m_activeShadowCount && i < m_shadows.Count; i++)
+		{
+			if (m_shadows[i] != null)
+				m_shadows[i].gameObject.SetActive(false);
+		}
+		for (int i = m_activeShadowCount; i < a_count; i++)
+		{
+			m_shadows[i].gameObject.SetActive(true);
+		}
+		m_activeShadowCount = a_count;
+	}
+
+	private SpriteRenderer CreateShadow()
+	{
+		GameObject shadowObject = new GameObject("PointShadow");
+		shadowObject.SetActive(false);
+		shadowObject.transform.SetParent(m_handleRoot, false);
+		//Lay the sprite flat on the drawing plane, facing up
+		shadowObject.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+
+		SpriteRenderer shadow = shadowObject.AddComponent<SpriteRenderer>();
+		shadow.sprite = m_shadowSprite;
+		shadow.color = m_shadowColor;
+		if (m_shadowMaterial != null)
+		{
+			shadow.sharedMaterial = m_shadowMaterial;
+		}
+		shadow.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+		shadow.receiveShadows = false;
+		return shadow;
 	}
 
 	private static void SetWorldScale(Transform a_transform, float a_worldSize)

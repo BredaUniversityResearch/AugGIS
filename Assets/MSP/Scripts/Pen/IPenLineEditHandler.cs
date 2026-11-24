@@ -18,7 +18,7 @@ public interface IPenLineEditHandler
 	void RequestRemove(ulong a_pointId, bool a_closedAfterEdit);
 
 	/// <summary>
-	/// Requests to continue drawing this (finished, open) line. The handler must answer through PenLine.OnContinueResult.
+	/// Requests to continue drawing this finished line (open or closed; a closed line is reopened). The handler must answer through PenLine.OnContinueResult.
 	/// </summary>
 	/// <param name="a_fromStart">True to continue from the first point (the line gets reversed), false to continue from the last point.</param>
 	void RequestContinue(bool a_fromStart);

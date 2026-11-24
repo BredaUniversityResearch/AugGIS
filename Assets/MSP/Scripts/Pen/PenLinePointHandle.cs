@@ -22,6 +22,11 @@ public class PenLinePointHandle : XRGrabInteractable
 	private readonly List<IXRSelectInteractor> m_pendingInsertInteractors = new List<IXRSelectInteractor>();
 	private readonly List<IXRSelectInteractor> m_interactorBuffer = new List<IXRSelectInteractor>();
 	private IXRSelectInteractor m_dragInteractor;
+	private MaterialInstanceColorAffordanceReceiver m_colorReceiver;
+	private Color m_baseColor;
+	private bool m_hasBaseColor;
+
+	private static readonly int ms_baseColorId = Shader.PropertyToID("_BaseColor");
 
 	public PenLinePointHandles Owner => m_owner;
 	public ulong PointId => m_pointId;
@@ -40,6 +45,24 @@ public class PenLinePointHandle : XRGrabInteractable
 		useDynamicAttach = false;
 		attachEaseInTime = 0f;
 		selectMode = InteractableSelectMode.Multiple;
+		m_colorReceiver = GetComponentInChildren<MaterialInstanceColorAffordanceReceiver>(true);
+	}
+
+	/// <summary>
+	/// Sets the category colour (normal / endpoint / remove). Interaction feedback is multiplied on top by the affordance receiver.
+	/// Written to this handle's own material instance, so the handles stay SRP Batcher compatible.
+	/// </summary>
+	public void SetBaseColor(Color a_color)
+	{
+		if (m_hasBaseColor && m_baseColor == a_color)
+			return;
+
+		m_baseColor = a_color;
+		m_hasBaseColor = true;
+		if (m_colorReceiver != null)
+		{
+			m_colorReceiver.Material.SetColor(ms_baseColorId, a_color);
+		}
 	}
 
 	public void Initialise(PenLinePointHandles a_owner, ulong a_pointId)
@@ -228,6 +251,21 @@ public class PenLinePointHandle : XRGrabInteractable
 			interactionManager.SelectExit(interactor, this);
 		}
 		m_pendingInsertInteractors.Clear();
+	}
+
+	/// <summary>
+	/// Line-local position the point would land on if released now (on the drawing plane, y = 0).
+	/// False when not dragged locally, when the point would be removed, or when it is moving the whole line (it then stays where it is).
+	/// </summary>
+	public bool TryGetLandingPosition(out Vector3 a_localPosition)
+	{
+		a_localPosition = default;
+		if (m_owner == null || !m_isDraggedLocally || m_isInRemoveRange || m_owner.IsMovePoint(m_pointId))
+			return false;
+
+		a_localPosition = m_owner.Line.transform.InverseTransformPoint(transform.position);
+		a_localPosition.y = 0f;
+		return true;
 	}
 
 	private bool CheckRemoveRange(PenLine a_line, Vector3 a_localPosition)

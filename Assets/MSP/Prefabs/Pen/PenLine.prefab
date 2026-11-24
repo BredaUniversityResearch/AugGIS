@@ -360,7 +360,12 @@ MonoBehaviour:
   m_handleSize: 0.008
   m_penTargetScale: 1.2
   m_sendInterval: 0.05
-  m_normalColorAffordance: {fileID: 11400000, guid: 7925bfd409f37f540a8ad2e8008205a1, type: 2}
-  m_deletedColorAffordance: {fileID: 11400000, guid: 3834861fa581b4e479f65f93ab40f816, type: 2}
-  m_endpointColorAffordance: {fileID: 11400000, guid: 90fd777fdec26094fabf22aedb2aa55a, type: 2}
+  m_handleColor: {r: 1, g: 1, b: 1, a: 1}
+  m_endpointColor: {r: 0.384, g: 0.937, b: 0.698, a: 1}
+  m_removeColor: {r: 0.937, g: 0.235, b: 0.235, a: 1}
   m_penLinePointPrefab: {fileID: 2763663741578293285, guid: ab2986907f355a542bf96ce60b53a6cc, type: 3}
+  m_shadowSprite: {fileID: 21300000, guid: 5f3eb93ed9d5b0444b939b3451c24fbf, type: 3}
+  m_shadowMaterial: {fileID: 0}
+  m_shadowColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_shadowSize: 0.006
+  m_shadowHeightOffset: 0.001

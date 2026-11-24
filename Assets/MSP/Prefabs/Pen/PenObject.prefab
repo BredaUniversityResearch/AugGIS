@@ -555,15 +555,15 @@ MonoBehaviour:
   m_tipCastOffset: 0.05
   m_linePrefab: {fileID: -2074547166315061666, guid: e27ab6edf9558e74dade5cd928671a98, type: 3}
   m_eraser: {fileID: 2498406650090046924}
-  m_minSampleDistance: 0.003
-  m_straightTolerance: 0.0015
+  m_minSampleDistance: 0.002
+  m_straightTolerance: 0.002
   m_maxSegmentLength: 0.15
-  m_smoothing: 0.256
+  m_smoothing: 0.1
   m_simplifyOnFinish: 1
-  m_simplifyTolerance: 0.001
+  m_simplifyTolerance: 0.008
   m_penLineRootTransformReference: {fileID: 11400000, guid: 23e138f95e7cb9945906ea6f1c3ef0e0, type: 2}
   m_penLineSet: {fileID: 11400000, guid: 2de77ea55905116489ac8847659f2b60, type: 2}
-  m_continueDistance: 0.02
+  m_continueDistance: 0.01
   m_drawing: 0
   m_currentLine: {fileID: 0}
   m_hitDistance: 0

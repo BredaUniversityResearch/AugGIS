@@ -233,7 +233,8 @@ public class PenLineNetworked : NetworkBehaviour, IPenLineEditHandler
 	void ContinueLineServerRpc(bool a_fromStart, RpcParams a_rpcParams = default)
 	{
 		ulong sender = a_rpcParams.Receive.SenderClientId;
-		bool granted = m_lineIsFinished.Value && !m_isClosed.Value && m_syncedPoints.Count > 0 && !IsAnySyncedPointHeld();
+		//Closed lines may be continued too: they reopen while being drawn and are re-evaluated on finish
+		bool granted = m_lineIsFinished.Value && m_syncedPoints.Count > 0 && !IsAnySyncedPointHeld();
 
 		if (granted)
 		{
@@ -242,6 +243,7 @@ public class PenLineNetworked : NetworkBehaviour, IPenLineEditHandler
 				NetworkObject.ChangeOwnership(sender);
 			}
 			m_serverDrawerClientId = sender;
+			m_isClosed.Value = false;
 			m_lineIsFinished.Value = false;
 		}
 
@@ -258,6 +260,8 @@ public class PenLineNetworked : NetworkBehaviour, IPenLineEditHandler
 			m_isDrawingLocally = true;
 			SubscribeDrawingEvents();
 			m_lineScript.SetFinishedWithoutNotify(false);
+			//OnClosedChanged is ignored while drawing locally, so reopen the line explicitly
+			m_lineScript.SetClosedWithoutNotify(false);
 
 			if (a_fromStart && m_lineScript.PointCount > 1)
 			{
