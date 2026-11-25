@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.State;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
@@ -23,6 +24,8 @@ public class PenLinePointHandle : XRGrabInteractable
 	private readonly List<IXRSelectInteractor> m_interactorBuffer = new List<IXRSelectInteractor>();
 	private IXRSelectInteractor m_dragInteractor;
 	private MaterialInstanceColorAffordanceReceiver m_colorReceiver;
+	private OverridableInteractableAffordanceStateProvider m_colorProvider;
+	private bool m_isContinueTarget;
 	private Color m_baseColor;
 	private bool m_hasBaseColor;
 
@@ -46,6 +49,27 @@ public class PenLinePointHandle : XRGrabInteractable
 		attachEaseInTime = 0f;
 		selectMode = InteractableSelectMode.Multiple;
 		m_colorReceiver = GetComponentInChildren<MaterialInstanceColorAffordanceReceiver>(true);
+		m_colorProvider = GetComponentInChildren<OverridableInteractableAffordanceStateProvider>(true);
+	}
+
+	/// <summary>
+	/// Highlights this handle (affordance Focused state) while a held pen would continue its line from this point.
+	/// </summary>
+	public void SetContinueTarget(bool a_isTarget)
+	{
+		if (m_isContinueTarget == a_isTarget)
+			return;
+
+		m_isContinueTarget = a_isTarget;
+		if (m_colorProvider == null)
+			return;
+
+#pragma warning disable CS0618 // affordance system is marked obsolete
+		if (a_isTarget)
+			m_colorProvider.SetOverride(AffordanceStateShortcuts.focusedState);
+		else
+			m_colorProvider.ClearOverride();
+#pragma warning restore CS0618
 	}
 
 	/// <summary>
@@ -74,6 +98,8 @@ public class PenLinePointHandle : XRGrabInteractable
 		m_pendingInsertInteractors.Clear();
 		m_isInRemoveRange = true; //force the visual reset, pooled handles may still be red
 		SetRemoveState(false);
+		m_isContinueTarget = true; //force the reset, pooled handles may still be highlighted
+		SetContinueTarget(false);
 	}
 
 	/// <summary>

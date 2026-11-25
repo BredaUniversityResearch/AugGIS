@@ -108,10 +108,10 @@ MonoBehaviour:
         z: 1
     - stateName: focused
       animationStateStartValue:
-        x: 1
-        y: 1
-        z: 1
+        x: 1.4
+        y: 1.4
+        z: 1.4
       animationStateEndValue:
-        x: 1
-        y: 1
-        z: 1
+        x: 1.4
+        y: 1.4
+        z: 1.4

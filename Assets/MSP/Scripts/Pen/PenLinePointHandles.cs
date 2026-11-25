@@ -167,8 +167,9 @@ public class PenLinePointHandles : MonoBehaviour
 				handle.transform.position = transform.TransformPoint(point.Position);
 			}
 
-			bool isPenTarget = m_mode == VisibilityMode.PenEndpoints && m_hasPenTarget && handle.PointId == m_penTargetPointId;
-			SetWorldScale(handle.transform, isPenTarget ? m_handleSize * m_penTargetScale : m_handleSize);
+			bool isPenTarget = m_hasPenTarget && handle.PointId == m_penTargetPointId;
+			// SetWorldScale(handle.transform, isPenTarget ? m_handleSize * m_penTargetScale : m_handleSize);
+			handle.SetContinueTarget(isPenTarget);
 		}
 
 		UpdateShadows();
@@ -180,14 +181,14 @@ public class PenLinePointHandles : MonoBehaviour
 		if (!m_line.IsFinished)
 			return VisibilityMode.Hidden;
 
+		//Always evaluated (also sets the pen target), so the continue highlight still works while a free hand reveals all handles
+		float penDistance = m_mode == VisibilityMode.PenEndpoints ? m_penShowDistance * PEN_HIDE_FACTOR : m_penShowDistance;
+		bool penNear = IsPenNearEndpoint(penDistance);
+
 		if (AnyHandleSelected() || IsFreeHandNear(m_mode == VisibilityMode.All ? m_hideDistance : m_showDistance))
 			return VisibilityMode.All;
 
-		float penDistance = m_mode == VisibilityMode.PenEndpoints ? m_penShowDistance * PEN_HIDE_FACTOR : m_penShowDistance;
-		if (IsPenNearEndpoint(penDistance))
-			return VisibilityMode.PenEndpoints;
-
-		return VisibilityMode.Hidden;
+		return penNear ? VisibilityMode.PenEndpoints : VisibilityMode.Hidden;
 	}
 
 	private bool AnyHandleSelected()
@@ -220,8 +221,9 @@ public class PenLinePointHandles : MonoBehaviour
 			if (pen == null || !pen.isActiveAndEnabled)
 				continue;
 
-			Vector3 localTip = transform.InverseTransformPoint(pen.TipPosition);
-			if (Mathf.Abs(localTip.y) * scale > m_penShowHeight)
+			//Where the pen ray meets this line's plane: the same point Pen.TryFindContinueTarget measures from.
+			//The extra range lets the endpoints show up while the pen is still approaching the surface.
+			if (!pen.TryProjectTipOnto(transform, pen.CastDistance + m_penShowHeight, out Vector3 localTip))
 				continue;
 
 			for (int e = 0; e < 2; e++)
@@ -393,6 +395,7 @@ public class PenLinePointHandles : MonoBehaviour
 			//Point was removed (possibly by someone else) while held: force the hands to let go
 			handle.ForceRelease();
 		}
+		handle.SetContinueTarget(false);
 		handle.gameObject.SetActive(false);
 		handle.transform.SetParent(m_handleRoot, false);
 		m_pool.Push(handle);

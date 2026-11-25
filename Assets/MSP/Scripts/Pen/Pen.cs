@@ -74,7 +74,34 @@ public class Pen : MonoBehaviour
 
 	public static IReadOnlyList<Pen> HeldPens => ms_heldPens; //Pens that are currently held by a local user.
 	public Vector3 TipPosition => m_castOrigin.position; //World position of the pen tip (the drawing cast origin).
+	public float CastDistance => m_castDistance;
 	public bool IsDrawing => m_drawing;
+
+	/// <summary>
+	/// Intersects the pen's drawing ray with the plane of a_space (its local y = 0), i.e. where a stroke on that plane would start.
+	/// Used both to pick the continue target and to highlight it, so the two always agree.
+	/// </summary>
+	/// <param name="a_maxWorldDistance">Max world-space distance along the ray from the cast origin to the plane.</param>
+	/// <param name="a_localPosition">Intersection in a_space's local space (y = 0).</param>
+	public bool TryProjectTipOnto(Transform a_space, float a_maxWorldDistance, out Vector3 a_localPosition)
+	{
+		a_localPosition = default;
+		Vector3 origin = a_space.InverseTransformPoint(m_castOrigin.position);
+		Vector3 direction = a_space.InverseTransformDirection(m_castOrigin.forward);
+
+		//Pointing away from, or parallel to, the plane
+		if (Mathf.Abs(direction.y) < 1e-4f || Mathf.Sign(direction.y) == Mathf.Sign(origin.y))
+			return false;
+
+		float t = -origin.y / direction.y; //local units, direction is unit length in world space
+		float worldDistance = (a_space.TransformPoint(origin + direction * t) - m_castOrigin.position).magnitude;
+		if (worldDistance > a_maxWorldDistance)
+			return false;
+
+		a_localPosition = origin + direction * t;
+		a_localPosition.y = 0f;
+		return true;
+	}
 
 	private void Start()
 	{
@@ -211,7 +238,7 @@ public class Pen : MonoBehaviour
 
 		m_drawing = true;
 
-		if (TryFindContinueTarget(a_hitPosition, out PenLine continueLine, out bool fromStart))
+		if (TryFindContinueTarget(out PenLine continueLine, out bool fromStart))
 		{
 			m_pendingContinueLine = continueLine;
 			m_pendingContinueStartPosition = a_hitPosition;
@@ -222,9 +249,10 @@ public class Pen : MonoBehaviour
 		SpawnNewLine(a_hitPosition);
 	}
 
-	public bool TryFindContinueTarget(Vector3 a_worldPosition, out PenLine a_line, out bool a_fromStart)
+	public bool TryFindContinueTarget(out PenLine a_line, out bool a_fromStart)
 	{
-		// Finds the open line whose start/end point is closest to a_worldPosition, within the continue distance.
+		// Finds the open line whose start/end point is closest to where the pen ray meets that line's plane, within the continue distance.
+		// Same measurement as the endpoint highlight in PenLinePointHandles.
 		a_line = null;
 		a_fromStart = false;
 		if (m_penLineSet == null)
@@ -240,7 +268,10 @@ public class Pen : MonoBehaviour
 			if (line == null || !line.CanContinue)
 				continue;
 
-			if (line.TryGetContinueEndpoint(a_worldPosition, m_continueDistance, out bool fromStart, out float distance) && distance < bestDistance)
+			if (!TryProjectTipOnto(line.transform, m_castDistance, out Vector3 localTip))
+				continue;
+
+			if (line.TryGetContinueEndpoint(line.transform.TransformPoint(localTip), m_continueDistance, out bool fromStart, out float distance) && distance < bestDistance)
 			{
 				bestDistance = distance;
 				a_line = line;
